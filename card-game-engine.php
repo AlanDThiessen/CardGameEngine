@@ -9,17 +9,17 @@ License: Probably will be GPL2 at some point
 */
 
 // @TODO: move functions to file(s) in src directory so this file contains 
-// only minimal WP plugin calls (add_action, etc)
+// only minimal WP plugin calls (add_action, add_shortcode, etc)
 
 if ( !function_exists( 'add_action' ) ) {
         echo "Can't call this directly; it's a plugin.";
         exit;
 }
 
-require('cge-config.php');
+require('src/cge-config.php');
 
 function cge_enqueue_css() {
-	wp_register_style( 'cge_style', plugins_url( '/css/card-game-engine.css', __FILE__  ), array(  ), '20130130', 'all');
+	wp_register_style( 'cge_style', plugins_url( '/src/css/card-game-engine.css', __FILE__  ), array(  ), '20130130', 'all');
 	wp_enqueue_style( 'cge_style' );
 }
 add_action( 'wp_enqueue_scripts', 'cge_enqueue_css' ); 
@@ -28,7 +28,7 @@ function cge_enqueue_js() {
 	$cgeJsVars = array(
 		'ajaxurl' => admin_url( 'admin-ajax.php' )
 	);
-	wp_register_script( 'cge_client', plugins_url( '/js/cge_client.js', __FILE__  ), array( 'jquery' ), '20130130', true );
+	wp_register_script( 'cge_client', plugins_url( '/src/js/cge_client.js', __FILE__  ), array( 'jquery' ), '20130130', true );
 
 	wp_enqueue_script( 'cge_client' );
 	wp_localize_script( 'cge_client', 'cgeVars', $cgeJsVars );

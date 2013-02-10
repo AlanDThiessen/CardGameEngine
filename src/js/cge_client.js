@@ -11,7 +11,7 @@ jQuery(document).ready(function($) {
 			action: 'cge_get_game_types'
 		};
 		$.post(cgeVars.ajaxurl, data, function(response) {
-			//alert('Ajax response: ' + response);
+			alert('Ajax response: ' + response);
 			if (null != response && response.length && response != 0) {
 				show_game_types(response);
 			} else {
@@ -41,7 +41,7 @@ jQuery(document).ready(function($) {
 				game_type_id: $(this).parent().data( 'game-type-id'),
 			}
 			$.post(cgeVars.ajaxurl, data, function(response) {
-				//alert('Ajax response: ' + response);
+				alert('Ajax response: ' + response);
 				if (null != response && response.length && response != 0) {
 					gameSpec = $.parseJSON(response);
 					load_deck(gameSpec.required.deck);
@@ -59,7 +59,7 @@ jQuery(document).ready(function($) {
 			deck_type: deckType,
 		};
 		$.post(cgeVars.ajaxurl, data, function(response) {
-			//alert('Ajax response: ' + response);
+			alert('Ajax response: ' + response);
 			if (null != response && response.length && response != 0) {
 				deckSpec = $.parseJSON(response);
 				start_game();
@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
 			action: 'cge_get_joinable_games',
 		};
 		$.post(cgeVars.ajaxurl, data, function(response) {
-			//alert('Ajax response: ' + response);
+			alert('Ajax response: ' + response);
 			if (null != response && response.length && response != 0) {
 				show_joinable_games(response);
 			} else {
@@ -99,7 +99,7 @@ jQuery(document).ready(function($) {
 	}
 
 	function start_game(data) {
-		alert('Starting game of ' + gameSpec.name + ' with deck type ' + deckSpec.name);
+		alert('Starting game of ' + gameSpec.name + ' with deck type ' + deckSpec.name + '(ok, not really)' );
 	}
 
 });
