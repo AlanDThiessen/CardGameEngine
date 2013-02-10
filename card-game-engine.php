@@ -76,6 +76,10 @@ function cge_get_game_types() {
 			'id' => 'rummy',
 			'name' => 'Rummy',
 		),
+		array(
+			'id' => 'ten-phases',
+			'name' => 'Ten Phases',
+		),
 	);
 
 	echo json_encode($game_types);
