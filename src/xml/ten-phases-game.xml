@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<cge_game id="ten-phases">
+	<name>Ten Phases</name>
+	<required>
+		<deck>ten-phases</deck>
+		<minPlayers>2</minPlayers>
+		<maxPlayers>6</maxPlayers>
+	</required>
+</cge_game>
