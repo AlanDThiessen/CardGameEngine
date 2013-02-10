@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_LhpMAWcMEeKcWsfOwxtvgg" name="Model">
+  <ownedComment xmi:id="_R1qRoGgmEeKcWsfOwxtvgg">
+    <annotatedElement xmi:type="uml:Class" href="CardEngine.uml#_P65EMGcMEeKcWsfOwxtvgg"/>
+    <body>Group is an abstract class of 1 or more cards that will be defined per card game. It will contain rules that will determine whether or not it can accept/provide a subset group of cards.
+
+Example groups for Phase 10 could be: Deck, Discard, Set, Run, and Hand.</body>
+  </ownedComment>
+  <ownedComment xmi:id="_H2lugGgoEeKcWsfOwxtvgg">
+    <annotatedElement xmi:type="uml:Class" href="CardEngine.uml#_PfJisGglEeKcWsfOwxtvgg"/>
+    <body>A Transaction is a transfer of a group from one container to another.  It will be considered successful if from.GetGroup() == TRUE and to.AddGroup() == TRUE.</body>
+  </ownedComment>
+  <ownedComment xmi:id="_leGl8GgoEeKcWsfOwxtvgg">
+    <annotatedElement xmi:type="uml:Class" href="CardEngine.uml#_v06wIGglEeKcWsfOwxtvgg"/>
+    <body>A Sequence is a set of valid Transactions and Actions.  Maybe (Pre, Mid, and Post?)</body>
+  </ownedComment>
+  <packageImport xmi:id="_LhpzEGcMEeKcWsfOwxtvgg">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:Package" xmi:id="_CNS2MHJZEeKgVrfUENl4Nw" name="UseCase View"/>
+  <packagedElement xmi:type="uml:Package" xmi:id="_LJLMEHJZEeKgVrfUENl4Nw" name="Logical View">
+    <packagedElement xmi:type="uml:Package" href="CardEngine.uml#_PZa5QHJZEeKgVrfUENl4Nw"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_xDg1UHJZEeKgVrfUENl4Nw" name="Component View">
+    <packagedElement xmi:type="uml:Package" href="Deployment.uml#_1zwRMHJZEeKgVrfUENl4Nw"/>
+  </packagedElement>
+</uml:Model>

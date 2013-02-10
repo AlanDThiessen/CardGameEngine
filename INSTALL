@@ -1,0 +1,9 @@
+// INSTALL for the Card Game Engine 
+
+To setup CGE server:
+- install and set up WordPress (can rename "wordproess" dir to "cards" or such)
+- create WP user for each player
+- create a directory for the game engine under the wordpress plugin directory
+- initialize git in game engine subdirectory
+- pull down code from "src" on the git repository into game engine subdir
+- in WP, create a new page and add the tag "[cge_launch_link]"

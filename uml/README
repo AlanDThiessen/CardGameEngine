@@ -1,0 +1,15 @@
+This model was created using the Topcased UML modeling tool.
+It can be found at http://www.topcased.org/.
+
+To open the model in Topcased, perform the following steps:
+1. Start Topcased
+2. Click 'File -> Import...'.  The Import diaglog will appear.
+3. Select 'General -> Existing Projects into Workspace' and click Next.
+4. Select the root directory where the CardGame project directory is located.
+5. The project should appear in the 'Projects' list.
+6. Select the project and click 'Finish'.
+
+The project should now be accessible through the Topcased Project Explorer.
+
+To view/edit the model, open the "MainCardGameEngineModel" under the "CardGameEngine" folder.
+

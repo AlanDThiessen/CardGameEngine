@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Package xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_1zwRMHJZEeKgVrfUENl4Nw" name="Deployment">
+  <packagedElement xmi:type="uml:Node" xmi:id="_vYqdwHFAEeKgVrfUENl4Nw" name="Client">
+    <nestedClassifier xmi:type="uml:Artifact" xmi:id="_xrh4QHFAEeKgVrfUENl4Nw" name="User Interface" fileName="Artifact1.file"/>
+    <nestedClassifier xmi:type="uml:Artifact" xmi:id="_2VJHsHFAEeKgVrfUENl4Nw" name="Game Engine" fileName="Artifact1.file"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:CommunicationPath" xmi:id="_4MlKcHFAEeKgVrfUENl4Nw" name="HTTP - HTML/JSON" memberEnd="_4MlKcXFAEeKgVrfUENl4Nw _4MlKdHFAEeKgVrfUENl4Nw">
+    <ownedEnd xmi:id="_4MlKcXFAEeKgVrfUENl4Nw" name="client" type="_vYqdwHFAEeKgVrfUENl4Nw" association="_4MlKcHFAEeKgVrfUENl4Nw">
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_4MlKcnFAEeKgVrfUENl4Nw" value="1"/>
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_4MlKc3FAEeKgVrfUENl4Nw" value="1"/>
+    </ownedEnd>
+    <ownedEnd xmi:id="_4MlKdHFAEeKgVrfUENl4Nw" name="server" type="_fyjrkHFAEeKgVrfUENl4Nw" association="_4MlKcHFAEeKgVrfUENl4Nw">
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_4MlKdXFAEeKgVrfUENl4Nw" value="1"/>
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_4MlKdnFAEeKgVrfUENl4Nw" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Node" xmi:id="_fyjrkHFAEeKgVrfUENl4Nw" name="Server">
+    <nestedClassifier xmi:type="uml:Artifact" xmi:id="_pKHQ0HFAEeKgVrfUENl4Nw" name="Web Server" fileName="Artifact1.file"/>
+    <nestedClassifier xmi:type="uml:Artifact" xmi:id="_sNpTQHFAEeKgVrfUENl4Nw" name="Database" fileName="Artifact1.file"/>
+  </packagedElement>
+</uml:Package>
