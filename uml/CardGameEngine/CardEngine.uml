@@ -84,6 +84,48 @@
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_e9oconPbEeKbccgqamNTgw"/>
       </ownedEnd>
     </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_tOJ78HPbEeKbccgqamNTgw" name="Game">
+      <ownedAttribute xmi:id="_rOhKAHPcEeKbccgqamNTgw" name="deck" type="_F6j2MHPaEeKbccgqamNTgw" association="_rOhxEHPcEeKbccgqamNTgw">
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_rOhKAXPcEeKbccgqamNTgw" value="1"/>
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_rOhKAnPcEeKbccgqamNTgw" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_dPSd8HP7EeKbccgqamNTgw" name="isHost">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Boolean"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_qCf_0HP9EeKbccgqamNTgw" name="sequence" type="_v06wIGglEeKcWsfOwxtvgg" association="_qChN8HP9EeKbccgqamNTgw">
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_qCf_0XP9EeKbccgqamNTgw" value="1"/>
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qCf_0nP9EeKbccgqamNTgw" value="1"/>
+      </ownedAttribute>
+      <ownedOperation xmi:id="_hamyYHP8EeKbccgqamNTgw" name="init"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_qeK9EHPaEeKbccgqamNTgw" name="NonSuited"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_F6j2MHPaEeKbccgqamNTgw" name="Deck"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_UgJmkHPaEeKbccgqamNTgw" name="Value">
+      <ownedAttribute xmi:id="_6XIH4HPcEeKbccgqamNTgw" name="name">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_BnbswHPdEeKbccgqamNTgw" name="shortName">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_DjS8gHPdEeKbccgqamNTgw" name="rank">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Integer"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_ERRc0HPdEeKbccgqamNTgw" name="quantity">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Integer"/>
+      </ownedAttribute>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_I2T1oHPaEeKbccgqamNTgw" name="Suit">
+      <ownedAttribute xmi:id="_8nhnwHPdEeKbccgqamNTgw" name="name">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_8nhnwXPdEeKbccgqamNTgw" name="shortName">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:id="_AE_0MHPeEeKbccgqamNTgw" name="color">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_pxT3EHPaEeKbccgqamNTgw" name="Suited"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Package" xmi:id="_nAM9UHJZEeKgVrfUENl4Nw" name="Class Diagram">
     <ownedComment xmi:id="_ljMZYHPxEeKbccgqamNTgw" annotatedElement="_P65EMGcMEeKcWsfOwxtvgg">
@@ -147,34 +189,6 @@
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_scX8cmgkEeKcWsfOwxtvgg"/>
       </ownedEnd>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_F6j2MHPaEeKbccgqamNTgw" name="Deck"/>
-    <packagedElement xmi:type="uml:Class" xmi:id="_I2T1oHPaEeKbccgqamNTgw" name="Suit">
-      <ownedAttribute xmi:id="_8nhnwHPdEeKbccgqamNTgw" name="name">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_8nhnwXPdEeKbccgqamNTgw" name="shortName">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_AE_0MHPeEeKbccgqamNTgw" name="color">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-    </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_UgJmkHPaEeKbccgqamNTgw" name="Value">
-      <ownedAttribute xmi:id="_6XIH4HPcEeKbccgqamNTgw" name="name">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_BnbswHPdEeKbccgqamNTgw" name="shortName">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_DjS8gHPdEeKbccgqamNTgw" name="rank">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Integer"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_ERRc0HPdEeKbccgqamNTgw" name="quantity">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Integer"/>
-      </ownedAttribute>
-    </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_pxT3EHPaEeKbccgqamNTgw" name="Suited"/>
-    <packagedElement xmi:type="uml:Class" xmi:id="_qeK9EHPaEeKbccgqamNTgw" name="NonSuited"/>
     <packagedElement xmi:type="uml:Association" xmi:id="_vKzEQHPaEeKbccgqamNTgw" name="deck_suited_1" memberEnd="_vKzEQXPaEeKbccgqamNTgw _vKx2IHPaEeKbccgqamNTgw">
       <ownedEnd xmi:id="_vKzEQXPaEeKbccgqamNTgw" name="deck" type="_F6j2MHPaEeKbccgqamNTgw" association="_vKzEQHPaEeKbccgqamNTgw">
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_vKzEQnPaEeKbccgqamNTgw" value="1"/>
@@ -224,20 +238,6 @@
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_0T_ysXPaEeKbccgqamNTgw" value="*"/>
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_0T_ysnPaEeKbccgqamNTgw"/>
       </ownedEnd>
-    </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_tOJ78HPbEeKbccgqamNTgw" name="Game">
-      <ownedAttribute xmi:id="_rOhKAHPcEeKbccgqamNTgw" name="deck" type="_F6j2MHPaEeKbccgqamNTgw" association="_rOhxEHPcEeKbccgqamNTgw">
-        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_rOhKAXPcEeKbccgqamNTgw" value="1"/>
-        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_rOhKAnPcEeKbccgqamNTgw" value="1"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_dPSd8HP7EeKbccgqamNTgw" name="isHost">
-        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Boolean"/>
-      </ownedAttribute>
-      <ownedAttribute xmi:id="_qCf_0HP9EeKbccgqamNTgw" name="sequence" type="_v06wIGglEeKcWsfOwxtvgg" association="_qChN8HP9EeKbccgqamNTgw">
-        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_qCf_0XP9EeKbccgqamNTgw" value="1"/>
-        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qCf_0nP9EeKbccgqamNTgw" value="1"/>
-      </ownedAttribute>
-      <ownedOperation xmi:id="_hamyYHP8EeKbccgqamNTgw" name="init"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Association" xmi:id="_w0cGIHPbEeKbccgqamNTgw" name="game_player_1" memberEnd="_w0cGIXPbEeKbccgqamNTgw _w0bfEHPbEeKbccgqamNTgw">
       <ownedEnd xmi:id="_w0cGIXPbEeKbccgqamNTgw" name="game" type="_tOJ78HPbEeKbccgqamNTgw" association="_w0cGIHPbEeKbccgqamNTgw">
