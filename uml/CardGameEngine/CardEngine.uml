@@ -11,6 +11,7 @@
       <ownedAttribute xmi:id="_lS7u0HP8EeKbccgqamNTgw" name="score">
         <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Integer"/>
       </ownedAttribute>
+      <ownedOperation xmi:id="_Rre00HQBEeKbccgqamNTgw" name="init"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_P65EMGcMEeKcWsfOwxtvgg" name="Group" isAbstract="true"/>
     <packagedElement xmi:type="uml:Class" xmi:id="_PfJisGglEeKcWsfOwxtvgg" name="Transaction">
@@ -52,8 +53,12 @@
         <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
       </ownedAttribute>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_5SLxQGgkEeKcWsfOwxtvgg" name="Table"/>
-    <packagedElement xmi:type="uml:Class" xmi:id="_4WXpQGgkEeKcWsfOwxtvgg" name="Dealer"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_5SLxQGgkEeKcWsfOwxtvgg" name="Table">
+      <ownedOperation xmi:id="_Tzb_0HQBEeKbccgqamNTgw" name="init"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_4WXpQGgkEeKcWsfOwxtvgg" name="Dealer">
+      <ownedOperation xmi:id="_TAUg0HQBEeKbccgqamNTgw" name="init"/>
+    </packagedElement>
     <packagedElement xmi:type="uml:Association" xmi:id="_PRUUwHPbEeKbccgqamNTgw" name="player_container_1" memberEnd="_PRUUwXPbEeKbccgqamNTgw _PRTtsHPbEeKbccgqamNTgw">
       <ownedEnd xmi:id="_PRUUwXPbEeKbccgqamNTgw" name="player" type="_3rVvQGgkEeKcWsfOwxtvgg" association="_PRUUwHPbEeKbccgqamNTgw">
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_PRUUwnPbEeKbccgqamNTgw" value="1"/>

@@ -146,6 +146,10 @@
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_3rdrGmgkEeKcWsfOwxtvgg"/>
     </children>
     <children xmi:type="notation:BasicCompartment" xmi:id="_3rdrG2gkEeKcWsfOwxtvgg" type="7018">
+      <children xmi:type="notation:Shape" xmi:id="_Rrpz8HQBEeKbccgqamNTgw" type="3013" fontName="Cantarell" fontHeight="11" lineColor="0">
+        <element xmi:type="uml:Operation" href="CardEngine.uml#_Rre00HQBEeKbccgqamNTgw"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_Rrpz8XQBEeKbccgqamNTgw"/>
+      </children>
       <styles xmi:type="notation:TitleStyle" xmi:id="_3rdrHGgkEeKcWsfOwxtvgg"/>
       <styles xmi:type="notation:SortingStyle" xmi:id="_3rdrHWgkEeKcWsfOwxtvgg"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_3rdrHmgkEeKcWsfOwxtvgg"/>
@@ -158,7 +162,7 @@
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_3reSJWgkEeKcWsfOwxtvgg"/>
     </children>
     <element xmi:type="uml:Class" href="CardEngine.uml#_3rVvQGgkEeKcWsfOwxtvgg"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_3rdEAWgkEeKcWsfOwxtvgg" x="240" y="396"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_3rdEAWgkEeKcWsfOwxtvgg" x="240" y="372"/>
   </children>
   <children xmi:type="notation:Shape" xmi:id="_4WeW8GgkEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="12560536, 16777215, 0" lineColor="0">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_4We-AGgkEeKcWsfOwxtvgg" source="ShadowFigure">
@@ -178,6 +182,10 @@
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_4WflF2gkEeKcWsfOwxtvgg"/>
     </children>
     <children xmi:type="notation:BasicCompartment" xmi:id="_4WflGGgkEeKcWsfOwxtvgg" type="7018">
+      <children xmi:type="notation:Shape" xmi:id="_TAgHAHQBEeKbccgqamNTgw" type="3013" fontName="Cantarell" fontHeight="11" lineColor="0">
+        <element xmi:type="uml:Operation" href="CardEngine.uml#_TAUg0HQBEeKbccgqamNTgw"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_TAgHAXQBEeKbccgqamNTgw"/>
+      </children>
       <styles xmi:type="notation:TitleStyle" xmi:id="_4WflGWgkEeKcWsfOwxtvgg"/>
       <styles xmi:type="notation:SortingStyle" xmi:id="_4WflGmgkEeKcWsfOwxtvgg"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_4WflG2gkEeKcWsfOwxtvgg"/>
@@ -190,7 +198,7 @@
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_4WflIWgkEeKcWsfOwxtvgg"/>
     </children>
     <element xmi:type="uml:Class" href="CardEngine.uml#_4WXpQGgkEeKcWsfOwxtvgg"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_4WeW8WgkEeKcWsfOwxtvgg" x="390" y="396"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_4WeW8WgkEeKcWsfOwxtvgg" x="390" y="372"/>
   </children>
   <children xmi:type="notation:Shape" xmi:id="_5SViQGgkEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="12560536, 16777215, 0" lineColor="0">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_5SWJUGgkEeKcWsfOwxtvgg" source="ShadowFigure">
@@ -210,6 +218,10 @@
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_5SWwaGgkEeKcWsfOwxtvgg"/>
     </children>
     <children xmi:type="notation:BasicCompartment" xmi:id="_5SWwaWgkEeKcWsfOwxtvgg" type="7018">
+      <children xmi:type="notation:Shape" xmi:id="_TzoNEHQBEeKbccgqamNTgw" type="3013" fontName="Cantarell" fontHeight="11" lineColor="0">
+        <element xmi:type="uml:Operation" href="CardEngine.uml#_Tzb_0HQBEeKbccgqamNTgw"/>
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_TzoNEXQBEeKbccgqamNTgw"/>
+      </children>
       <styles xmi:type="notation:TitleStyle" xmi:id="_5SWwamgkEeKcWsfOwxtvgg"/>
       <styles xmi:type="notation:SortingStyle" xmi:id="_5SWwa2gkEeKcWsfOwxtvgg"/>
       <styles xmi:type="notation:FilteringStyle" xmi:id="_5SWwbGgkEeKcWsfOwxtvgg"/>
@@ -222,7 +234,7 @@
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_5SWwcmgkEeKcWsfOwxtvgg"/>
     </children>
     <element xmi:type="uml:Class" href="CardEngine.uml#_5SLxQGgkEeKcWsfOwxtvgg"/>
-    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_5SViQWgkEeKcWsfOwxtvgg" x="516" y="396"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_5SViQWgkEeKcWsfOwxtvgg" x="516" y="372"/>
   </children>
   <children xmi:type="notation:Shape" xmi:id="_PfQ3cGglEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="12560536, 16777215, 0" lineColor="0">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_PfRegGglEeKcWsfOwxtvgg" source="ShadowFigure">

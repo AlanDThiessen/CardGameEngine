@@ -14,22 +14,24 @@
 
    <!-- The dealer does not do much in this game -->
    <dealer>
+      <init />
    </dealer>
 
    <table>
-      <!-- The draw container will be the main deck -->
-      <container id="draw">
-         <init>true</init>
-      </container>
-      <container id="discard">
-      </container>
+      <init>
+         <!-- The table will start out with these containers -->
+         <!-- The draw container will be the main deck -->
+         <container id="draw" />
+         <container id="discard" />
+      </init>
    </table>
 
    <players>
-      <container id="hand">
-      </container>
-      <container id="phases">
-      </container>
+      <init>
+         <!-- Each Player will start out with these containers -->
+         <container id="hand" />
+         <container id="phases" />
+      </init>
    </players>
 
 </cge_game>
