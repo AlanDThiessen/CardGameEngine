@@ -6,4 +6,30 @@
 		<minPlayers>2</minPlayers>
 		<maxPlayers>6</maxPlayers>
 	</required>
+
+   <init>
+      <!-- The startContainer indicates which container should get the initial, shuffled deck of cards -->
+      <startContainer>table.draw</startContainer>
+   </init>
+
+   <!-- The dealer does not do much in this game -->
+   <dealer>
+   </dealer>
+
+   <table>
+      <!-- The draw container will be the main deck -->
+      <container id="draw">
+         <init>true</init>
+      </container>
+      <container id="discard">
+      </container>
+   </table>
+
+   <players>
+      <container id="hand">
+      </container>
+      <container id="phases">
+      </container>
+   </players>
+
 </cge_game>
