@@ -62,5 +62,35 @@ function CardGroup()
                         );
       }
    };
+
+   this.SortSuitRank = function( order = 'ascending' )
+   {
+      if( order.toLowerCase() == 'ascending' )
+      {
+         this.cards.sort(  function(a, b)
+                           {
+                              if( a.suit < b.suit )
+                                 return -1;
+                              else if( a.suit > b.suit )
+                                 return 1;
+                              else
+                                 return a.rank - b.rank;
+                           }
+                        );
+      }
+      else
+      {
+         this.cards.sort(  function(a, b)
+                           {
+                              if( b.suit < a.suit )
+                                 return -1;
+                              else if( b.suit > a.suit )
+                                 return 1;
+                              else
+                                 return b.rank - a.rank;
+                           }
+                        );
+      }
+   };
 }
 
