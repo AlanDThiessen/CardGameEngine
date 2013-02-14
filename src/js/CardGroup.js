@@ -21,10 +21,9 @@ function CardGroup()
       return output;
    };
 
-   this.SortRank = function( order )
+   this.SortRank = function( order = 'ascending' )
    {
-      if( ( order == undefined ) ||
-          ( order.toLowerCase() == 'ascending' ) )
+      if( order.toLowerCase() == 'ascending' )
       {
          this.cards.sort( function(a, b){ return a.rank - b.rank } );
       }
@@ -34,10 +33,9 @@ function CardGroup()
       }
    };
 
-   this.SortSuit = function( order )
+   this.SortSuit = function( order = 'ascending' )
    {
-      if( ( order == undefined ) ||
-          ( order.toLowerCase() == 'ascending' ) )
+      if( order.toLowerCase() == 'ascending' )
       {
          this.cards.sort(  function(a, b)
                            {
