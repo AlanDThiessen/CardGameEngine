@@ -13,7 +13,10 @@
       </ownedAttribute>
       <ownedOperation xmi:id="_Rre00HQBEeKbccgqamNTgw" name="init"/>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_P65EMGcMEeKcWsfOwxtvgg" name="Group" isAbstract="true"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_P65EMGcMEeKcWsfOwxtvgg" name="Group" isAbstract="true">
+      <ownedOperation xmi:id="_dK4gEHZhEeKzVOUr2KXzBg" name="SortRank"/>
+      <ownedOperation xmi:id="_f17KAHZhEeKzVOUr2KXzBg" name="SortSuit"/>
+    </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_PfJisGglEeKcWsfOwxtvgg" name="Transaction">
       <ownedAttribute xmi:id="_UO52YGglEeKcWsfOwxtvgg" name="group" type="_P65EMGcMEeKcWsfOwxtvgg" association="_UO6dcGglEeKcWsfOwxtvgg">
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_UO52YWglEeKcWsfOwxtvgg" value="1"/>
