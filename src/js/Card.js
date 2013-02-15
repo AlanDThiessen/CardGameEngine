@@ -1,15 +1,22 @@
 
-function Card( cardName, shortName, suit, rank, color )
+/******************************************************************************
+ *
+ * Card Class
+ * Constructor
+ *
+ ******************************************************************************/
+function Card( suit, suitShort, rank, color )
 {
-   this.cardName = cardName;
-   this.shortName = shortName;
-   this.suit = suit;
-   this.rank = rank;
-   this.color = color;
+   this.id        = suitShort + rank;
+   this.suit      = suit;
+   this.suitShort = suitShort;
+   this.rank      = rank;
+   this.color     = color;
+}
 
-   this.Print = function()
-   {
-      return this.shortName;
-   };
+
+Card.prototype.Print = function()
+{
+   return this.id;
 }
 
