@@ -23,3 +23,14 @@ add_action('wp_ajax_cge_get_joinable_games', 'cge_get_joinable_games');
 add_action('wp_ajax_cge_load_game_spec', 'cge_load_game_spec');
 add_action('wp_ajax_cge_load_deck_spec', 'cge_load_deck_spec');
 
+
+// functions and filters to use local email for admin emails
+function use_local_email(){
+	  return 'wp-admin@sleepypenguin.net';
+}
+add_filter( 'wp_mail_from', 'use_local_email' );
+
+function use_local_email_name(){
+	  return 'CGE Admin';
+}
+add_filter( 'wp_mail_from_name', 'use_local_email_name' );
