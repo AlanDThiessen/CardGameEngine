@@ -2,22 +2,67 @@
 
 jQuery(document).ready(function($) {
 
-	var gameSpec;
+	var user;
+	var deckSpec;
 	var deckSpec;
 
-	get_game_types();
-	get_joinable_games();
+	// exit if cge area hasn't been loaded
+	if ( ! $('#cge').length > 0 ) {
+		return false;
+	}
+
+	initialize();
+
+	function initialize() {
+		// mkae suer user is logged in, then show available games
+		var data = {
+			action: 'cge_get_user'
+		};
+		$.post(cgeVars.ajaxurl, data, function(response) {
+			console.log('Ajax response: ' + response);
+			if (null != response && response.length && response != 0) {
+				user = $.parseJSON(response);
+				setupSseListeners();
+				// show available games
+				get_game_types();
+				get_joinable_games();
+			} else {
+				console.log('No user');
+			}
+		});
+	}
+
+	// Event listeners for updates from server
+	function setupSseListeners() {
+		var sseSourceUrl = $( '#sse-server' ).val();
+		if ( '' != sseSourceUrl ) {
+			console.log('SSE Source URL: ' + sseSourceUrl);
+			var sseSource = new EventSource( sseSourceUrl );
+		}
+
+		sseSource.addEventListener( 'message', function( evt ) {
+			console.log( evt.data );
+		}, false );
+
+		sseSource.addEventListener( 'userJoined', function( evt ) {
+			console.log( "User " + evt.data + " has joined the game." );
+		}, false );
+
+		sseSource.addEventListener( 'update', function( evt ) {
+			console.log( "Update: " + evt.data );
+		}, false );
+	}
 
 	function get_game_types() {
 		var data = {
 			action: 'cge_get_game_types'
 		};
 		$.post(cgeVars.ajaxurl, data, function(response) {
-			alert('Ajax response: ' + response);
+			console.log('Ajax response: ' + response);
 			if (null != response && response.length && response != 0) {
 				show_game_types(response);
 			} else {
-				alert('Error loading game types');
+				console.log('Error loading game types');
 			}
 		});
 	}
@@ -43,12 +88,12 @@ jQuery(document).ready(function($) {
 				game_type_id: $(this).parent().data( 'game-type-id'),
 			}
 			$.post(cgeVars.ajaxurl, data, function(response) {
-				alert('Ajax response: ' + response);
+				console.log('Ajax response: ' + response);
 				if (null != response && response.length && response != 0) {
 					gameSpec = $.parseJSON(response);
 					load_deck(gameSpec.required.deck);
 				} else {
-					alert('Error loading game spec');
+					console.log('Error loading game spec');
 				}
 			});
 		});
@@ -61,12 +106,12 @@ jQuery(document).ready(function($) {
 			deck_type: deckType,
 		};
 		$.post(cgeVars.ajaxurl, data, function(response) {
-			alert('Ajax response: ' + response);
+			console.log('Ajax response: ' + response);
 			if (null != response && response.length && response != 0) {
 				deckSpec = $.parseJSON(response);
 				start_game();
 			} else {
-				alert('Error loading deck spec');
+				console.log('Error loading deck spec');
 			}
 		});
 	}
@@ -76,11 +121,11 @@ jQuery(document).ready(function($) {
 			action: 'cge_get_joinable_games',
 		};
 		$.post(cgeVars.ajaxurl, data, function(response) {
-			alert('Ajax response: ' + response);
+			console.log('Ajax response: ' + response);
 			if (null != response && response.length && response != 0) {
 				show_joinable_games(response);
 			} else {
-				alert('Error loading joinable games');
+				console.log('Error loading joinable games');
 			}
 		});
 	}
@@ -98,10 +143,27 @@ jQuery(document).ready(function($) {
 				html: '<a href="javascript:void(0)">' + element.instance_name + '</a> (' + element.open_seats + ' open seats)',
 			}));
 		});
+
+		$('.joinableGame a').click(function(evt) {
+			var data = {
+				action:       'cge_load_game_spec_from_id',
+				game_id: $(this).parent().data( 'game-id'),
+			}
+			$.post(cgeVars.ajaxurl, data, function(response) {
+				console.log('Ajax response: ' + response);
+				if (null != response && response.length && response != 0) {
+					gameSpec = $.parseJSON(response);
+					load_deck(gameSpec.required.deck);
+				} else {
+					console.log('Error loading game spec');
+				}
+			});
+		});
+
 	}
 
 	function start_game(data) {
-		alert('Starting game of ' + gameSpec.name + ' with deck type ' + deckSpec.name + '(ok, not really)' );
+		console.log('Starting game of ' + gameSpec.name + ' with deck type ' + deckSpec.name + '(ok, not really)' );
 	}
 
 });

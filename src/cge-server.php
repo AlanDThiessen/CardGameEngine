@@ -19,6 +19,20 @@ function cge_enqueue_js() {
 	wp_localize_script( 'cge_client', 'cgeVars', $cgeJsVars );
 }
 
+function cge_get_user() {
+	$user = wp_get_current_user();
+	if ($user->ID) {
+		$userResponse = array(
+			'ID' => $user->ID,
+			'login' => $user->user_login,
+			'name' => $user->display_name,
+		);
+		echo json_encode($userResponse);
+	}
+	// Need this for Ajax return
+	die();
+}
+
 function cge_show_launch_link() {
 	echo '<div id="cge">';
 	echo '<div id="content">';
@@ -34,6 +48,9 @@ function cge_show_launch_link() {
 		// OK, they're logged in, greet them by name and show launch link
 		echo ', ' . $user->display_name . '!';
 		echo '</div>';
+		echo '<input type="hidden" id="sse-server" value="' . plugins_url( '/cge-sse-server.php', __FILE__  ) . '" />';
+		echo '<div id="result">';
+		echo '</div>';
 		echo '<div id="cge_display">';
 		echo '<div id="cge_header"></div>';
 		echo '<div id="cge_window"></div>';
@@ -43,8 +60,6 @@ function cge_show_launch_link() {
 	echo '</div>';
 	echo '</div>';
 }
-add_shortcode( 'cge_launch_link', 'cge_show_launch_link' );
-
 function cge_get_game_types() {
 	// @TODO pull these from the db
 	$game_types = array(
@@ -83,10 +98,10 @@ function cge_get_joinable_games() {
 			'open_seats' => '1',
 		),
 		array(
-			'id' => '245',
-			'game_type_name' => 'Flex',
-			'instance_name' => "Chris's Game of Flex",
-			'open_seats' => '2',
+			'id' => '287',
+			'game_type_name' => 'Ten Phases',
+			'instance_name' => "Alan's Game of Ten Phases",
+			'open_seats' => '3',
 		),
 	);
 
@@ -109,6 +124,30 @@ function cge_load_game_spec() {
 
 	echo json_encode($gameSpec);
 
+	// Need this for Ajax return
+	die();
+}
+
+function cge_load_game_spec_from_id() {
+	$gameId = htmlspecialchars( $_POST[ 'game_id' ] );
+	//@TODO: add player to game; sse-server will notify players of change
+	
+	//@TODO: load game type from db
+	if ($gameId == 1) {
+		$gameTypeId = 'simple-war';
+	} else {
+		$gameTypeId = 'ten-phases';
+	}
+	$gameFile = CGEPATH . 'xml/' . $gameTypeId . '-game.xml';
+	if (!file_exists($gameFile)) {
+		die('CGE ERROR: ' . $gameTypeId . ' definition file not found.');
+	} 
+	$gameSpec = simplexml_load_file($gameFile);
+	if ( $gameSpec[ 'id' ] != $gameTypeId ) {
+		die('CGE ERROR: Definition file found is for ' . $gameSpec[ 'id' ] . ', not for ' . $gameTypeId );
+	}
+
+	echo json_encode($gameSpec);
 
 	// Need this for Ajax return
 	die();
