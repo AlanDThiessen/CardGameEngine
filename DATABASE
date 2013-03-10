@@ -1,0 +1,5 @@
+
+Game: id game_type_id game_name created_by num_players_allowed num_players_joined 
+Player: id game_id user_id
+Transactions: id game_id user_id from_group_id to_group_id items
+

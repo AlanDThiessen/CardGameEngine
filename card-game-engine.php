@@ -21,8 +21,8 @@ add_action( 'wp_enqueue_scripts', 'cge_enqueue_js' );
 add_action('wp_ajax_cge_get_user', 'cge_get_user');
 add_action('wp_ajax_cge_get_game_types', 'cge_get_game_types');
 add_action('wp_ajax_cge_get_joinable_games', 'cge_get_joinable_games');
-add_action('wp_ajax_cge_load_game_spec', 'cge_load_game_spec');
-add_action('wp_ajax_cge_load_game_spec_from_id', 'cge_load_game_spec_from_id');
+add_action('wp_ajax_cge_start_game', 'cge_start_game');
+add_action('wp_ajax_cge_join_game', 'cge_join_game');
 add_action('wp_ajax_cge_load_deck_spec', 'cge_load_deck_spec');
 
 

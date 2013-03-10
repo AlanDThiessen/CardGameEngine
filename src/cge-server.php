@@ -30,7 +30,10 @@ function cge_show_launch_link() {
 			echo '<div id="result">';
 			echo '</div>';
 			echo '<div id="cge_display">';
-			echo '<div id="cge_header"></div>';
+			echo '<div id="cge_header">';
+			echo '	<div id="gameTypes"></div>';
+			echo '	<div id="joinable"></div>';
+			echo '</div>';
 			echo '<div id="cge_window"></div>';
 			echo '<div id="cge_footer"></div>';
 			echo '</div>';
@@ -91,23 +94,8 @@ function cge_get_game_types() {
 }
 
 function cge_get_joinable_games() {
-	// @TODO pull these from the db
-	// and allow players to name their game instance
-	$joinable_games = array(
-		array(
-			'id' => '1',
-			'game_type_name' => 'Simple War',
-			'instance_name' => "David's Simple War Instance",
-			'open_seats' => '1',
-		),
-		array(
-			'id' => '287',
-			'game_type_name' => 'Ten Phases',
-			'instance_name' => "Alan's Game of Ten Phases",
-			'open_seats' => '3',
-		),
-	);
 
+	$joinable_games = get_joinable_games();
 	echo json_encode($joinable_games);
 
 	// Need this for Ajax return
@@ -115,43 +103,77 @@ function cge_get_joinable_games() {
 }
 
 function cge_start_game() {
-	$gameTypeId = htmlspecialchars( $_POST[ 'game_type_id' ] );
-	$gameFile = CGEPATH . 'xml/' . $gameTypeId . '-game.xml';
+	$game_type_id = htmlspecialchars( $_POST[ 'game_type_id' ] );
+	$gameFile = CGEPATH . 'xml/' . $game_type_id . '-game.xml';
 	if (!file_exists($gameFile)) {
-		die('CGE ERROR: ' . $gameTypeId . ' definition file not found.');
+		die('CGE ERROR: ' . $game_type_id . ' definition file not found.');
 	} 
 	$game_spec = simplexml_load_file($gameFile);
-	if ( $game_spec[ 'id' ] != $gameTypeId ) {
-		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $gameTypeId );
+	if ( $game_spec[ 'id' ] != $game_type_id ) {
+		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $game_type_id );
 	}
 
-	// return game spec
-	echo json_encode($game_spec);
+	$user = wp_get_current_user();
+
+	// check whether this user already has a game of this type, 
+	$game_id = get_game_by_user( $game_type_id, $user->ID );
+
+	if ( $game_id ) {
+		// @TODO: verify with user to reusue or delete this game?
+		$success = 0;
+	} else {
+		$game_name = $game_spec->name . ' created by ' . $user->display_name;
+
+		// create game in db
+		$game_id = create_game( $game_type_id, $game_name, $user->ID, $game_spec->required->maxPlayers );
+
+		// add first user to game
+		$success = join_game( $game_id, $user->ID );
+	}
+
+	// return game id & spec
+	$return_value = array(
+		'success' => $success,
+		'game_id' => $game_id,
+		'game_spec' => $game_spec
+	);
+	echo json_encode($return_value);
 
 	// Need this for Ajax return
 	die();
 }
 
 function cge_join_game() {
-	$gameId = htmlspecialchars( $_POST[ 'game_id' ] );
-	//@TODO: add player to game; sse-server will notify players of change
-	
-	//@TODO: load game type from db
-	if ($gameId == 1) {
-		$gameTypeId = 'simple-war';
-	} else {
-		$gameTypeId = 'ten-phases';
-	}
-	$gameFile = CGEPATH . 'xml/' . $gameTypeId . '-game.xml';
-	if (!file_exists($gameFile)) {
-		die('CGE ERROR: ' . $gameTypeId . ' definition file not found.');
-	} 
-	$game_spec = simplexml_load_file($gameFile);
-	if ( $game_spec[ 'id' ] != $gameTypeId ) {
-		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $gameTypeId );
+	//load game type from db
+	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$game = get_game_by_id( $game_id );
+	if (!$game) {
+		die('CGE ERROR: ' . $game_id . ' not found.');
 	}
 
-	echo json_encode($game_spec);
+	// load game definition file
+	$game_type_id = $game->game_type_id;
+	$gameFile = CGEPATH . 'xml/' . $game_type_id . '-game.xml';
+	if (!file_exists($gameFile)) {
+		die('CGE ERROR: ' . $game_type_id . ' definition file not found.');
+	} 
+	$game_spec = simplexml_load_file($gameFile);
+	if ( $game_spec[ 'id' ] != $game_type_id ) {
+		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $game_type_id );
+	}
+
+	$user = wp_get_current_user();
+
+	// add user to game; sse-server will notify players of change
+	$success = join_game( $game_id, $user->ID );
+	
+	// return game id & spec
+	$return_value = array(
+		'success' => $success,
+		'game_id' => $game_id,
+		'game_spec' => $game_spec
+	);
+	echo json_encode($return_value);
 
 	// Need this for Ajax return
 	die();
