@@ -248,7 +248,7 @@
     <element xmi:type="uml:Class" href="CardEngine.uml#_5SLxQGgkEeKcWsfOwxtvgg"/>
     <layoutConstraint xmi:type="notation:Bounds" xmi:id="_5SViQWgkEeKcWsfOwxtvgg" x="516" y="372"/>
   </children>
-  <children xmi:type="notation:Shape" xmi:id="_PfQ3cGglEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="12560536, 16777215, 0" lineColor="0">
+  <children xmi:type="notation:Shape" xmi:id="_PfQ3cGglEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="10011046, 16777215, 0" lineColor="0">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_PfRegGglEeKcWsfOwxtvgg" source="ShadowFigure">
       <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_PfRegWglEeKcWsfOwxtvgg" key="ShadowFigure_Value" value="false"/>
     </eAnnotations>
@@ -292,7 +292,7 @@
     <element xmi:type="uml:Class" href="CardEngine.uml#_PfJisGglEeKcWsfOwxtvgg"/>
     <layoutConstraint xmi:type="notation:Bounds" xmi:id="_PfQ3cWglEeKcWsfOwxtvgg" x="36" y="192"/>
   </children>
-  <children xmi:type="notation:Shape" xmi:id="_v1GWUGglEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="12560536, 16777215, 0" lineColor="0">
+  <children xmi:type="notation:Shape" xmi:id="_v1GWUGglEeKcWsfOwxtvgg" type="2008" fontName="Cantarell" fontHeight="11" gradient="10011046, 16777215, 0" lineColor="0">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_v1G9YWglEeKcWsfOwxtvgg" source="ShadowFigure">
       <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_v1HkcGglEeKcWsfOwxtvgg" key="ShadowFigure_Value" value="false"/>
     </eAnnotations>

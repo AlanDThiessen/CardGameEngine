@@ -84,7 +84,7 @@
       <ownedOperation xmi:id="_hamyYHP8EeKbccgqamNTgw" name="init"/>
     </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_qeK9EHPaEeKbccgqamNTgw" name="NonSuited"/>
-    <packagedElement xmi:type="uml:Class" xmi:id="_F6j2MHPaEeKbccgqamNTgw" name="Deck"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_F6j2MHPaEeKbccgqamNTgw" name="Deck Spec"/>
     <packagedElement xmi:type="uml:Class" xmi:id="_UgJmkHPaEeKbccgqamNTgw" name="Value">
       <ownedAttribute xmi:id="_6XIH4HPcEeKbccgqamNTgw" name="name">
         <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
@@ -120,7 +120,7 @@
       <body>A game must always have a set of Players, a Dealer, and a Table.</body>
     </ownedComment>
     <ownedComment xmi:id="_A71vEHP-EeKbccgqamNTgw" annotatedElement="_v06wIGglEeKcWsfOwxtvgg">
-      <body>A Sequence is essentiall just an array of Transactions</body>
+      <body>A Sequence is essentially just an array of Transactions</body>
     </ownedComment>
     <packagedElement xmi:type="uml:Association" xmi:id="_UO6dcGglEeKcWsfOwxtvgg" name="transaction_group_1" memberEnd="_UO6dcWglEeKcWsfOwxtvgg _UO52YGglEeKcWsfOwxtvgg">
       <ownedEnd xmi:id="_UO6dcWglEeKcWsfOwxtvgg" name="transaction" type="_PfJisGglEeKcWsfOwxtvgg" association="_UO6dcGglEeKcWsfOwxtvgg">
