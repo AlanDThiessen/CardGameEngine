@@ -106,13 +106,15 @@
 		</values>
 	</suited>
 	<nonsuited>
-		<value id="joker">
-			<name>Joker</name>
-			<shortname>Joker</shortname>
-			<rank>0</rank>
-			<quantity>2</quantity>
-			<color>black</color>
-		</value>
+      <values>
+		   <value id="joker">
+			   <name>Joker</name>
+			   <shortname>Joker</shortname>
+			   <rank>0</rank>
+			   <quantity>2</quantity>
+			   <color>black</color>
+		   </value>
+      </values>
 	</nonsuited>
 </cge_deck>
 

@@ -43,11 +43,11 @@ CardGame.prototype.CreateDeck = function( deckSpec )
    }
 
    // Now Create the non-suited cards
-   for( valueCntr = 0; valueCntr < deckSpec.nonsuited.value.length; valueCntr++ )
+   for( valueCntr = 0; valueCntr < deckSpec.nonsuited.values.value.length; valueCntr++ )
    {
-      for( qty = 0; qty < deckSpec.nonsuited.value[valueCntr].quantity; qty++ )
+      for( qty = 0; qty < deckSpec.nonsuited.values.value[valueCntr].quantity; qty++ )
       {
-         this.dealer.AddCard( this.CreateNonSuitedCard( deckSpec.nonsuited.value[valueCntr],
+         this.dealer.AddCard( this.CreateNonSuitedCard( deckSpec.nonsuited.values.value[valueCntr],
                                                         qty ) );
       }
    }

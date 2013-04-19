@@ -100,18 +100,20 @@
 		</values>
 	</suited>
 	<nonsuited>
-		<value id="wild">
-			<name>Wild</name>
-			<shortname>W</shortname>
-			<rank>0</rank>
-			<quantity>8</quantity>
-		</value>
-		<value id="skip">
-			<name>Skip</name>
-			<shortname>S</shortname>
-			<rank>13</rank>
-			<quantity>4</quantity>
-		</value>
+      <values>
+		   <value id="wild">
+			   <name>Wild</name>
+			   <shortname>W</shortname>
+			   <rank>0</rank>
+			   <quantity>8</quantity>
+		   </value>
+		   <value id="skip">
+			   <name>Skip</name>
+			   <shortname>S</shortname>
+			   <rank>13</rank>
+			   <quantity>4</quantity>
+		   </value>
+      </values>
 	</nonsuited>
 </cge_deck>
 

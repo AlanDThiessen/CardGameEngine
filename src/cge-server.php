@@ -52,9 +52,67 @@ function cge_enqueue_js() {
 	$cgeJsVars = array(
 		'ajaxurl' => admin_url( 'admin-ajax.php' )
 	);
+
 	wp_register_script( 'cge_client', plugins_url( '/js/cge_client.js', __FILE__  ), array( 'jquery' ), '20130130', true );
 
+   wp_register_script( 'js_card',
+                       plugins_url( '/js/Card.js', __FILE__ ),
+                       false,
+                       false,
+                       false );
+
+   wp_register_script( 'js_card_group',
+                       plugins_url( '/js/CardGroup.js', __FILE__ ), 
+                       array( 'js_card' ), 
+                       false, 
+                       false );
+
+   wp_register_script( 'js_card_container', 
+                       plugins_url( '/js/CardContainer.js', __FILE__ ), 
+                       array( 'js_card_group' ), 
+                       false, 
+                       false );
+
+   wp_register_script( 'js_dealer', 
+                       plugins_url( '/js/Dealer.js', __FILE__ ), 
+                       array( 'js_card_container' ), 
+                       false, 
+                       false );
+
+   wp_register_script( 'js_player', 
+                       plugins_url( '/js/Player.js', __FILE__ ), 
+                       array( 'js_card_container' ), 
+                       false, 
+                       false );
+
+   wp_register_script( 'js_table', 
+                       plugins_url( '/js/Table.js', __FILE__ ), 
+                       array( 'js_card_container' ), 
+                       false, 
+                       false );
+
+   wp_register_script( 'js_card_game', 
+                       plugins_url( '/js/CardGame.js', __FILE__ ), 
+                       array( 'js_dealer', 'js_player', 'js_table' ), 
+                       false, 
+                       false );
+
+   wp_register_script( 'js_ten_phases_game', 
+                       plugins_url( '/js/games/TenPhases/TenPhases.js', __FILE__ ), 
+                       array( 'js_card_game' ), 
+                       false, 
+                       false );
+
+   wp_enqueue_script( 'js_card' );
+   wp_enqueue_script( 'js_card_group' );
+   wp_enqueue_script( 'js_card_container' );
+   wp_enqueue_script( 'js_dealer' );
+   wp_enqueue_script( 'js_player' );
+   wp_enqueue_script( 'js_table' );
+   wp_enqueue_script( 'js_card_game' );
+   wp_enqueue_script( 'js_ten_phases_game' );
 	wp_enqueue_script( 'cge_client' );
+
 	wp_localize_script( 'cge_client', 'cgeVars', $cgeJsVars );
 }
 

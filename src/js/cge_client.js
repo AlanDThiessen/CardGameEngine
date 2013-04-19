@@ -96,6 +96,11 @@ jQuery(document).ready(function($) {
 				console.log('Ajax response: ' + response);
 				if (null != response && response.length && response != 0) {
 					var responseObject = $.parseJSON(response);
+
+               // ADT: temporary work-around so we can launch a game even though it 
+               //      currently exists
+               responseObject.success = 1;
+
 					if (responseObject.success) {
 						get_joinable_games();
 						game_id = responseObject.game_id;
@@ -180,38 +185,19 @@ jQuery(document).ready(function($) {
 	}
 
 	function launch_game(data) {
-		console.log('Starting game of ' + gameSpec.name + ' with deck type ' + deckSpec.name + '(ok, not really)' );
+      console.log('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
-//-----------------------------------------------------------------------------
-// ADT ToDo: The following code should be uncommented once the game window has
-//           been launched, and the following Javascript files have been
-//           properly included.  Not sure how to do this in WP yet.
-//
-//           Javascript files to include:
-//             - src/js/CardGroup.js
-//             - src/js/CardContainer.js
-//             - src/js/CardGame.js
-//             - src/js/Card.js
-//             - src/js/Dealer.js
-//             - src/js/Player.js
-//             - src/js/Table.js
-//             - src/js/games/TenPhases/TenPhases.js
-//-----------------------------------------------------------------------------
-//
-//      console.log('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
-//
-//      if( gameSpec.name == 'Ten Phases' )
-//      {
-//         cardGame = new TenPhasesGame();
-//      }
-//      else
-//      {
-//         cardGame = new CardGame();
-//      }
-//
-//      cardGame.Init( gameSpec, deckSpec );
-//      cardGame.StartGame();
+      if( gameSpec.name == 'Ten Phases' )
+      {
+         cardGame = new TenPhasesGame();
+      }
+      else
+      {
+         cardGame = new CardGame();
+      }
 
+      cardGame.Init( gameSpec, deckSpec );
+      cardGame.StartGame();
 	}
 
 });
