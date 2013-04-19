@@ -41,8 +41,13 @@ CardGroup.prototype.PrintCards = function()
  * CardGroup.prototype.SortRank
  *
  ******************************************************************************/
-CardGroup.prototype.SortRank = function( order = 'ascending' )
+CardGroup.prototype.SortRank = function( order )
 {
+   if( !defined( order ) )
+   {
+      order = 'ascending';
+   }
+   
    if( order.toLowerCase() == 'ascending' )
    {
       this.cards.sort( function(a, b){ return a.rank - b.rank } );
@@ -59,8 +64,13 @@ CardGroup.prototype.SortRank = function( order = 'ascending' )
  * CardGroup.prototype.SortSuit
  *
  ******************************************************************************/
-CardGroup.prototype.SortSuit = function( order = 'ascending' )
+CardGroup.prototype.SortSuit = function( order )
 {
+   if( !defined( order ) )
+   {
+      order = 'ascending';
+   }
+   
    if( order.toLowerCase() == 'ascending' )
    {
       this.cards.sort(  function(a, b)
@@ -95,8 +105,13 @@ CardGroup.prototype.SortSuit = function( order = 'ascending' )
  * CardGroup.prototype.SortSuitRank
  *
  ******************************************************************************/
-CardGroup.prototype.SortSuitRank = function( order = 'ascending' )
+CardGroup.prototype.SortSuitRank = function( order )
 {
+   if( !defined( order ) )
+   {
+      order = 'ascending';
+   }
+   
    if( order.toLowerCase() == 'ascending' )
    {
       this.cards.sort(  function(a, b)

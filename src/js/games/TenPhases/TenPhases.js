@@ -4,7 +4,7 @@ function TenPhasesGame()
 }
 
 
-// Inherit from CardContainer
+// Inherit from CardGame
 TenPhasesGame.prototype = new CardGame();
 
 // Correct the constructor pointer
