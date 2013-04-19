@@ -29,89 +29,89 @@
 				<name>One</name>
 				<shortname>1</shortname>
 				<rank>1</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="2">
 				<name>Two</name>
 				<shortname>2</shortname>
 				<rank>2</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="3">
 				<name>Three</name>
 				<shortname>3</shortname>
 				<rank>3</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="4">
 				<name>Four</name>
 				<shortname>4</shortname>
 				<rank>4</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="5">
 				<name>Five</name>
 				<shortname>5</shortname>
 				<rank>5</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="6">
 				<name>Six</name>
 				<shortname>6</shortname>
 				<rank>6</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="7">
 				<name>Seven</name>
 				<shortname>7</shortname>
 				<rank>7</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="8">
 				<name>Eight</name>
 				<shortname>8</shortname>
 				<rank>8</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="9">
 				<name>Nine</name>
 				<shortname>9</shortname>
 				<rank>9</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="10">
 				<name>Ten</name>
 				<shortname>10</shortname>
 				<rank>10</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="11">
 				<name>Eleven</name>
 				<shortname>11</shortname>
 				<rank>11</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 			<value id="12">
 				<name>Twelve</name>
 				<shortname>12</shortname>
 				<rank>12</rank>
-            <quantity>2</quantity>
+				<quantity>2</quantity>
 			</value>
 		</values>
 	</suited>
-	<non-suited>
+	<nonsuited>
 		<value id="wild">
 			<name>Wild</name>
-			<shortname>Wild</shortname>
+			<shortname>W</shortname>
 			<rank>0</rank>
 			<quantity>8</quantity>
 		</value>
 		<value id="skip">
 			<name>Skip</name>
-			<shortname>skip</shortname>
+			<shortname>S</shortname>
 			<rank>13</rank>
 			<quantity>4</quantity>
 		</value>
-	</non-suited>
+	</nonsuited>
 </cge_deck>
 

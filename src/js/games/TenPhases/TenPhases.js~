@@ -1,0 +1,17 @@
+
+function TenPhasesGame()
+{
+}
+
+
+// Inherit from CardContainer
+TenPhaseGame.prototype = new CardGame();
+
+// Correct the constructor pointer
+TenPhaseGame.prototype.constructor = CardGame;
+
+
+function StartGame()
+{
+}
+

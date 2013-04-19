@@ -29,14 +29,10 @@ CardGroup.prototype.AddCard = function( card )
  ******************************************************************************/
 CardGroup.prototype.PrintCards = function()
 {
-   var output = "";
-
    for( i = 0; i < this.cards.length; i++ )
    {
-      output += this.cards[i].Print() + ' ';
+      this.cards[i].Print();
    }
-
-   return output;
 }
 
 
