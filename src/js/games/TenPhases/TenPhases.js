@@ -11,7 +11,3 @@ TenPhasesGame.prototype = new CardGame();
 TenPhasesGame.prototype.constructor = CardGame;
 
 
-function StartGame()
-{
-}
-

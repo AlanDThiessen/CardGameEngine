@@ -60,7 +60,7 @@ CardGame.prototype.CreateDeck = function( deckSpec )
 CardGame.prototype.CreateSuitedCard = function( suit, value, count )
 {
    return new Card( suit.name,
-                    suit.name + value.name,
+                    suit.name + ' '+ value.name,
                     suit.shortname + value.shortname,
                     value.rank,
                     suit.color,
