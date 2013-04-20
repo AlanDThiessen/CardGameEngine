@@ -1,6 +1,10 @@
 
 function TenPhasesGame()
 {
+   CardGame.call( this );
+
+   this.table.AddContainer( new CardContainer( 'draw' ) );
+   this.table.AddContainer( new CardContainer( 'discard' ) );
 }
 
 

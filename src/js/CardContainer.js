@@ -2,8 +2,8 @@
 
 function CardContainer( id )
 {
-   this.id     = id;
-   this.containers = Array();
+   this.id           = id;
+   this.containers   = Array();
 
    CardGroup.call( this );
 }

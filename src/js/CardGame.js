@@ -11,7 +11,11 @@ function CardGame()
 CardGame.prototype.Init = function( gameSpec, deckSpec )
 {
    console.log( 'Initializing game of ' + gameSpec.name );
+   console.log( gameSpec );
    this.CreateDeck( deckSpec );
+//   this.dealer.PrintCards();
+   this.dealer.Shuffle();
+   this.dealer.PrintCards();
 }
 
 
@@ -51,9 +55,6 @@ CardGame.prototype.CreateDeck = function( deckSpec )
                                                         qty ) );
       }
    }
-
-   console.log( 'Dealer holds ' + this.dealer.cards.length + ' cards ' );
-   this.dealer.PrintCards();
 }
 
 
