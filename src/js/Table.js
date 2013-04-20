@@ -12,6 +12,6 @@ Table.prototype.constructor = Table;
 
 Table.prototype.init = function()
 {
-}
+};
 
 

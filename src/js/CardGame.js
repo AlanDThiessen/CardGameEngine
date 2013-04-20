@@ -1,10 +1,12 @@
 function CardGame()
 {
-   this.isHost = false;
+   this.isHost    = false;
+   this.name      = '';
+   this.id        = '';
 
-   this.table  = new Table();
-   this.dealer = new Dealer();
-   this.players = Array();
+   this.table     = new Table();
+   this.dealer    = new Dealer();
+   this.players   = Array();
 }
 
 
@@ -16,6 +18,9 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    // ADT: Temp code to ensure shuffle
    gameSpec.server.isPrimary = 'true';
    
+   this.name = gameSpec.server.name;
+   this.id = gameSpec.server.id;
+
    // Setup game parameters
    if( gameSpec.server.isPrimary == 'true' )
    {
@@ -28,7 +33,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    {
       this.dealer.Shuffle();
    }
-}
+};
 
 
 CardGame.prototype.StartGame = function()
@@ -37,7 +42,7 @@ CardGame.prototype.StartGame = function()
    {
       this.Deal();
    }
-}
+};
 
 
 CardGame.prototype.CreateDeck = function( deckSpec )
@@ -71,7 +76,7 @@ CardGame.prototype.CreateDeck = function( deckSpec )
                                                         qty ) );
       }
    }
-}
+};
 
 
 CardGame.prototype.CreateSuitedCard = function( suit, value, count )
@@ -82,7 +87,7 @@ CardGame.prototype.CreateSuitedCard = function( suit, value, count )
                     value.rank,
                     suit.color,
                     count );
-}
+};
 
 
 CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
@@ -93,11 +98,18 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
                     nonSuited.rank,
                     nonSuited.color,
                     count );
-}
+};
 
 
 CardGame.prototype.Deal = function()
 {
    console.log( 'Please override virtual function \'CardGame.Deal()\'.' );
-}
+};
+
+
+CardGame.prototype.Transfer = function( fromContainer, toContainer, card )
+{
+   // ADT ToDo: perform transfer
+   // ADT ToDo: Log transfer in sequence log (create sequence log first)
+};
 

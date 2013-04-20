@@ -19,5 +19,5 @@ function Card( suit, name, shortName, rank, color, count )
 Card.prototype.Print = function()
 {
    console.log( this.id + ' : ' + this.shortName + ' : ' + this.name );
-}
+};
 

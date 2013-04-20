@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
 
 	var user;
 	var game_id;
-	var deckSpec;
+	var gameSpec;
 	var deckSpec;
 
 	// exit if cge area hasn't been loaded
@@ -91,7 +91,7 @@ jQuery(document).ready(function($) {
 			var data = {
 				action:       'cge_start_game',
 				game_type_id: $(this).parent().data( 'game-type-id'),
-			}
+			};
 			$.post(cgeVars.ajaxurl, data, function(response) {
 				console.log('Ajax response: ' + response);
 				if (null != response && response.length && response != 0) {
@@ -167,7 +167,7 @@ jQuery(document).ready(function($) {
 				var data = {
 					action:       'cge_join_game',
 					game_id: $(this).parent().data( 'game-id'),
-				}
+				};
 				$.post(cgeVars.ajaxurl, data, function(response) {
 					console.log('Ajax response: ' + response);
 					if (null != response && response.length && response != 0) {

@@ -9,6 +9,7 @@
 
    <!-- These parameters are set by the server at the time the game is started -->
    <server>
+      <id></id>   <!-- Unique ID associated with this game instance -->
       <isPrimary>false</isPrimary>
       <players>
       </players>

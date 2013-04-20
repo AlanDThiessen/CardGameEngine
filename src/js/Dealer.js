@@ -12,6 +12,6 @@ Dealer.prototype.constructor = Dealer;
 
 Dealer.prototype.init = function()
 {
-}
+};
 
 

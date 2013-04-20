@@ -24,7 +24,7 @@ CardContainer.prototype.AddGroup = function( group )
    }
 
    return "Added Group " + group;
-}
+};
 
 
 CardContainer.prototype.AddContainer = function( container )
@@ -32,17 +32,17 @@ CardContainer.prototype.AddContainer = function( container )
    this.containers.push( container );
    
    return "Added container " + container;
-}
+};
 
 
 CardContainer.prototype.GetGroup = function( group )
 {
    return "Get Group " + group;
-}
+};
 
 
 CardContainer.prototype.AcceptGroup = function( group )
 {
    return true;
-}
+};
 

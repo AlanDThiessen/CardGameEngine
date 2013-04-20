@@ -19,7 +19,7 @@ function CardGroup()
 CardGroup.prototype.AddCard = function( card )
 {
    this.cards.push( card );
-}
+};
 
 
 /******************************************************************************
@@ -29,13 +29,15 @@ CardGroup.prototype.AddCard = function( card )
  ******************************************************************************/
 CardGroup.prototype.PrintCards = function()
 {
+   var i;
+   
    console.log( this.id + ' holds ' + this.cards.length + ' cards ' );
 
    for( i = 0; i < this.cards.length; i++ )
    {
       this.cards[i].Print();
    }
-}
+};
 
 
 /******************************************************************************
@@ -52,13 +54,13 @@ CardGroup.prototype.SortRank = function( order )
    
    if( order.toLowerCase() == 'ascending' )
    {
-      this.cards.sort( function(a, b){ return a.rank - b.rank } );
+      this.cards.sort( function(a, b){ return a.rank - b.rank; } );
    }
    else
    {
-      this.cards.sort( function(a, b){ return b.rank - a.rank } );
+      this.cards.sort( function(a, b){ return b.rank - a.rank; } );
    }
-}
+};
 
 
 /******************************************************************************
@@ -99,7 +101,7 @@ CardGroup.prototype.SortSuit = function( order )
                         }
                      );
    }
-}
+};
 
 
 /******************************************************************************
@@ -140,7 +142,7 @@ CardGroup.prototype.SortSuitRank = function( order )
                         }
                      );
    }
-}
+};
 
 
 /******************************************************************************
@@ -166,6 +168,6 @@ CardGroup.prototype.Shuffle = function()
 
       numIter--;
    }
-}
+};
 
 

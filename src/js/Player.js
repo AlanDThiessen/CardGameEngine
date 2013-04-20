@@ -15,6 +15,6 @@ Player.prototype.constructor = Player;
 
 Player.prototype.init = function()
 {
-}
+};
 
 
