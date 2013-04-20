@@ -7,6 +7,13 @@
 		<maxPlayers>6</maxPlayers>
 	</required>
 
+   <!-- These parameters are set by the server at the time the game is started -->
+   <server>
+      <isPrimary>false</isPrimary>
+      <players>
+      </players>
+   </server>
+
    <init>
       <!-- The startContainer indicates which container should get the initial, shuffled deck of cards -->
       <startContainer>table.draw</startContainer>

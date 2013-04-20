@@ -12,15 +12,31 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 {
    console.log( 'Initializing game of ' + gameSpec.name );
    console.log( gameSpec );
+
+   // ADT: Temp code to ensure shuffle
+   gameSpec.server.isPrimary = 'true';
+   
+   // Setup game parameters
+   if( gameSpec.server.isPrimary == 'true' )
+   {
+      this.isHost = true;
+   }
+
    this.CreateDeck( deckSpec );
-//   this.dealer.PrintCards();
-   this.dealer.Shuffle();
-   this.dealer.PrintCards();
+
+   if( this.isHost )
+   {
+      this.dealer.Shuffle();
+   }
 }
 
 
 CardGame.prototype.StartGame = function()
 {
+   if( this.isHost )
+   {
+      this.Deal();
+   }
 }
 
 
@@ -79,4 +95,9 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
                     count );
 }
 
+
+CardGame.prototype.Deal = function()
+{
+   console.log( 'Please override virtual function \'CardGame.Deal()\'.' );
+}
 

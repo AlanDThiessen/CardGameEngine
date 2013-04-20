@@ -6,4 +6,11 @@
 		<minPlayers>2</minPlayers>
 		<maxPlayers>4</maxPlayers>
 	</required>
+
+   <!-- These parameters are set by the server at the time the game is started -->
+   <server>
+      <isPrimary>false</isPrimary>
+      <players>
+      </players>
+   </server>
 </cge_game>
