@@ -1,3 +1,10 @@
+
+/******************************************************************************
+ *
+ * CardGame Class
+ * Constructor
+ *
+ ******************************************************************************/
 function CardGame()
 {
    this.isHost    = false;
@@ -10,6 +17,11 @@ function CardGame()
 }
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.Init
+ *
+ ******************************************************************************/
 CardGame.prototype.Init = function( gameSpec, deckSpec )
 {
    console.log( 'Initializing game of ' + gameSpec.name );
@@ -36,6 +48,11 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 };
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.StartGame
+ *
+ ******************************************************************************/
 CardGame.prototype.StartGame = function()
 {
    if( this.isHost )
@@ -45,6 +62,11 @@ CardGame.prototype.StartGame = function()
 };
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.CreateDeck
+ *
+ ******************************************************************************/
 CardGame.prototype.CreateDeck = function( deckSpec )
 {
    var suitCntr;
@@ -79,6 +101,11 @@ CardGame.prototype.CreateDeck = function( deckSpec )
 };
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.CreateSuitedCard
+ * 
+ ******************************************************************************/
 CardGame.prototype.CreateSuitedCard = function( suit, value, count )
 {
    return new Card( suit.name,
@@ -90,6 +117,11 @@ CardGame.prototype.CreateSuitedCard = function( suit, value, count )
 };
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.CreateNonSuitedCard
+ *
+ ******************************************************************************/
 CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
 {
    return new Card( nonSuited.name,
@@ -101,15 +133,82 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
 };
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.Deal
+ *
+ ******************************************************************************/
 CardGame.prototype.Deal = function()
 {
    console.log( 'Please override virtual function \'CardGame.Deal()\'.' );
 };
 
 
-CardGame.prototype.Transfer = function( fromContainer, toContainer, card )
+/******************************************************************************
+ *
+ * CardGame.prototype.ValidateTransferDest
+ *
+ ******************************************************************************/
+CardGame.prototype.ValidateTransferDest = function( containerId, cardList )
 {
-   // ADT ToDo: perform transfer
-   // ADT ToDo: Log transfer in sequence log (create sequence log first)
+   var container  = this.GetContainerById( containerId );
+   var valid      = false;
+
+
+   if( container != undefined )
+   {
+      valid = container.AcceptGroup( cardList );
+   }
+
+   return valid;
 };
+
+
+/******************************************************************************
+ *
+ * CardGame.prototype.Transfer
+ *
+ ******************************************************************************/
+CardGame.prototype.Transfer = function( fromContainer, toContainer, cardList )
+{
+   // ADT TODO: perform transfer
+   // ADT TODO: Log transfer in sequence log (create sequence log first)
+};
+
+
+/******************************************************************************
+ *
+ * CardGame.prototype.GetContainerById
+ *
+ ******************************************************************************/
+CardGame.prototype.GetContainerById = function( id )
+{
+   var   cntr;
+   var   returnVal = undefined;
+
+
+   // Check to see if the dealer has this container
+   returnVal = this.dealer.GetContainerById( id );
+
+   if( returnVal == undefined )
+   {
+      // Otherwise, check if the table has this contianer
+      returnVal = this.table.GetContainerById( id );
+   }
+
+   // Otherwise, check all the players
+   if( returnVal == undefined )
+   {
+      cntr = 0;
+
+      do
+      {
+         returnVal = this.players[cntr].GetContainerById( id );
+      }
+      while( ( cntr < this.players.length ) && ( returnVal == undefined ) )
+   }
+
+   return returnVal;
+};
+
 

@@ -24,6 +24,18 @@ CardGroup.prototype.AddCard = function( card )
 
 /******************************************************************************
  *
+ * CardGroup.prototype.GetCard
+ *
+ ******************************************************************************/
+CardGroup.prototype.GetCard = function( cardId )
+{
+   // ADT TODO: Fill out this method
+   this.cards.push( card );
+};
+
+
+/******************************************************************************
+ *
  * CardGroup.prototype.PrintCards
  *
  ******************************************************************************/

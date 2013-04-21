@@ -1,5 +1,11 @@
 
 
+/******************************************************************************
+ *
+ * CardContainer Class
+ * Constructor
+ *
+ ******************************************************************************/
 function CardContainer( id )
 {
    this.id           = id;
@@ -8,14 +14,17 @@ function CardContainer( id )
    CardGroup.call( this );
 }
 
-
 // Inherit from CardContainer
 CardContainer.prototype = new CardGroup();
-
 // Correct the constructor pointer
 CardContainer.prototype.constructor = CardContainer;
 
 
+/******************************************************************************
+ *
+ * CardContainer.prototype.AddGroup
+ *
+ ******************************************************************************/
 CardContainer.prototype.AddGroup = function( group )
 {
    if( this.AcceptGroup( group ) == true )
@@ -27,22 +36,93 @@ CardContainer.prototype.AddGroup = function( group )
 };
 
 
+/******************************************************************************
+ *
+ * CardContainer.prototype.AddContainer
+ *
+ ******************************************************************************/
 CardContainer.prototype.AddContainer = function( container )
 {
    this.containers.push( container );
-   
+
    return "Added container " + container;
 };
 
 
-CardContainer.prototype.GetGroup = function( group )
+/******************************************************************************
+ *
+ * CardContainer.prototype.CanGetGroup
+ *
+ ******************************************************************************/
+CardContainer.prototype.CanGetGroup = function( cardList )
 {
+   // ADT TODO: Finish this method
+   // Verify cardList is an array first...
+   if( Object.prototype.toString.call( cardList ) === '[object Array]' )
+   {
+      
+   }
+   
+   return true;
+};
+
+
+/******************************************************************************
+ *
+ * CardContainer.prototype.GetGroup
+ *
+ ******************************************************************************/
+CardContainer.prototype.GetGroup = function( cardList )
+{
+   // ADT TODO: Finish this method
+   var cardGroup = Array();
+   
+   
+   if( this.CanGetGroup( cardList ) == true )
+   {
+      
+   }
+
    return "Get Group " + group;
 };
 
 
+/******************************************************************************
+ *
+ * CardContainer.prototype.AcceptGroup
+ *
+ ******************************************************************************/
 CardContainer.prototype.AcceptGroup = function( group )
 {
    return true;
 };
 
+
+/******************************************************************************
+ *
+ * CardContainer.prototype.GetContainerById
+ *
+ ******************************************************************************/
+CardContainer.prototype.GetContainerById = function( id )
+{
+   var   cntr;
+   var   returnVal = undefined;
+
+
+   if( id == this.id )
+   {
+      returnVal = this;
+   }
+   else
+   {
+      cntr = 0;
+
+      do
+      {
+         returnVal = this.containers[cntr].GetContainerById( id );
+      }
+      while( ( cntr < this.containers.length ) && ( returnVal == undefined ) )
+   }
+
+   return returnVal;
+};

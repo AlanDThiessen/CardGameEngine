@@ -22,21 +22,24 @@
       </ownedOperation>
     </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_PfJisGglEeKcWsfOwxtvgg" name="Transaction">
-      <ownedAttribute xmi:id="_UO52YGglEeKcWsfOwxtvgg" name="group" type="_P65EMGcMEeKcWsfOwxtvgg" association="_UO6dcGglEeKcWsfOwxtvgg">
-        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_UO52YWglEeKcWsfOwxtvgg" value="1"/>
-        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_UO52YmglEeKcWsfOwxtvgg" value="1"/>
-      </ownedAttribute>
       <ownedAttribute xmi:id="_W7Pg0GglEeKcWsfOwxtvgg" name="container" type="_z2rgoGcNEeKcWsfOwxtvgg" association="_W7Pg02glEeKcWsfOwxtvgg">
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_W7Pg0WglEeKcWsfOwxtvgg" value="2"/>
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_W7Pg0mglEeKcWsfOwxtvgg" value="2"/>
       </ownedAttribute>
-      <ownedAttribute xmi:id="_fwV5QGglEeKcWsfOwxtvgg" name="from" type="_z2rgoGcNEeKcWsfOwxtvgg"/>
-      <ownedAttribute xmi:id="_lWRnAGglEeKcWsfOwxtvgg" name="to" type="_z2rgoGcNEeKcWsfOwxtvgg"/>
-      <ownedAttribute xmi:id="_Qgv3sGgnEeKcWsfOwxtvgg" name="group" type="_P65EMGcMEeKcWsfOwxtvgg"/>
+      <ownedAttribute xmi:id="_fwV5QGglEeKcWsfOwxtvgg" name="fromId" type="_z2rgoGcNEeKcWsfOwxtvgg"/>
+      <ownedAttribute xmi:id="_lWRnAGglEeKcWsfOwxtvgg" name="toId" type="_z2rgoGcNEeKcWsfOwxtvgg"/>
+      <ownedAttribute xmi:id="_Qgv3sGgnEeKcWsfOwxtvgg" name="group" type="_R8SrkKq1EeKydZWe4JFNCA"/>
+      <ownedAttribute xmi:id="_t6LSwKq1EeKydZWe4JFNCA" name="cardList" type="_R8SrkKq1EeKydZWe4JFNCA" association="_t6NH8Kq1EeKydZWe4JFNCA">
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_t6LSwaq1EeKydZWe4JFNCA" value="1"/>
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_t6LSwqq1EeKydZWe4JFNCA" value="1"/>
+      </ownedAttribute>
     </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_v06wIGglEeKcWsfOwxtvgg" name="Sequence"/>
     <packagedElement xmi:type="uml:Class" xmi:id="_z2rgoGcNEeKcWsfOwxtvgg" name="Container" isAbstract="true">
       <generalization xmi:id="_1WkIQHciEeKzVOUr2KXzBg" general="_P65EMGcMEeKcWsfOwxtvgg"/>
+      <ownedAttribute xmi:id="_YIMNIKq1EeKydZWe4JFNCA" name="id">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+      </ownedAttribute>
       <ownedOperation xmi:id="_ADyJMGjbEeKcWsfOwxtvgg" name="AddGroup">
         <ownedParameter xmi:id="_ADyJMWjbEeKcWsfOwxtvgg" name="return" direction="return">
           <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#Boolean"/>
@@ -111,6 +114,12 @@
       </ownedAttribute>
     </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_pxT3EHPaEeKbccgqamNTgw" name="Suited"/>
+    <packagedElement xmi:type="uml:Association" xmi:id="_t6NH8Kq1EeKydZWe4JFNCA" name="transaction_cardList_1" memberEnd="_t6NH8aq1EeKydZWe4JFNCA _t6LSwKq1EeKydZWe4JFNCA">
+      <ownedEnd xmi:id="_t6NH8aq1EeKydZWe4JFNCA" name="transaction" type="_PfJisGglEeKcWsfOwxtvgg" association="_t6NH8Kq1EeKydZWe4JFNCA">
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_t6NH8qq1EeKydZWe4JFNCA" value="1"/>
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_t6NH86q1EeKydZWe4JFNCA" value="1"/>
+      </ownedEnd>
+    </packagedElement>
   </packagedElement>
   <packagedElement xmi:type="uml:Package" xmi:id="_nAM9UHJZEeKgVrfUENl4Nw" name="Class Diagram">
     <ownedComment xmi:id="_ljMZYHPxEeKbccgqamNTgw" annotatedElement="_P65EMGcMEeKcWsfOwxtvgg">
@@ -122,12 +131,6 @@
     <ownedComment xmi:id="_A71vEHP-EeKbccgqamNTgw" annotatedElement="_v06wIGglEeKcWsfOwxtvgg">
       <body>A Sequence is essentially just an array of Transactions</body>
     </ownedComment>
-    <packagedElement xmi:type="uml:Association" xmi:id="_UO6dcGglEeKcWsfOwxtvgg" name="transaction_group_1" memberEnd="_UO6dcWglEeKcWsfOwxtvgg _UO52YGglEeKcWsfOwxtvgg">
-      <ownedEnd xmi:id="_UO6dcWglEeKcWsfOwxtvgg" name="transaction" type="_PfJisGglEeKcWsfOwxtvgg" association="_UO6dcGglEeKcWsfOwxtvgg">
-        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_UO6dcmglEeKcWsfOwxtvgg" value="1"/>
-        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_UO6dc2glEeKcWsfOwxtvgg" value="1"/>
-      </ownedEnd>
-    </packagedElement>
     <packagedElement xmi:type="uml:Association" xmi:id="_jYg6gGcMEeKcWsfOwxtvgg" name="group_card_1" memberEnd="_jYg6gWcMEeKcWsfOwxtvgg _jYgTcGcMEeKcWsfOwxtvgg">
       <ownedEnd xmi:id="_jYg6gWcMEeKcWsfOwxtvgg" name="group" type="_P65EMGcMEeKcWsfOwxtvgg" association="_jYg6gGcMEeKcWsfOwxtvgg">
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_jYg6gmcMEeKcWsfOwxtvgg" value="1"/>
@@ -255,6 +258,13 @@
         <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_qChN8nP9EeKbccgqamNTgw" value="1"/>
         <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qChN83P9EeKbccgqamNTgw" value="1"/>
       </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_R8SrkKq1EeKydZWe4JFNCA" name="CardList">
+      <ownedAttribute xmi:id="_Z6VDsKq2EeKcMrj9T6mzuA" name="cardId">
+        <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_mIZjEKq2EeKcMrj9T6mzuA" value="*"/>
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_mIY8AKq2EeKcMrj9T6mzuA"/>
+      </ownedAttribute>
     </packagedElement>
   </packagedElement>
 </uml:Package>

@@ -1,3 +1,9 @@
+/******************************************************************************
+ *
+ * Player Class
+ * Constructor
+ *
+ ******************************************************************************/
 function Player( id, alias )
 {
    this.alias = alias;
@@ -8,11 +14,15 @@ function Player( id, alias )
 
 // Inherit from CardContainer
 Player.prototype = new CardContainer();
-
 // Correct the constructor pointer
 Player.prototype.constructor = Player;
 
 
+/******************************************************************************
+ *
+ * Player.prototype.init
+ *
+ ******************************************************************************/
 Player.prototype.init = function()
 {
 };
