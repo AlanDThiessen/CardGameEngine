@@ -126,3 +126,27 @@ CardContainer.prototype.GetContainerById = function( id )
 
    return returnVal;
 };
+
+
+/******************************************************************************
+ *
+ * CardContainer.prototype.GetHTML
+ *
+ ******************************************************************************/
+CardContainer.prototype.GetHTML = function()
+{
+   var   htmlStr = "";
+   var   cntr;
+
+
+   htmlStr += '<div id="div_' + this.id + '" cgOId="' + this.id + '">\n';
+
+   for( cntr = 0; cntr < this.containers.length; cntr++ )
+   {
+      htmlStr += this.containers[cntr].GetHTML();
+   }
+
+   htmlStr += '</div>\n';
+
+   return htmlStr;
+};

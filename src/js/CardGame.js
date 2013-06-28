@@ -45,6 +45,8 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    {
       this.dealer.Shuffle();
    }
+
+   $(this).trigger( "gameReady" );
 };
 
 
@@ -212,3 +214,28 @@ CardGame.prototype.GetContainerById = function( id )
 };
 
 
+/******************************************************************************
+ *
+ * CardGame.prototype.GetHTML
+ *
+ ******************************************************************************/
+CardGame.prototype.GetHTML = function()
+{
+   var   htmlStr = "";
+   var   cntr;
+
+
+   htmlStr += '<div id="div_' + this.id + '" cgOId="' + this.id + '">\n';
+
+   htmlStr += this.dealer.GetHTML();
+   htmlStr += this.table.GetHTML();
+   
+   for( cntr = 0; cntr < this.players.length; cntr++ )
+   {
+      htmlStr += this.players[cntr].GetHTML();
+   }
+
+   htmlStr += '</div>\n';
+
+   return htmlStr;
+};
