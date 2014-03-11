@@ -8,15 +8,15 @@ var TOP_STATE  = "TOP";
  * Constructor
  *
  ******************************************************************************/
-function State( name, routine, parent )
+function State( name, parent )
 {
    this.name         = name;
    this.parent       = parent;
    this.initial      = undefined;
    this.enter        = undefined;
    this.exit         = undefined;
-   this.handleEvent  = routine;
    this.states       = Array();
+   this.handlers     = Array();
 }
 
 
@@ -28,6 +28,22 @@ function State( name, routine, parent )
 State.prototype.AddState = function( state )
 {
    this.states.push( state );
+};
+
+
+/******************************************************************************
+ *
+ * State.prototype.AddEventHandler
+ *
+ ******************************************************************************/
+State.prototype.AddEventHandler = function( event, routine )
+{
+   var handler;
+
+   // TODO: Implement proper hash here
+   handler.event = event;
+   handler.routine = routine;
+   this.handlers.push( handler );
 };
 
 
@@ -174,7 +190,7 @@ State.prototype.FindState = function( name, goDeep )
          break;
       }
    }
-
+   
    if( goDeep && ( stateFound == undefined ) )
    {
       cntr = 0; this.states.length;
@@ -199,7 +215,7 @@ State.prototype.FindState = function( name, goDeep )
  * Constructor
  *
  ******************************************************************************/
-function ActiveEntity( name, parent )
+function ActiveEntity( name )
 {
    this.name         = name;
    this.initial      = undefined;
@@ -228,7 +244,7 @@ ActiveEntity.prototype.TopHandleEvent = function( event )
  * state is not defined, then the state is added to the TopState.
  *
  ******************************************************************************/
-ActiveEntity.prototype.AddState = function( name, routine, parentName )
+ActiveEntity.prototype.AddState = function( name, parentName )
 {
    var   parent = undefined;
 
@@ -245,12 +261,22 @@ ActiveEntity.prototype.AddState = function( name, routine, parentName )
       parent = this.TopState;
    }
 
-   // TODO: Need type check of routine.
    // For now, assume they are valid
-   var state = new State( name, routine, parent );
+   var state = new State( name, parent );
    parent.AddState( state );
 
    return( state );
+};
+
+
+ActiveEntity.prototype.AddEventHandler = function( stateName, event, routine )
+{
+   var   state = this.TopState.FindState( stateName, true );
+   
+   if( state != undefined )
+   {
+      state.AddEventHander( event, routine );
+   }
 };
 
 
@@ -262,9 +288,14 @@ ActiveEntity.prototype.AddState = function( name, routine, parentName )
  * substate of the TopState)
  *
  ******************************************************************************/
-ActiveEntity.prototype.SetInitialState = function( state )
+ActiveEntity.prototype.SetInitialState = function( stateName )
 {
-   this.initial = state;
+   var   state = this.TopState.FindState( stateName, true );
+
+   if( state != undefined )
+   {
+      this.initial = state;
+   }
 };
 
 
@@ -295,9 +326,9 @@ ActiveEntity.prototype.Transition = function( destStateName )
 {
    var destAncestors = Array();
    var srcAncestors  = Array;
-   var destState     = this.TopState.FindState( destStateName, true );
    var found         = undefined;
    var lcAncestor    = TOP_STATE;   // The Lowest Common Ancestor
+   var destState     = this.TopState.FindState( destStateName, true );
 
 
    if( destState != undefined )
