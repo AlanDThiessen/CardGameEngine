@@ -10,6 +10,8 @@ function CardContainer( id )
 {
    this.id           = id;
    this.containers   = Array();
+   this.minCards     = 0;
+   this.maxCards     = 0;
 
    CardGroup.call( this );
 }
@@ -125,6 +127,42 @@ CardContainer.prototype.GetContainerById = function( id )
    }
 
    return returnVal;
+};
+
+
+/******************************************************************************
+ *
+ * CardContainer.prototype.IsEmpty
+ *
+ ******************************************************************************/
+CardContainer.prototype.IsEmpty = function( id )
+{
+   if( this.cards.length == 0 )
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+};
+
+
+/******************************************************************************
+ *
+ * CardContainer.prototype.IsFull
+ *
+ ******************************************************************************/
+CardContainer.prototype.IsFull = function( id )
+{
+   if( this.cards.length >= this.maxCards )
+   {
+      return true;
+   }
+   else
+   {
+      return false;
+   }
 };
 
 
