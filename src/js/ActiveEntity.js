@@ -30,14 +30,20 @@ State.prototype.AddState = function( state )
    this.states.push( state );
 };
 
+
 /******************************************************************************
  *
  * State.prototype.SetInitialState
  *
  ******************************************************************************/
-State.prototype.SetInitialState = function( state )
+State.prototype.SetInitialState = function( stateName )
 {
-   this.initial = state;
+   var state = this.FindState( stateName );
+   
+   if( state != undefined )
+   {
+      this.initial = state;
+   }
 };
 
 
@@ -48,6 +54,7 @@ State.prototype.SetInitialState = function( state )
  ******************************************************************************/
 State.prototype.SetEnterRoutine = function( routine )
 {
+   // TODO: Need to verify this is a valid routine
    this.enter = routine;
 };
 
@@ -59,6 +66,7 @@ State.prototype.SetEnterRoutine = function( routine )
  ******************************************************************************/
 State.prototype.SetExitRoutine = function( routine )
 {
+   // TODO: Need to verify this is a valid routine
    this.exit = routine;
 };
 
