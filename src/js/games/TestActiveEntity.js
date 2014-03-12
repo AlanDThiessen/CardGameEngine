@@ -41,8 +41,15 @@ TestActiveEntity.prototype = new ActiveEntity();
 TestActiveEntity.prototype.constructor = TestActiveEntity;
 
 
+/******************************************************************************
+ *
+ * Event Handler for State A, Event 1
+ *
+ ******************************************************************************/
 TestActiveEntity.prototype.StateAHandleEvent1 = function( data )
 {
-   // Do something with this data
+   console.log( "Handled event: StateAHandleEvent1" );
+   
+   return true;
 };
 

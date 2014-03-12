@@ -16,7 +16,7 @@ function State( name, parent )
    this.enter        = undefined;
    this.exit         = undefined;
    this.states       = Array();
-   this.handlers     = Array();
+   this.handlers     = {};
 }
 
 
@@ -36,14 +36,10 @@ State.prototype.AddState = function( state )
  * State.prototype.AddEventHandler
  *
  ******************************************************************************/
-State.prototype.AddEventHandler = function( event, routine )
+State.prototype.AddEventHandler = function( eventId, routine )
 {
-   var handler;
-
-   // TODO: Implement proper hash here
-   handler.event = event;
-   handler.routine = routine;
-   this.handlers.push( handler );
+   // TODO: Need to verify routine is a real function
+   this.handlers[eventId]= routine;
 };
 
 
@@ -147,6 +143,29 @@ State.prototype.ExitState = function( commonAncestor )
 
 /******************************************************************************
  *
+ * State.prototype.HandleEvent
+ *
+ ******************************************************************************/
+State.prototype.HandleEvent = function( eventId, data )
+{
+   var   eventHandled = false;
+   
+   
+   if( this.handlers.hasOwnProperty( eventId ) )
+   {
+      eventHandled = this.handlers[eventId]( data );
+   }
+
+   // We didn't handle the event, so pass it to our parent state
+   if( ( eventHandled == false ) && ( this.parent != undefined ) )
+   {
+      this.parent.HandleEvent( eventId, data );
+   }
+};
+
+
+/******************************************************************************
+ *
  * State.prototype.GetAncestors
  * 
  * This method builds a top -> down list of ancestors to this state
@@ -220,20 +239,8 @@ function ActiveEntity( name )
    this.name         = name;
    this.initial      = undefined;
    this.currentState = undefined;
-   this.TopState     = new State( TOP_STATE, this.TopHandleEvent );
+   this.topState     = new State( TOP_STATE );
 }
-
-
-/******************************************************************************
- *
- * ActiveEntity.prototyp.TopoHandleEvent
- * 
- * This method implements the Event Handler for the very top state.
- *
- ******************************************************************************/
-ActiveEntity.prototype.TopHandleEvent = function( event )
-{
-};
 
 
 /******************************************************************************
@@ -241,7 +248,7 @@ ActiveEntity.prototype.TopHandleEvent = function( event )
  * ActiveEntity.prototype.AddState
  * 
  * This method creates a state, and adds it to the parent state.  If the parent
- * state is not defined, then the state is added to the TopState.
+ * state is not defined, then the state is added to the topState.
  *
  ******************************************************************************/
 ActiveEntity.prototype.AddState = function( name, parentName )
@@ -251,14 +258,14 @@ ActiveEntity.prototype.AddState = function( name, parentName )
 
    if( parentName != undefined )
    {
-      parent = this.TopState.FindState( parentName, true );
+      parent = this.topState.FindState( parentName, true );
    }
 
-   // If we didn't find the state name, or it's undefined, then set the TopState
+   // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
    if( parent == undefined )
    {
-      parent = this.TopState;
+      parent = this.topState;
    }
 
    // For now, assume they are valid
@@ -269,13 +276,13 @@ ActiveEntity.prototype.AddState = function( name, parentName )
 };
 
 
-ActiveEntity.prototype.AddEventHandler = function( stateName, event, routine )
+ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
 {
-   var   state = this.TopState.FindState( stateName, true );
+   var   state = this.topState.FindState( stateName, true );
    
    if( state != undefined )
    {
-      state.AddEventHander( event, routine );
+      state.AddEventHander( eventId, routine );
    }
 };
 
@@ -285,12 +292,12 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, event, routine )
  * ActiveEntity.prototype.SetInitialState
  * 
  * This method sets the initial state of the Active Entity (i.e. the initial
- * substate of the TopState)
+ * substate of the topState)
  *
  ******************************************************************************/
 ActiveEntity.prototype.SetInitialState = function( stateName )
 {
-   var   state = this.TopState.FindState( stateName, true );
+   var   state = this.topState.FindState( stateName, true );
 
    if( state != undefined )
    {
@@ -304,13 +311,27 @@ ActiveEntity.prototype.SetInitialState = function( stateName )
  * ActiveEntity.prototype.Start
  * 
  * This method starts the state machine.  i.e. It performs the initial
- * transition to the TopState.  Note: If the TopState does not have an initial
+ * transition to the topState.  Note: If the topState does not have an initial
  * substate defined, then the state machine is never really started.
  *
  ******************************************************************************/
 ActiveEntity.prototype.Start = function()
 {
    this.Transition( TOP_STATE );
+};
+
+
+/******************************************************************************
+ *
+ * ActiveEntity.prototype.HandleEvent
+ *
+ ******************************************************************************/
+ActiveEntity.prototype.HandleEvent = function( eventId, data )
+{
+   if( this.currentState != undefined )
+   {
+      this.currentState.HandleEvent( eventId, data );
+   }
 };
 
 
@@ -328,7 +349,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
    var srcAncestors  = Array;
    var found         = undefined;
    var lcAncestor    = TOP_STATE;   // The Lowest Common Ancestor
-   var destState     = this.TopState.FindState( destStateName, true );
+   var destState     = this.topState.FindState( destStateName, true );
 
 
    if( destState != undefined )
@@ -371,7 +392,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
       }
       else
       {
-         // We should never get here because every state should have TopState
+         // We should never get here because every state should have topState
          console.error( "Could not find common ancestor state" );
       }
    }
