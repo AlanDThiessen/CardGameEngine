@@ -49,7 +49,9 @@ TestActiveEntity.prototype.constructor = TestActiveEntity;
 TestActiveEntity.prototype.StateAHandleEvent1 = function( data )
 {
    console.log( "Handled event: StateAHandleEvent1" );
-   
+
+   this.Transition( TEST_STATE_AB );
+ 
    return true;
 };
 
