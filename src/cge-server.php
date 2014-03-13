@@ -55,6 +55,12 @@ function cge_enqueue_js() {
 
 	wp_register_script( 'cge_client', plugins_url( '/js/cge_client.js', __FILE__  ), array( 'jquery' ), '20130130', true );
 
+   wp_register_script( 'js_active_entity',
+                       plugins_url( '/js/ActiveEntity.js', __FILE__ ),
+                       false,
+                       false,
+                       false );
+
    wp_register_script( 'js_card',
                        plugins_url( '/js/Card.js', __FILE__ ),
                        false,
@@ -103,6 +109,7 @@ function cge_enqueue_js() {
                        false, 
                        false );
 
+   wp_enqueue_script( 'js_active_entity' );
    wp_enqueue_script( 'js_card' );
    wp_enqueue_script( 'js_card_group' );
    wp_enqueue_script( 'js_card_container' );
@@ -111,7 +118,7 @@ function cge_enqueue_js() {
    wp_enqueue_script( 'js_table' );
    wp_enqueue_script( 'js_card_game' );
    wp_enqueue_script( 'js_ten_phases_game' );
-	wp_enqueue_script( 'cge_client' );
+   wp_enqueue_script( 'cge_client' );
 
 	wp_localize_script( 'cge_client', 'cgeVars', $cgeJsVars );
 }
