@@ -1,4 +1,11 @@
 
+module.exports = 
+{
+      State: State,
+      ActiveEntity: ActiveEntity
+};
+
+
 var TOP_STATE  = "TOP";
 
 
@@ -17,6 +24,11 @@ function State( name, parent )
    this.exit         = undefined;
    this.states       = Array();
    this.handlers     = {};
+
+   // Logging/Debug
+   var ancestorList = Array();
+   this.GetAncestors(ancestorList);
+   console.log( "Created New State: %s", ancestorList.join(':') );
 }
 
 
@@ -39,7 +51,7 @@ State.prototype.AddState = function( state )
 State.prototype.AddEventHandler = function( eventId, routine )
 {
    // TODO: Need to verify routine is a real function
-   this.handlers[eventId]= routine;
+   this.handlers[eventId] = routine;
 };
 
 
@@ -51,9 +63,10 @@ State.prototype.AddEventHandler = function( eventId, routine )
 State.prototype.SetInitialState = function( stateName )
 {
    var state = this.FindState( stateName );
-   
+
    if( state != undefined )
    {
+      console.log( "State %s: Initial State set to %s", this.name, state.name );
       this.initial = state;
    }
 };
@@ -102,7 +115,7 @@ State.prototype.EnterState = function( commonAncestor )
          this.parent.EnterState( commonAncestor );
       }
 
-      console.debug( "Enter State: %s", this.name );
+      console.log( "Enter State: %s", this.name );
 
       if( this.enter != undefined )
       {
@@ -125,7 +138,7 @@ State.prototype.ExitState = function( commonAncestor )
    // If we are the common ancestor, then our state doesn't get exited.
    if( commonAncestor != this.name )
    {
-      console.debug( "Exit State: %s", this.name );
+      console.log( "Exit State: %s", this.name );
 
       if( this.exit != undefined )
       {
@@ -196,27 +209,38 @@ State.prototype.FindState = function( name, goDeep )
    var stateFound = undefined;
 
 
+   console.log( "State %s: Find state %s", this.name, name );
    if( goDeep == undefined )
    {
       goDeep = false;
    }
 
-   for( var cntr = 0; cntr < this.states.length; cntr++ )
+   if( name == this.name )
    {
-      if( this.states[cntr].name == name )
-      {
-         stateFound = this.states[cntr];
-         break;
-      }
+      console.log( "State %s: This state found", this.name );
+      stateFound = this;
    }
-   
-   if( goDeep && ( stateFound == undefined ) )
+   else
    {
-      cntr = 0; this.states.length;
-      
-      while( !stateFound && ( cntr < this.states.length ) )
+      for( var cntr = 0; cntr < this.states.length; cntr++ )
       {
-         stateFound = this.states[cntr].FindState( name, true );
+         if( this.states[cntr].name == name )
+         {
+            console.log( "   State %s: State found at index %d", this.name, cntr );
+            stateFound = this.states[cntr];
+            break;
+         }
+      }
+      
+      if( goDeep && ( stateFound == undefined ) )
+      {
+         cntr = 0;
+         
+         while( !stateFound && ( cntr < this.states.length ) )
+         {
+            stateFound = this.states[cntr].FindState( name, true );
+            cntr++;
+         }
       }
    }
 
@@ -282,7 +306,7 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
    
    if( state != undefined )
    {
-      state.AddEventHander( eventId, routine );
+      state.AddEventHandler( eventId, routine );
    }
 };
 
@@ -297,12 +321,7 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
  ******************************************************************************/
 ActiveEntity.prototype.SetInitialState = function( stateName )
 {
-   var   state = this.topState.FindState( stateName, true );
-
-   if( state != undefined )
-   {
-      this.initial = state;
-   }
+   this.topState.SetInitialState( stateName );
 };
 
 
@@ -317,6 +336,8 @@ ActiveEntity.prototype.SetInitialState = function( stateName )
  ******************************************************************************/
 ActiveEntity.prototype.Start = function()
 {
+   console.log( "Start: transition to %s", TOP_STATE );
+   this.currentState = this.topState;
    this.Transition( TOP_STATE );
 };
 
@@ -346,11 +367,13 @@ ActiveEntity.prototype.HandleEvent = function( eventId, data )
 ActiveEntity.prototype.Transition = function( destStateName )
 {
    var destAncestors = Array();
-   var srcAncestors  = Array;
+   var srcAncestors  = Array();
    var found         = undefined;
    var lcAncestor    = TOP_STATE;   // The Lowest Common Ancestor
    var destState     = this.topState.FindState( destStateName, true );
 
+
+   console.log( "Transition: %s -> %s; ", this.currentState.name, destStateName );
 
    if( destState != undefined )
    {
@@ -365,6 +388,9 @@ ActiveEntity.prototype.Transition = function( destStateName )
       // First, get the ancestors of the source and destination states. 
       destState.GetAncestors( destAncestors );
       this.currentState.GetAncestors( srcAncestors );
+      
+      console.log( destAncestors );
+      console.log( srcAncestors );
 
       // Now, iterate from the bottom of the source ancestor list to find the 
       // Lowest common denominator of both states.
@@ -375,6 +401,8 @@ ActiveEntity.prototype.Transition = function( destStateName )
          found = destAncestors.indexOf( lcAncestor );
       }
 
+      console.log( "Common Ancestor: %s", lcAncestor );
+
       // Did we find a common ancestor?
       if( found != undefined  )
       {
@@ -383,9 +411,9 @@ ActiveEntity.prototype.Transition = function( destStateName )
 
          // TODO: If/when we add transition actions, we need to perform it
          //       between states
-         
+
          // Now, Enter the destination state, all the way from the common ancestor
-         this.toState.EnterState( lcAncestor );
+         destState.EnterState( lcAncestor );
 
          // Finally, update our current state variable
          this.currentState = destState;
