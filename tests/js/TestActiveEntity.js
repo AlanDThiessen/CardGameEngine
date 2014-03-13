@@ -24,7 +24,7 @@ function TestActiveEntity()
    console.log( "creating top states" );
    // Set up our state machine:
    //    Two top states: A & B
-   var stateA = this.AddState( TEST_STATE_A );
+   this.AddState( TEST_STATE_A );
    this.AddState( TEST_STATE_B );
    console.log( "creating sub states" );
    //    State A has two substates: A.A and A.B
@@ -36,8 +36,8 @@ function TestActiveEntity()
 
    console.log( "Set Initial state" );
    // Set state A as the initial state
-   this.SetInitialState( TEST_STATE_A );
-   stateA.SetInitialState( TEST_STATE_AB );
+   this.SetInitialState( TEST_STATE_AA );
+   this.SetInitialState( TEST_STATE_AB, TEST_STATE_A );
 
    console.log( "Add Event Handler" );
    // State A Event Hander for Event #1:
@@ -82,7 +82,9 @@ TestActiveEntity.prototype.StateAHandleEvent1 = function( eventId, data )
 
 var tae = new TestActiveEntity();
 tae.HandleEvent( 1 );
-tae.HandleEvent( 1 );
+//tae.HandleEvent( 1 );
 
+//tae.Transition( TEST_STATE_BB );
+//tae.Transition( TEST_STATE_AA );
 
 process.exit(code=0);

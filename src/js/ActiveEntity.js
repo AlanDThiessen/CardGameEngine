@@ -64,7 +64,7 @@ State.prototype.AddEventHandler = function( eventId, routine )
  ******************************************************************************/
 State.prototype.SetInitialState = function( stateName )
 {
-   var state = this.FindState( stateName );
+   var state = this.FindState( stateName, true );
 
    if( state != undefined )
    {
@@ -325,9 +325,21 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
  * substate of the topState)
  *
  ******************************************************************************/
-ActiveEntity.prototype.SetInitialState = function( stateName )
+ActiveEntity.prototype.SetInitialState = function( initialStateName, parentName )
 {
-   this.topState.SetInitialState( stateName );
+   var state;
+
+
+   if( parentName != undefined )
+   {
+      state = this.topState.FindState( parentName, true );
+   }
+   else
+   {
+      state = this.topState;
+   }
+
+   state.SetInitialState( initialStateName );
 };
 
 
@@ -426,7 +438,8 @@ ActiveEntity.prototype.Transition = function( destStateName )
       }
       else
       {
-         // We should never get here because every state should have topState
+         // We should never get here because every state should have the
+         // topState as it's ancestor
          console.error( "Could not find common ancestor state" );
       }
    }
