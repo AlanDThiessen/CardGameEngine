@@ -380,7 +380,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
       // TODO: If we are coming from outside the destination state, then we will
       //       need to change the destination state to the initial substate.
       //       For now, assume it's external.
-      if( destState.initial != undefined )
+      while( destState.initial != undefined )
       {
          destState = destState.initial;
       }
