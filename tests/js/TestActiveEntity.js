@@ -1,5 +1,4 @@
-var activeEntity = require( "../../src/js/ActiveEntity.js" );
-ActiveEntity = activeEntity.ActiveEntity;
+var ActiveEntity = require( "../../src/js/ActiveEntity.js" ).ActiveEntity;
 
 var TEST_STATE_A  = "A";
 var TEST_STATE_B  = "B";
@@ -60,13 +59,13 @@ TestActiveEntity.prototype.constructor = TestActiveEntity;
  * Event Handler for State A, Event 1
  *
  ******************************************************************************/
-TestActiveEntity.prototype.StateAHandleEvent1 = function( data )
+TestActiveEntity.prototype.StateAHandleEvent1 = function( eventId, data )
 {
    console.log( "Handled event: StateAHandleEvent1" );
 
-   console.log(this);
-   this.Transition( TEST_STATE_AB );
- 
+   this.Transition( TEST_STATE_BB );
+   console.log( "Current State: %s", this.currentState.name );
+   
    return true;
 };
 

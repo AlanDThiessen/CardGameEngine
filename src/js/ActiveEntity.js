@@ -15,9 +15,10 @@ var TOP_STATE  = "TOP";
  * Constructor
  *
  ******************************************************************************/
-function State( name, parent )
+function State( owner, name, parent )
 {
    this.name         = name;
+   this.owner        = owner;
    this.parent       = parent;
    this.initial      = undefined;
    this.enter        = undefined;
@@ -166,7 +167,7 @@ State.prototype.HandleEvent = function( eventId, data )
    
    if( this.handlers.hasOwnProperty( eventId ) )
    {
-      eventHandled = this.handlers[eventId]( data );
+      eventHandled = this.handlers[eventId].call( this.owner, eventId, data );
    }
 
    // We didn't handle the event, so pass it to our parent state
@@ -263,7 +264,7 @@ function ActiveEntity( name )
    this.name         = name;
    this.initial      = undefined;
    this.currentState = undefined;
-   this.topState     = new State( TOP_STATE );
+   this.topState     = new State( this, TOP_STATE );
 }
 
 
@@ -293,7 +294,7 @@ ActiveEntity.prototype.AddState = function( name, parentName )
    }
 
    // For now, assume they are valid
-   var state = new State( name, parent );
+   var state = new State( this, name, parent );
    parent.AddState( state );
 
    return( state );
@@ -395,7 +396,8 @@ ActiveEntity.prototype.Transition = function( destStateName )
       // Now, iterate from the bottom of the source ancestor list to find the 
       // Lowest common denominator of both states.
       // The first one popped off the list should be current state.
-      while( ( found == undefined ) && srcAncestors.length )
+      found = -1;
+      while( ( found == -1 ) && srcAncestors.length )
       {
          lcAncestor = srcAncestors.pop();
          found = destAncestors.indexOf( lcAncestor );
@@ -404,7 +406,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
       console.log( "Common Ancestor: %s", lcAncestor );
 
       // Did we find a common ancestor?
-      if( found != undefined  )
+      if( found != -1  )
       {
          // Exit the current state, all the way up to the common ancestor
          this.currentState.ExitState( lcAncestor );
