@@ -20,6 +20,7 @@ function State( owner, name, parent )
    this.name         = name;
    this.owner        = owner;
    this.parent       = parent;
+   this.inState      = false;
    this.initial      = undefined;
    this.enter        = undefined;
    this.exit         = undefined;
@@ -116,11 +117,13 @@ State.prototype.EnterState = function( commonAncestor )
          this.parent.EnterState( commonAncestor );
       }
 
+      this.inState = true;
+      
       console.log( "Enter State: %s", this.name );
 
       if( this.enter != undefined )
       {
-         this.enter();
+         this.enter.call( this.owner );
       }
    }
 };
@@ -140,10 +143,12 @@ State.prototype.ExitState = function( commonAncestor )
    if( commonAncestor != this.name )
    {
       console.log( "Exit State: %s", this.name );
+      
+      this.inState = false;
 
       if( this.exit != undefined )
       {
-         this.exit();
+         this.exit.call( this.owner );
       }
 
       // Now, attempt to exit our parent state
@@ -378,10 +383,9 @@ ActiveEntity.prototype.Transition = function( destStateName )
 
    if( destState != undefined )
    {
-      // TODO: If we are coming from outside the destination state, then we will
-      //       need to change the destination state to the initial substate.
-      //       For now, assume it's external.
-      while( destState.initial != undefined )
+      // If we are coming from outside the destination state, then we need to
+      // change the destination state to the initial substate.
+      while( ( !destState.inState ) && ( destState.initial != undefined ) )
       {
          destState = destState.initial;
       }

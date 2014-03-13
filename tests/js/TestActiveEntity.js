@@ -41,6 +41,7 @@ function TestActiveEntity()
 
    console.log( "Add Event Handler" );
    // State A Event Hander for Event #1:
+   this.AddEventHandler( TEST_STATE_AB, 1, this.StateABHandleEvent1 );
    this.AddEventHandler( TEST_STATE_A, 1, this.StateAHandleEvent1 );
 
    console.log( "Start state machine" );
@@ -59,19 +60,29 @@ TestActiveEntity.prototype.constructor = TestActiveEntity;
  * Event Handler for State A, Event 1
  *
  ******************************************************************************/
+TestActiveEntity.prototype.StateABHandleEvent1 = function( eventId, data )
+{
+   console.log( "Event 1 Handled by A.B" );
+
+   this.Transition( TEST_STATE_AA );
+
+   return true;
+};
+
+
 TestActiveEntity.prototype.StateAHandleEvent1 = function( eventId, data )
 {
-   console.log( "Handled event: StateAHandleEvent1" );
+   console.log( "Event 1 Handled by A" );
 
-   this.Transition( TEST_STATE_BB );
-   console.log( "Current State: %s", this.currentState.name );
+   this.Transition( TEST_STATE_A );
    
    return true;
 };
 
 
 var tae = new TestActiveEntity();
-//console.log( tae );
-tae.HandleEvent(1);
+tae.HandleEvent( 1 );
+tae.HandleEvent( 1 );
+
 
 process.exit(code=0);
