@@ -5,16 +5,24 @@
  * Constructor
  *
  ******************************************************************************/
-function CardGame()
+function CardGame( name )
 {
+   // Call the parent class constructor
+   ActiveEntity.call( this, "CardGame:" + name );
+
    this.isHost    = false;
-   this.name      = '';
+   this.name      = name;
    this.id        = '';
 
    this.table     = new Table();
    this.dealer    = new Dealer();
    this.players   = Array();
 }
+
+//Inherit from ActiveEntity
+CardGame.prototype = new ActiveEntity();
+//Correct the constructor pointer
+CardGame.prototype.constructor = CardGame;
 
 
 /******************************************************************************
@@ -45,8 +53,6 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    {
       this.dealer.Shuffle();
    }
-
-   $(this).trigger( "gameReady" );
 };
 
 
