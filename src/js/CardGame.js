@@ -1,4 +1,8 @@
 
+var CGEActiveEntity = require( "../CGEActiveEntity.js" );
+module.exports = CardGame;
+
+
 /******************************************************************************
  *
  * CardGame Class
@@ -8,7 +12,7 @@
 function CardGame( name )
 {
    // Call the parent class constructor
-   ActiveEntity.call( this, "CardGame:" + name );
+   CGEActiveEntity.call( this, "CardGame:" + name );
 
    this.isHost    = false;
    this.name      = name;
@@ -19,8 +23,8 @@ function CardGame( name )
    this.players   = Array();
 }
 
-//Inherit from ActiveEntity
-CardGame.prototype = new ActiveEntity();
+//Inherit from CGEActiveEntity
+CardGame.prototype = new CGEActiveEntity();
 //Correct the constructor pointer
 CardGame.prototype.constructor = CardGame;
 
