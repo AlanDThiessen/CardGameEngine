@@ -4,12 +4,27 @@
     <availablePage>
       <emfPageIdentifier href="CardEngine.notation#_LjQVkGcMEeKcWsfOwxtvgg"/>
     </availablePage>
+    <availablePage>
+      <emfPageIdentifier href="CardEngine.notation#_6SY9gKrKEeOti--r-Dk9Cw"/>
+    </availablePage>
+    <availablePage>
+      <emfPageIdentifier href="CardEngine.notation#_qcM24KxJEeOti--r-Dk9Cw"/>
+    </availablePage>
+    <availablePage>
+      <emfPageIdentifier href="CardEngine.notation#_K8WIUKxKEeOti--r-Dk9Cw"/>
+    </availablePage>
   </pageList>
   <sashModel currentSelection="//@sashModel/@windows.0/@children.0">
     <windows>
       <children xsi:type="di:TabFolder">
         <children>
           <emfPageIdentifier href="CardEngine.notation#_LjQVkGcMEeKcWsfOwxtvgg"/>
+        </children>
+        <children>
+          <emfPageIdentifier href="CardEngine.notation#_qcM24KxJEeOti--r-Dk9Cw"/>
+        </children>
+        <children>
+          <emfPageIdentifier href="CardEngine.notation#_K8WIUKxKEeOti--r-Dk9Cw"/>
         </children>
       </children>
     </windows>

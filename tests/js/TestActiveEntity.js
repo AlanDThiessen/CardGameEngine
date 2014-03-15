@@ -1,4 +1,6 @@
-var ActiveEntity = require( "../../src/js/ActiveEntity.js" ).ActiveEntity;
+
+//var State        = require( "../../src/js/State.js" );
+var ActiveEntity = require( "../../src/js/ActiveEntity.js" );
 
 var TEST_STATE_A  = "A";
 var TEST_STATE_B  = "B";
@@ -17,6 +19,8 @@ var TEST_STATE_BB = "B.B";
  ******************************************************************************/
 function TestActiveEntity()
 {
+   this.myName = "Alan";
+   
    console.log( "Starting test active entity" );
    // Call the parent class constructor
    ActiveEntity.call( this, "TestActiveEntity" );
@@ -36,7 +40,7 @@ function TestActiveEntity()
 
    console.log( "Set Initial state" );
    // Set state A as the initial state
-   this.SetInitialState( TEST_STATE_AA );
+   this.SetInitialState( TEST_STATE_A );
    this.SetInitialState( TEST_STATE_AB, TEST_STATE_A );
 
    console.log( "Add Event Handler" );
@@ -63,8 +67,12 @@ TestActiveEntity.prototype.constructor = TestActiveEntity;
 TestActiveEntity.prototype.StateABHandleEvent1 = function( eventId, data )
 {
    console.log( "Event 1 Handled by A.B" );
+   
+   console.log( "******************** %s ********************", this.myName );
+   console.log( this );
+   console.log( "****************************************" );
 
-   this.Transition( TEST_STATE_AA );
+   this.Transition( TEST_STATE_BB );
 
    return true;
 };
