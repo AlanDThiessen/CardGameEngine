@@ -48,3 +48,20 @@ CGEActiveEntity.prototype.AddState = function( name, parentName )
    return( state );
 };
 
+
+CGEState.prototype.AddValidTransaction = function( transDefName, stateName )
+{
+   var state = undefined;
+
+
+   if( stateName != undefined )
+   {
+      state = this.topState.FindState( stateName, true );
+   }
+
+   if( state != undefined )
+   {
+      state.AddValidTransaction( transDefName );
+   }
+};
+

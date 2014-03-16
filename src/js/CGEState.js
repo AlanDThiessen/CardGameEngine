@@ -26,7 +26,7 @@ CGEState.prototype = new State();
 CGEState.prototype.constructor = CGEState;
 
 
-CGEState.prototype.AddTransitionDefinition = function( transDefName )
+CGEState.prototype.AddValidTransaction = function( transDefName )
 {
    this.validTransactions.push( transDefName );
 };
