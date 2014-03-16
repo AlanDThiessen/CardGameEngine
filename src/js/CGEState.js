@@ -16,7 +16,7 @@ function CGEState( owner, name, parent )
    State.call( this, owner, name, parent );
 
    // Array of definition names that are valid for this state
-   this.validTransitions = Array();
+   this.validTransactions = Array();
 };
 
 
@@ -28,22 +28,22 @@ CGEState.prototype.constructor = CGEState;
 
 CGEState.prototype.AddTransitionDefinition = function( transDefName )
 {
-   this.validTransitions.push( transDefName );
+   this.validTransactions.push( transDefName );
 };
 
 
-CGEState.prototype.IsTransitionValid = function( transDefName )
+CGEState.prototype.IsTransactionValid = function( transDefName )
 {
    isValid = false;
 
-   if( this.validTransitions.indexOf( transDefName ) != -1 )
+   if( this.validTransactions.indexOf( transDefName ) != -1 )
    {
       isValid = true;
    }
    else if( this.parent != undefined )
    {
-      isValid = this.parent.IsTransitionValid( transDefName );
+      isValid = this.parent.IsTransactionValid( transDefName );
    }
-   
+
    return isValid;
 };
