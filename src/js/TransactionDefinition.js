@@ -3,18 +3,21 @@
  *  CLASS: TransactionDefinition
  ******************************************************************************/
 
+var TRANSACTION_TYPE_INBOUND  = "InBound";
+var TRANSACTION_TYPE_OUTBOUND = "Outbound";
+
+
 /******************************************************************************
  *
  * Class: TransactionDefinition
  * Constructor
  *
  ******************************************************************************/
-function TransactionDefinition()
+function TransactionDefinition( name, from, to, minCards, maxCards )
 {
-   this.name               = undefined;
-   this.enabled            = false;
-   this.fromContainerName  = undefined;
-   this.toContainerName    = undefined;
-   this.minCards           = undefined;
-   this.maxCards           = undefined;
+   this.name               = name;
+   this.fromContainerName  = from;
+   this.toContainerName    = to;
+   this.minCards           = minCards;
+   this.maxCards           = maxCards;
 };

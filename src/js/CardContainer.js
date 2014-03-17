@@ -6,7 +6,7 @@
  * Constructor
  *
  ******************************************************************************/
-function CardContainer( id )
+function CardContainer( id, minCards, maxCards )
 {
    this.id           = id;
    this.containers   = Array();
@@ -46,8 +46,6 @@ CardContainer.prototype.AddGroup = function( group )
 CardContainer.prototype.AddContainer = function( container )
 {
    this.containers.push( container );
-
-   return "Added container " + container;
 };
 
 
@@ -64,7 +62,7 @@ CardContainer.prototype.CanGetGroup = function( cardList )
    {
       
    }
-   
+
    return true;
 };
 

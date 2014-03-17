@@ -29,12 +29,22 @@ Player.prototype = new CGEActiveEntity();
 Player.prototype.constructor = Player;
 
 
-/******************************************************************************
- *
- * Player.prototype.init
- *
- ******************************************************************************/
-Player.prototype.init = function()
+Player.prototype.AddContainer = function( name, parent, minCards, maxCards )
 {
+   var parentContainer;
+   var container = new Container( name, minCards, maxCards );
+
+
+   if( parent != undefined )
+   {
+      parentContainer = this.rootContainer.GetContainerById( parent );
+   }
+   else
+   {
+      parentContainer = this.rootContainer;
+   }
+
+   parentContainer.AddContainer( container );
 };
+
 

@@ -49,7 +49,7 @@ CGEActiveEntity.prototype.AddState = function( name, parentName )
 };
 
 
-CGEState.prototype.AddValidTransaction = function( transDefName, stateName )
+CGEState.prototype.AddValidTransaction = function( stateName, transDefName )
 {
    var state = undefined;
 
