@@ -1,15 +1,15 @@
 
 /******************************************************************************
- *  CLASS: TransitionDefinition
+ *  CLASS: TransactionDefinition
  ******************************************************************************/
 
 /******************************************************************************
  *
- * Class: TransitionDefinition
+ * Class: TransactionDefinition
  * Constructor
  *
  ******************************************************************************/
-function TransitionDefinition()
+function TransactionDefinition()
 {
    this.name               = undefined;
    this.enabled            = false;
