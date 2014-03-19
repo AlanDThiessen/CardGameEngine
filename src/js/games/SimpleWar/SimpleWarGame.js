@@ -1,4 +1,5 @@
 
+module.exports = SimpleWarGame;
 var CardGame = require( "../../CardGame.js" );
 
 /******************************************************************************
@@ -39,4 +40,10 @@ function SimpleWarGame( id, alias )
 SimpleWarGame.prototype = new CardGame();
 //Correct the constructor pointer
 SimpleWarGame.prototype.constructor = SimpleWarGame;
+
+
+SimpleWarGame.prototype.Deal = function()
+{
+   console.log( "SimpleWar: Deal" );
+};
 

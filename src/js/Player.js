@@ -1,6 +1,6 @@
 
-var CGEActiveEntity = require( "../CGEActiveEntity.js" );
 module.exports = Player;
+var CGEActiveEntity = require( "../CGEActiveEntity.js" );
 
 /******************************************************************************
  *

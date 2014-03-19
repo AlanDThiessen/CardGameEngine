@@ -1,6 +1,9 @@
 
-var CGEActiveEntity = require( "../CGEActiveEntity.js" );
 module.exports = CardGame;
+var CGEActiveEntity = require( "./CGEActiveEntity.js" );
+var Table = require( "./Table.js" );
+var Dealer = require( "./Dealer.js" );
+var Card = require( "./Card.js" );
 
 
 /******************************************************************************

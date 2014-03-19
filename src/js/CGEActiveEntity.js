@@ -1,4 +1,6 @@
 
+module.exports = CGEActiveEntity;
+
 var CGEState      = require( "./CGEState.js" );
 var ActiveEntity  = require( "./ActiveEntity.js" );
 

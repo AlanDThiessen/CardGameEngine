@@ -1,3 +1,4 @@
+module.exports = SimpleWarPlayer;
 
 var Player = require( "../../Player.js" );
 var TransactionDefinition = require( "../../TransactionDefinition.js" );
@@ -5,14 +6,14 @@ var TransactionDefinition = require( "../../TransactionDefinition.js" );
 /******************************************************************************
  * States
  ******************************************************************************/
-var SWP_STATE_IN_GAME         = "InGame";
-var SWP_STATE_OUT             = "Out";
-var SWP_STATE_READY           = "Ready";
-var SWP_STATE_BATTLE          = "Battle";
-var SWP_STATE_WAIT            = "Wait";
-var SWP_STATE_WAR             = "War";
-var SWP_STATE_FLOP            = "Flop";
-var SWP_STATE_DRAW            = "Draw";
+var SWP_STATE_IN_GAME         = "InGame";    // Top:InGame
+var SWP_STATE_OUT             = "Out";       // Top:Out
+var SWP_STATE_READY           = "Ready";     // Top:InGame:Ready
+var SWP_STATE_BATTLE          = "Battle";    // Top:InGame:Battle
+var SWP_STATE_WAIT            = "Wait";      // Top:InGame:Wait
+var SWP_STATE_WAR             = "War";       // Top:InGame:War
+var SWP_STATE_FLOP            = "Flop";      // Top:InGame:War:Flop
+var SWP_STATE_DRAW            = "Draw";      // Top:InGame:War:Draw
 
 /******************************************************************************
  * Containers
@@ -62,7 +63,7 @@ function SimpleWarPlayer( id, alias )
 {
    // Call the parent class constructor
    Player.call( this, id, alias );
-   
+
    // Create the State Machine
    this.AddState( SWP_STATE_IN_GAME,   undefined         );
    this.AddState( SWP_STATE_OUT,       undefined         );
@@ -74,12 +75,12 @@ function SimpleWarPlayer( id, alias )
    this.AddState( SWP_STATE_DRAW,      SWP_STATE_WAR     );
 
    this.SetInitialState( SWP_STATE_READY );
-   
+
    // TODO: Need definitions for Max cards in deck
    this.AddContainer( "Stack",   undefined, 0, 52 );
    this.AddContainer( "Battle",  undefined, 0,  1 );
    this.AddContainer( "Discard", undefined, 0, 52 );
-   
+
    // Add the valid transactions to the states
    this.AddValidTransaction( SWP_STATE_READY,  SWP_TRANSACTION_DEAL    );
    this.AddValidTransaction( SWP_STATE_BATTLE, SWP_TRANSACTION_BATTLE  );

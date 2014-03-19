@@ -1,4 +1,7 @@
 
+module.exports = Table;
+var CardContainer = require( "./CardContainer.js" );
+
 /******************************************************************************
  *
  * Table Class

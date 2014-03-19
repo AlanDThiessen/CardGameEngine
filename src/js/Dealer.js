@@ -1,4 +1,7 @@
 
+module.exports = Dealer;
+var CardContainer = require( "./CardContainer.js" );
+
 /******************************************************************************
  *
  * Dealer Class
