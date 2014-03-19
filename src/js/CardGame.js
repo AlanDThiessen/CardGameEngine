@@ -42,9 +42,6 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    console.log( 'Initializing game of ' + gameSpec.name );
    console.log( gameSpec );
 
-   // ADT: Temp code to ensure shuffle
-   gameSpec.server.isPrimary = 'true';
-
    this.name = gameSpec.server.name;
    this.id = gameSpec.server.id;
 
@@ -54,7 +51,24 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
       this.isHost = true;
    }
 
+   console.log( "Adding players" );
+   this.AddPlayers( gameSpec.players );
+   
    this.CreateDeck( deckSpec );
+};
+
+
+/******************************************************************************
+ *
+ * CardGame.prototype.AddPlayers
+ *
+ ******************************************************************************/
+CardGame.prototype.AddPlayers = function( players )
+{
+   for( var cntr = 0; cntr < players.length; cntr++ )
+   {
+      this.AddPlayer( players[cntr].id, players[cntr].alias );
+   }
 };
 
 
@@ -65,6 +79,13 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
  ******************************************************************************/
 CardGame.prototype.StartGame = function()
 {
+   // First, Start all the players
+   for( var cntr = 0; cntr < this.players.length; cntr++ )
+   {
+      this.players[cntr].Start();
+   }
+
+   // Now, start the game
    this.Start();
 };
 
@@ -137,6 +158,17 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
                     nonSuited.rank,
                     nonSuited.color,
                     count );
+};
+
+
+/******************************************************************************
+ *
+ * CardGame.prototype.AddPlayer
+ *
+ ******************************************************************************/
+CardGame.prototype.AddPlayer = function( id, name )
+{
+   console.log( 'Please override virtual function \'CardGame.AddPlayer()\'.' );
 };
 
 

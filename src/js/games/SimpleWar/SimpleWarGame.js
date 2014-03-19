@@ -46,9 +46,9 @@ SimpleWarGame.prototype = new CardGame();
 SimpleWarGame.prototype.constructor = SimpleWarGame;
 
 
-SimpleWarGame.prototype.AddPlayer = function( alias )
+SimpleWarGame.prototype.AddPlayer = function( id, alias )
 {
-   this.players.push( new SimpleWarPlayer( alias ) );
+   this.players.push( new SimpleWarPlayer( id, alias ) );
 };
 
 
@@ -65,5 +65,28 @@ SimpleWarGame.prototype.InProgressEnter = function()
 SimpleWarGame.prototype.Deal = function()
 {
    console.log( "SimpleWar: Deal" );
+
+   // Ensure players get an even number of cards
+   var cardRemainder = this.dealer.NumCards() % this.players.length;
+   
+   console.log( "Card Remainder: %d", cardRemainder );
+
+   var player = 0;
+   while( this.dealer.NumCards() > cardRemainder )
+   {
+      var cardGroup = this.dealer.GetGroup( [ "TOP" ] );
+
+      console.log( "Dealer: %d; Player: %s; Card: %s", this.dealer.NumCards(), this.players[player].alias, cardGroup[0].shortName );
+
+      // TODO: Implement transactions here
+      this.players[player].rootContainer.containers[0].AddGroup( cardGroup );
+
+      player++;
+
+      if( player >= this.players.length )
+      {
+         player = 0;
+      }
+   }
 };
 

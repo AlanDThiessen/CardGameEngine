@@ -3,16 +3,27 @@ var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 
 var gameSpec = 
 {
-     "id": "simple-war",
-     "name": "Simple War",
-     "required": {
-       "deck": "standard",
-       "minPlayers": "2",
-       "maxPlayers": "4"
-     },
-     "server": {
-       "isPrimary": "true",
-     }
+   "id": "simple-war",
+   "name": "Simple War",
+   "required": {
+      "deck": "standard",
+      "minPlayers": "2",
+      "maxPlayers": "4"
+   },
+   "server": {
+      "isPrimary": "true",
+   },
+   "players": [ 
+      { "id": "0010",
+        "alias": "Alan"
+      },
+      { "id": "0020",
+        "alias": "David"
+      },
+      { "id": "0030",
+        "alias": "Jordan"
+      }
+   ],
  };
 
 
@@ -151,19 +162,29 @@ var deckSpec =
        }
      }
 };
- 
+
 
 console.log('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 cardGame = new SimpleWarGame();
 
 cardGame.Init( gameSpec, deckSpec );
 
-cardGame.AddPlayer( "Alan" );
-cardGame.AddPlayer( "Jordan" );
+console.log( cardGame.players[0] );
+console.log( cardGame.players[1] );
 
 //cardGame.dealer.PrintCards();  // The deck should *not* be shuffled here
 
 cardGame.StartGame();
+
+console.log( "Player 0: Current State: %s", cardGame.players[0].currentState.name );
+console.log( "Player 1: Current State: %s", cardGame.players[1].currentState.name );
+console.log( "***** Player 0: Card Stack *****" );
+cardGame.players[0].rootContainer.containers[0].PrintCards();
+console.log( "***** Player 1: Card Stack *****" );
+cardGame.players[1].rootContainer.containers[0].PrintCards();
+console.log( "***** Player 2: Card Stack *****" );
+cardGame.players[2].rootContainer.containers[0].PrintCards();
+
 
 //cardGame.dealer.PrintCards();  // The deck should now be shuffled.
 

@@ -33,10 +33,12 @@ CardContainer.prototype.AddGroup = function( group )
 {
    if (this.AcceptGroup(group) == true)
    {
-      this.cards.push(group);
+      // TODO: Verify min/max cards
+      for( var cntr = 0; cntr < group.length; cntr++ )
+      {
+         this.cards.push( group[cntr] );
+      }
    }
-
-   return "Added Group " + group;
 };
 
 
@@ -80,7 +82,8 @@ CardContainer.prototype.GetGroup = function( cardList )
 
    if (this.CanGetGroup(cardList) == true)
    {
-
+      // TODO: Implement card retrieval other than top
+      cardGroup.push( this.GetCard( "TOP" ) );
    }
 
    return cardGroup;

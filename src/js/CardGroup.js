@@ -1,6 +1,7 @@
 
 module.exports = CardGroup;
 
+
 /******************************************************************************
  *
  * CardGroup Class
@@ -24,6 +25,12 @@ CardGroup.prototype.AddCard = function( card )
 };
 
 
+CardGroup.prototype.Empty = function()
+{
+   this.cards = Array();
+};
+
+
 /******************************************************************************
  *
  * CardGroup.prototype.GetCard
@@ -31,8 +38,25 @@ CardGroup.prototype.AddCard = function( card )
  ******************************************************************************/
 CardGroup.prototype.GetCard = function( cardId )
 {
-   // ADT TODO: Fill out this method
-   this.cards.push( card );
+   var card = undefined;
+
+   if( cardId = "TOP" )
+   {
+      card = this.cards.shift();
+   }
+
+   return card;
+};
+
+
+/******************************************************************************
+ *
+ * CardGroup.prototype.NumCards
+ *
+ ******************************************************************************/
+CardGroup.prototype.NumCards = function()
+{
+   return this.cards.length;
 };
 
 

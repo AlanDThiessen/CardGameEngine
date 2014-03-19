@@ -9,14 +9,17 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
  * Constructor
  *
  ******************************************************************************/
-function Player( alias )
+function Player( id, alias )
 {
    // Call the parent class constructor
    CGEActiveEntity.call( this, "Player:" + alias );
 
+   console.log( "New Player: %s", alias );
+
+   this.id              = id;
    this.alias           = alias;
-   this.score           =  0;
-   this.rootContainer   = new CardContainer( "Player:" + alias );
+   this.score           = 0;
+   this.rootContainer   = new CardContainer( "Player:" + id );
 }
 
 // Inherit from CGEActiveEntity
