@@ -44,7 +44,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    // ADT: Temp code to ensure shuffle
    gameSpec.server.isPrimary = 'true';
-   
+
    this.name = gameSpec.server.name;
    this.id = gameSpec.server.id;
 
@@ -55,11 +55,6 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    }
 
    this.CreateDeck( deckSpec );
-
-   if( this.isHost )
-   {
-      this.dealer.Shuffle();
-   }
 };
 
 
@@ -70,10 +65,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
  ******************************************************************************/
 CardGame.prototype.StartGame = function()
 {
-   if( this.isHost )
-   {
-      this.Deal();
-   }
+   this.Start();
 };
 
 

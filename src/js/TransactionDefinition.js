@@ -1,5 +1,9 @@
 
-module.exports = TransactionDefinition;
+module.exports = {
+ TransactionDefinition: TransactionDefinition,
+ TRANSACTION_TYPE_INBOUND: TRANSACTION_TYPE_INBOUND,
+ TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
+};
 
 
 /******************************************************************************

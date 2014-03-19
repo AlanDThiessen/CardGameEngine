@@ -65,10 +65,32 @@ ActiveEntity.prototype.AddState = function( name, parentName )
 ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
 {
    var   state = this.topState.FindState( stateName, true );
-   
+
    if( state != undefined )
    {
       state.AddEventHandler( eventId, routine );
+   }
+};
+
+
+ActiveEntity.prototype.SetEnterRoutine = function( stateName, routine )
+{
+   var   state = this.topState.FindState( stateName, true );
+
+   if( state != undefined )
+   {
+      state.SetEnterRoutine( routine );
+   }
+};
+
+
+ActiveEntity.prototype.SetExitRoutine = function( stateName, routine )
+{
+   var   state = this.topState.FindState( stateName, true );
+
+   if( state != undefined )
+   {
+      state.SetExitRoutine( routine );
    }
 };
 

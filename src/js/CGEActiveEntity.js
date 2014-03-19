@@ -51,7 +51,7 @@ CGEActiveEntity.prototype.AddState = function( name, parentName )
 };
 
 
-CGEState.prototype.AddValidTransaction = function( stateName, transDefName )
+CGEActiveEntity.prototype.AddValidTransaction = function( stateName, transDefName )
 {
    var state = undefined;
 

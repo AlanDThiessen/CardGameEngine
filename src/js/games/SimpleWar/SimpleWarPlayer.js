@@ -1,7 +1,11 @@
 module.exports = SimpleWarPlayer;
 
 var Player = require( "../../Player.js" );
-var TransactionDefinition = require( "../../TransactionDefinition.js" );
+var transDef = require( "../../TransactionDefinition.js" );
+
+var TransactionDefinition = transDef.TransactionDefinition;
+var TRANSACTION_TYPE_INBOUND = transDef.TRANSACTION_TYPE_INBOUND;
+var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 
 /******************************************************************************
  * States

@@ -15,6 +15,7 @@ var gameSpec =
      }
  };
 
+
 var deckSpec = 
 {
      "id": "standardNoJokers",
@@ -146,7 +147,7 @@ var deckSpec =
      },
      "nonsuited": {
        "values": {
-	"value": [ ]
+         "value": [ ]
        }
      }
 };
@@ -156,7 +157,13 @@ console.log('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec
 cardGame = new SimpleWarGame();
 
 cardGame.Init( gameSpec, deckSpec );
+
+cardGame.AddPlayer( "Alan" );
+cardGame.AddPlayer( "Jordan" );
+
+//cardGame.dealer.PrintCards();  // The deck should *not* be shuffled here
+
 cardGame.StartGame();
 
-console.log( cardGame.dealer );
+//cardGame.dealer.PrintCards();  // The deck should now be shuffled.
 
