@@ -40,9 +40,13 @@ CardGroup.prototype.GetCard = function( cardId )
 {
    var card = undefined;
 
-   if( cardId = "TOP" )
+   if( cardId == "TOP" )
    {
       card = this.cards.shift();
+   }
+   else if( cardId == "BOTTOM" )
+   {
+      card = this.cards.pop();
    }
 
    return card;

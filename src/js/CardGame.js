@@ -13,7 +13,7 @@ var CGE_DEALER = "Dealer";
 var CGE_TABLE = "Table";
 
 //Outgoing Transactions
-AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 52 );
+AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 1 );
 
 
 /******************************************************************************
@@ -32,6 +32,7 @@ function CardGame( name )
    this.id        = '';
    this.players   = Array();
 
+   // TODO: Bug: generic card games can't have card limits
    this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
    this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
 
