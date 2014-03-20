@@ -1,9 +1,19 @@
 
 module.exports = CardGame;
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
-var Table = require( "./Table.js" );
-var Dealer = require( "./Dealer.js" );
 var Card = require( "./Card.js" );
+var transDef = require( "./TransactionDefinition.js" );
+
+var TransactionDefinition = transDef.TransactionDefinition;
+var AddTransactionDefinition = transDef.AddTransactionDefinition;
+var TRANSACTION_TYPE_INBOUND = transDef.TRANSACTION_TYPE_INBOUND;
+var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
+
+var CGE_DEALER = "Dealer";
+var CGE_TABLE = "Table";
+
+//Outgoing Transactions
+AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 52 );
 
 
 /******************************************************************************
@@ -20,10 +30,13 @@ function CardGame( name )
    this.isHost    = false;
    this.name      = name;
    this.id        = '';
-
-   this.table     = new Table();
-   this.dealer    = new Dealer();
    this.players   = Array();
+
+   this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
+   this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
+
+   this.dealer = this.GetContainerById( CGE_DEALER );
+   this.table  = this.GetContainerById( CGE_TABLE );
 }
 
 //Inherit from CGEActiveEntity
@@ -53,7 +66,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    console.log( "Adding players" );
    this.AddPlayers( gameSpec.players );
-   
+
    this.CreateDeck( deckSpec );
 };
 
@@ -185,38 +198,6 @@ CardGame.prototype.Deal = function()
 
 /******************************************************************************
  *
- * CardGame.prototype.ValidateTransferDest
- *
- ******************************************************************************/
-CardGame.prototype.ValidateTransferDest = function( containerId, cardList )
-{
-   var container  = this.GetContainerById( containerId );
-   var valid      = false;
-
-
-   if( container != undefined )
-   {
-      valid = container.AcceptGroup( cardList );
-   }
-
-   return valid;
-};
-
-
-/******************************************************************************
- *
- * CardGame.prototype.Transfer
- *
- ******************************************************************************/
-CardGame.prototype.Transfer = function( fromContainer, toContainer, cardList )
-{
-   // ADT TODO: perform transfer
-   // ADT TODO: Log transfer in sequence log (create sequence log first)
-};
-
-
-/******************************************************************************
- *
  * CardGame.prototype.GetContainerById
  *
  ******************************************************************************/
@@ -227,13 +208,7 @@ CardGame.prototype.GetContainerById = function( id )
 
 
    // Check to see if the dealer has this container
-   returnVal = this.dealer.GetContainerById( id );
-
-   if( returnVal == undefined )
-   {
-      // Otherwise, check if the table has this contianer
-      returnVal = this.table.GetContainerById( id );
-   }
+   returnVal = this.rootContainer.GetContainerById( id );
 
    // Otherwise, check all the players
    if( returnVal == undefined )
@@ -248,31 +223,4 @@ CardGame.prototype.GetContainerById = function( id )
    }
 
    return returnVal;
-};
-
-
-/******************************************************************************
- *
- * CardGame.prototype.GetHTML
- *
- ******************************************************************************/
-CardGame.prototype.GetHTML = function()
-{
-   var   htmlStr = "";
-   var   cntr;
-
-
-   htmlStr += '<div id="div_' + this.id + '" cgOId="' + this.id + '">\n';
-
-   htmlStr += this.dealer.GetHTML();
-   htmlStr += this.table.GetHTML();
-   
-   for( cntr = 0; cntr < this.players.length; cntr++ )
-   {
-      htmlStr += this.players[cntr].GetHTML();
-   }
-
-   htmlStr += '</div>\n';
-
-   return htmlStr;
 };

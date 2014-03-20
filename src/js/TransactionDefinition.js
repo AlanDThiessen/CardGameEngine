@@ -1,10 +1,35 @@
 
-module.exports = {
- TransactionDefinition: TransactionDefinition,
- TRANSACTION_TYPE_INBOUND: TRANSACTION_TYPE_INBOUND,
- TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
-};
+/******************************************************************************
+ * Global array of Transaction Definitions
+ ******************************************************************************/
+//if( TransactionDefs == undefined )
+//{
+   var TransactionDefs = Array();
 
+   function AddTransactionDefinition( name, from, to, minCards, maxCards )
+   {
+      if( GetTransactionDefinition( name ) == undefined )
+      {
+         TransactionDefs.push( new TransactionDefinition( name, from, to, minCards, maxCards ) );
+      }
+   }
+
+   function GetTransactionDefinition( name )
+   {
+      var transDef = undefined;
+      
+      for( var cntr = 0; cntr < TransactionDefs.length; cntr++ )
+      {
+         if( TransactionDefs[cntr].name == name )
+         {
+            transDef = TransactionDefs[cntr];
+            break;
+         }
+      }
+      
+      return transDef;
+   }
+//}
 
 /******************************************************************************
  *  CLASS: TransactionDefinition
@@ -27,4 +52,14 @@ function TransactionDefinition( name, from, to, minCards, maxCards )
    this.toContainerName    = to;
    this.minCards           = minCards;
    this.maxCards           = maxCards;
+};
+
+
+
+module.exports = {
+ TransactionDefinition: TransactionDefinition,
+ AddTransactionDefinition: AddTransactionDefinition,
+ GetTransactionDefinition: GetTransactionDefinition,
+ TRANSACTION_TYPE_INBOUND: TRANSACTION_TYPE_INBOUND,
+ TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
 };

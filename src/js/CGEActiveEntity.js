@@ -3,6 +3,15 @@ module.exports = CGEActiveEntity;
 
 var CGEState      = require( "./CGEState.js" );
 var ActiveEntity  = require( "./ActiveEntity.js" );
+var CardContainer = require( "./CardContainer.js" );
+var TransDef = require( "./TransactionDefinition.js" );
+
+var TransactionDefinition = TransDef.TransactionDefinition;
+var AddTransactionDefinition = TransDef.AddTransactionDefinition;
+var GetTransactionDefinition = TransDef.GetTransactionDefinition;
+var TRANSACTION_TYPE_INBOUND = TransDef.TRANSACTION_TYPE_INBOUND;
+var TRANSACTION_TYPE_OUTBOUND = TransDef.TRANSACTION_TYPE_OUTBOUND;
+
 
 /******************************************************************************
  *  CLASS: CGEActiveEntity
@@ -17,6 +26,8 @@ var ActiveEntity  = require( "./ActiveEntity.js" );
 function CGEActiveEntity( owner, name, parent )
 {
    ActiveEntity.call( this, owner, name, parent );
+
+   this.rootContainer   = new CardContainer( name );
 };
 
 
@@ -24,6 +35,26 @@ function CGEActiveEntity( owner, name, parent )
 CGEActiveEntity.prototype = new ActiveEntity();
 //Correct the constructor pointer
 CGEActiveEntity.prototype.constructor = CGEActiveEntity;
+
+
+
+CGEActiveEntity.prototype.AddContainer = function( name, parent, minCards, maxCards )
+{
+   var parentContainer;
+   var container = new CardContainer( name, minCards, maxCards );
+
+
+   if( parent != undefined )
+   {
+      parentContainer = this.rootContainer.GetContainerById( parent );
+   }
+   else
+   {
+      parentContainer = this.rootContainer;
+   }
+
+   parentContainer.AddContainer( container );
+};
 
 
 CGEActiveEntity.prototype.AddState = function( name, parentName )
@@ -67,3 +98,66 @@ CGEActiveEntity.prototype.AddValidTransaction = function( stateName, transDefNam
    }
 };
 
+
+CGEActiveEntity.prototype.IsTransactionValid = function( transDefName )
+{
+   var isValid = false;
+   
+   if( this.currentState != undefined )
+   {
+      console.log( this.currentState.name );
+      isValid = this.currentState.IsTransactionValid( transDefName );
+   }
+   
+   return isValid;
+};
+
+
+CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, cards )
+{
+   var success = false;
+   
+   if( this.IsTransactionValid( transName ) )
+   {
+      var transDef = GetTransactionDefinition( transName );
+     
+      if( transDef != undefined )
+      {
+         if( transDef.fromContainerName == TRANSACTION_TYPE_INBOUND )
+         {
+            var toContainer = this.rootContainer.GetContainerById( transDef.toContainerName );
+            
+            if( toContainer != undefined )
+            {
+               toContainer.AddGroup( cards );
+               success = true;
+            }
+         }
+         else if( transDef.toContainerName == TRANSACTION_TYPE_OUTBOUND )
+         {
+            var fromContainer = this.rootContainer.GetContainerById( transDef.fromContainerName );
+            
+            if( fromContainer != undefined )
+            {
+               fromContainer.GetGroup( cards, cardList );
+               success = true;
+            }
+         }
+         else
+         {
+            var toContainer = this.rootContainer.GetContainerById( transDef.to );
+            var fromContainer = this.rootContainer.GetContainerById( transDef.from );
+            var cardArray = Array();
+           
+            if( ( toContainer != undefined ) && ( fromContainer != undefined ) )
+            {
+               fromContainer.GetGroup( cardArray, cardList );
+               toContainer.AddGroup( cardArray );
+               success = true;
+            } 
+         }
+      }
+   }
+   
+   return success;
+};

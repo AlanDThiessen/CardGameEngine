@@ -2,6 +2,14 @@
 module.exports = SimpleWarGame;
 var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
 var CardGame = require( "../../CardGame.js" );
+var transDef = require( "../../TransactionDefinition.js" );
+var SWGC     = require( "./SimpleWarDefs.js" );
+
+var TransactionDefinition = transDef.TransactionDefinition;
+var AddTransactionDefinition = transDef.AddTransactionDefinition;
+var TRANSACTION_TYPE_INBOUND = transDef.TRANSACTION_TYPE_INBOUND;
+var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
+
 
 /******************************************************************************
  * States
@@ -37,6 +45,9 @@ function SimpleWarGame( id, alias )
    this.SetInitialState( SIMPLE_WAR_STATE_BATTLE );
    
    this.SetEnterRoutine( SIMPLE_WAR_STATE_IN_PROGRESS, this.InProgressEnter );
+   
+   // Add the valid transactions to the states
+   this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
 };
 
 
@@ -68,18 +79,16 @@ SimpleWarGame.prototype.Deal = function()
 
    // Ensure players get an even number of cards
    var cardRemainder = this.dealer.NumCards() % this.players.length;
-   
+
    console.log( "Card Remainder: %d", cardRemainder );
 
    var player = 0;
    while( this.dealer.NumCards() > cardRemainder )
    {
-      var cardGroup = this.dealer.GetGroup( [ "TOP" ] );
+      var cardGroup = Array();
 
-      console.log( "Dealer: %d; Player: %s; Card: %s", this.dealer.NumCards(), this.players[player].alias, cardGroup[0].shortName );
-
-      // TODO: Implement transactions here
-      this.players[player].rootContainer.containers[0].AddGroup( cardGroup );
+      this.ExecuteTransaction( "CGE_DEAL", [ "TOP" ], cardGroup );
+      this.players[player].ExecuteTransaction( SWGC.SWP_TRANSACTION_DEAL, [ "TOP" ], cardGroup );
 
       player++;
 

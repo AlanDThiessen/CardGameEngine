@@ -36,13 +36,13 @@ CGEState.prototype.AddValidTransaction = function( transDefName )
 
 CGEState.prototype.IsTransactionValid = function( transDefName )
 {
-   isValid = false;
+   var isValid = false;
 
    if( this.validTransactions.indexOf( transDefName ) != -1 )
    {
       isValid = true;
    }
-   else if( this.parent != undefined )
+   else if( ( this.parent != undefined ) && ( this.parent.IsTransactionValid != undefined ) )
    {
       isValid = this.parent.IsTransactionValid( transDefName );
    }

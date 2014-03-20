@@ -208,11 +208,11 @@ ActiveEntity.prototype.Transition = function( destStateName )
          // TODO: If/when we add transition actions, we need to perform it
          //       between states
 
+         // Update our current state variable
+         this.currentState = destState;
+
          // Now, Enter the destination state, all the way from the common ancestor
          destState.EnterState( lcAncestor );
-
-         // Finally, update our current state variable
-         this.currentState = destState;
       }
       else
       {

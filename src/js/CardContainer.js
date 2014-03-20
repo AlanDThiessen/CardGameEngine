@@ -75,18 +75,14 @@ CardContainer.prototype.CanGetGroup = function( cardList )
  * CardContainer.prototype.GetGroup
  * 
  ******************************************************************************/
-CardContainer.prototype.GetGroup = function( cardList )
+CardContainer.prototype.GetGroup = function( cardArray, cardList )
 {
    // ADT TODO: Finish this method
-   var cardGroup = Array();
-
-   if (this.CanGetGroup(cardList) == true)
+   if( this.CanGetGroup(cardList ) == true )
    {
       // TODO: Implement card retrieval other than top
-      cardGroup.push( this.GetCard( "TOP" ) );
+      cardArray.push( this.GetCard( "TOP" ) );
    }
-
-   return cardGroup;
 };
 
 
@@ -120,11 +116,15 @@ CardContainer.prototype.GetContainerById = function( id )
    {
       cntr = 0;
 
-      do
+      for( cntr = 0; cntr < this.containers.length; cntr++ )
       {
          returnVal = this.containers[cntr].GetContainerById(id);
+         
+         if( returnVal != undefined )
+         {
+            break;
+         }
       }
-      while ((cntr < this.containers.length) && (returnVal == undefined))
    }
 
    return returnVal;
