@@ -105,7 +105,6 @@ CGEActiveEntity.prototype.IsTransactionValid = function( transDefName )
    
    if( this.currentState != undefined )
    {
-      console.log( this.currentState.name );
       isValid = this.currentState.IsTransactionValid( transDefName );
    }
    
