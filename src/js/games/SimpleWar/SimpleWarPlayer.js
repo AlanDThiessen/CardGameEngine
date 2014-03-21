@@ -71,6 +71,11 @@ function SimpleWarPlayer( id, alias )
 
    this.SetInitialState( SWP_STATE_READY );
 
+   this.SetEnterRoutine( SWP_STATE_WAIT,      this.WaitEnter     );
+
+   this.AddEventHandler( SWP_STATE_READY,  SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle );
+   this.AddEventHandler( SWP_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
+
    // TODO: Need definitions for Max cards in deck
    this.AddContainer( "Stack",   undefined, 0, 52 );
    this.AddContainer( "Battle",  undefined, 0,  1 );
@@ -91,3 +96,60 @@ SimpleWarPlayer.prototype = new Player();
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
 
+SimpleWarPlayer.prototype.DoBattle = function()
+{
+   console.log( '%s:DoBattle', this.name );
+   this.Transition( SWP_STATE_BATTLE );
+   
+   return true;
+};
+
+
+SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
+{
+   var eventHandled = false;
+
+
+   console.log( "%s:BattleTransaction:%s", this.name, data );
+   if( data == SWGC.SWP_TRANSACTION_BATTLE )
+   {
+      eventHandled = true;
+      this.Transition( SWP_STATE_WAIT );
+   }
+
+   return eventHandled;
+};
+
+
+SimpleWarPlayer.prototype.WaitEnter = function()
+{
+   var cont = this.rootContainer.GetContainerById( "Battle" );
+   
+   if( cont != undefined )
+   {
+      cont.PrintCards();
+   }
+
+   this.Score();
+};
+
+
+
+SimpleWarPlayer.prototype.Score = function()
+{
+   var   cont = this.rootContainer.GetContainerById( "Battle" );
+   var   score = 0;
+ 
+   function CardScore( element )
+   {
+      score += parseInt( element.rank );
+   }
+   
+   if( cont != undefined )
+   {
+      cont.cards.forEach( CardScore );
+   }
+
+   console.log( "Score Alert: %s = %d", this.name, score );
+   this.score = score;
+};

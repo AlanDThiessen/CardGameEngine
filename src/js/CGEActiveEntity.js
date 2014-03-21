@@ -12,6 +12,9 @@ var GetTransactionDefinition = TransDef.GetTransactionDefinition;
 var TRANSACTION_TYPE_INBOUND = TransDef.TRANSACTION_TYPE_INBOUND;
 var TRANSACTION_TYPE_OUTBOUND = TransDef.TRANSACTION_TYPE_OUTBOUND;
 
+// TODO: Yeah, this doesn't belong here.
+var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+
 
 /******************************************************************************
  *  CLASS: CGEActiveEntity
@@ -35,7 +38,6 @@ function CGEActiveEntity( owner, name, parent )
 CGEActiveEntity.prototype = new ActiveEntity();
 //Correct the constructor pointer
 CGEActiveEntity.prototype.constructor = CGEActiveEntity;
-
 
 
 CGEActiveEntity.prototype.AddContainer = function( name, parent, minCards, maxCards )
@@ -115,11 +117,12 @@ CGEActiveEntity.prototype.IsTransactionValid = function( transDefName )
 CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, cards )
 {
    var success = false;
-   
+
+
    if( this.IsTransactionValid( transName ) )
    {
       var transDef = GetTransactionDefinition( transName );
-     
+ 
       if( transDef != undefined )
       {
          if( transDef.fromContainerName == TRANSACTION_TYPE_INBOUND )
@@ -144,8 +147,9 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
          }
          else
          {
-            var toContainer = this.rootContainer.GetContainerById( transDef.to );
-            var fromContainer = this.rootContainer.GetContainerById( transDef.from );
+            debugger;
+            var toContainer = this.rootContainer.GetContainerById( transDef.toContainerName );
+            var fromContainer = this.rootContainer.GetContainerById( transDef.fromContainerName );
             var cardArray = Array();
            
             if( ( toContainer != undefined ) && ( fromContainer != undefined ) )
@@ -157,6 +161,13 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
          }
       }
    }
-   
+
+   if( success )
+   {
+      // TODO: Move this event definition!
+      this.HandleEvent( SWGC.CGE_EVENT_TRANSACTION, transName );
+   }
+
    return success;
 };
+

@@ -1,5 +1,6 @@
 
 module.exports = CardGame;
+var ActiveEntity = require( "./ActiveEntity.js" );
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
@@ -24,13 +25,17 @@ AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND, 
  ******************************************************************************/
 function CardGame( name )
 {
+   this.id              = undefined;
+   this.name            = 'CardGame:'+ name;
+ 
    // Call the parent class constructor
-   CGEActiveEntity.call( this, "CardGame:" + name );
+   CGEActiveEntity.call( this, this.name );
 
-   this.isHost    = false;
-   this.name      = name;
-   this.id        = '';
-   this.players   = Array();
+   this.isHost          = false;
+   this.players         = Array();
+   this.gameName        = '';
+   this.currPlayerIndex = -1;             // Index to current player
+   this.currPlayer      = undefined;      // Reference to current player
 
    // TODO: Bug: generic card games can't have card limits
    this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
@@ -56,8 +61,8 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    console.log( 'Initializing game of ' + gameSpec.name );
    console.log( gameSpec );
 
-   this.name = gameSpec.server.name;
-   this.id = gameSpec.server.id;
+   this.gameName = gameSpec.server.name;
+   this.id       = gameSpec.server.id;
 
    // Setup game parameters
    if( gameSpec.server.isPrimary == 'true' )
@@ -86,6 +91,23 @@ CardGame.prototype.AddPlayers = function( players )
 };
 
 
+CardGame.prototype.NumPlayers = function()
+{
+   return this.players.length;
+};
+
+
+CardGame.prototype.AdvancePlayer = function()
+{
+   if( ++this.currPlayerIndex > this.NumPlayers() )
+   {
+      this.currPlayerIndex = 0;
+   };
+   
+   this.currPlayer = this.players[this.currPlayerIndex];
+};
+
+
 /******************************************************************************
  *
  * CardGame.prototype.StartGame
@@ -100,6 +122,7 @@ CardGame.prototype.StartGame = function()
    }
 
    // Now, start the game
+   //ActiveEntity.Start.call( this );
    this.Start();
 };
 
@@ -115,7 +138,6 @@ CardGame.prototype.CreateDeck = function( deckSpec )
    var valueCntr;
    var qty;
 
-   console.log( deckSpec );
 
    // Create the suited cards first
    for( suitCntr = 0; suitCntr < deckSpec.suited.suits.suit.length; suitCntr++ )
@@ -186,6 +208,34 @@ CardGame.prototype.AddPlayer = function( id, name )
 };
 
 
+CardGame.prototype.GetEntityById = function( id )
+{
+   var cntr = 0;
+   var entity = undefined;
+
+
+   if( this.id == id )
+   {
+      entity = this;
+   }
+   else
+   {
+      while( cntr < this.players.length )
+      {
+         if( this.players[cntr].id == id )
+         {
+            entity = this.players[cntr];
+            break;
+         }
+         
+         cntr++;
+      }
+   }
+   
+   return entity;
+};
+
+
 /******************************************************************************
  *
  * CardGame.prototype.Deal
@@ -224,4 +274,44 @@ CardGame.prototype.GetContainerById = function( id )
    }
 
    return returnVal;
+};
+
+
+CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
+{
+   for( cntr = 0; cntr < this.players.length; cntr++ )
+   {
+      this.players[cntr].HandleEvent( eventId, data );
+   }
+};
+
+
+
+CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
+{
+   var   destEntity = this.GetEntityById( destId );
+
+   
+   if( destEntity != undefined )
+   {
+      // TODO: Implement fromOwner & fromTransName
+      if( ( srcId != undefined ) && ( srcId != destId ) )
+      {
+         var srcEntity = this.GetEntityById( srcId );
+         
+         if( srcEntity != undefined )
+         {
+            var   cardArray = Array();
+ 
+            if( srcEntity.ExecuteTransaction( destTransName, cardList, cardArray ) )
+            {
+               destEntity.ExecuteTransaction( destTransName, cardList, cardArray );
+            }
+         }
+      }
+      else
+      {
+         destEntity.ExecuteTransaction( destTransName, cardList, undefined );
+      }
+   }
 };

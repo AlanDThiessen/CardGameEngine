@@ -169,7 +169,7 @@ State.prototype.HandleEvent = function( eventId, data )
 {
    var   eventHandled = false;
    
-   
+  
    if( this.handlers.hasOwnProperty( eventId ) )
    {
       eventHandled = this.handlers[eventId].call( this.owner, eventId, data );
@@ -215,7 +215,6 @@ State.prototype.FindState = function( name, goDeep )
    var stateFound = undefined;
 
 
-   console.log( "State %s: Find state %s", this.name, name );
    if( goDeep == undefined )
    {
       goDeep = false;
@@ -223,7 +222,6 @@ State.prototype.FindState = function( name, goDeep )
 
    if( name == this.name )
    {
-      console.log( "State %s: This state found", this.name );
       stateFound = this;
    }
    else
@@ -232,7 +230,6 @@ State.prototype.FindState = function( name, goDeep )
       {
          if( this.states[cntr].name == name )
          {
-            console.log( "   State %s: State found at index %d", this.name, cntr );
             stateFound = this.states[cntr];
             break;
          }

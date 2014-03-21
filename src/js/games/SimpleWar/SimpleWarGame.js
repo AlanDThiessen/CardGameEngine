@@ -31,7 +31,7 @@ var SIMPLE_WAR_STATE_WAR         = "War";
  * Constructor
  *
  ******************************************************************************/
-function SimpleWarGame( id, alias )
+function SimpleWarGame( id )
 {
    // Call the parent class constructor
    CardGame.call( this, "Simple War" );
@@ -45,6 +45,7 @@ function SimpleWarGame( id, alias )
    this.SetInitialState( SIMPLE_WAR_STATE_BATTLE );
    
    this.SetEnterRoutine( SIMPLE_WAR_STATE_IN_PROGRESS, this.InProgressEnter );
+   this.SetEnterRoutine( SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter     );
    
    // Add the valid transactions to the states
    this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
@@ -65,11 +66,21 @@ SimpleWarGame.prototype.AddPlayer = function( id, alias )
 
 SimpleWarGame.prototype.InProgressEnter = function()
 {
+   console.log( "SimpleWar: InProgress Enter");
    if( this.isHost )
    {
       this.dealer.Shuffle();
       this.Deal();
    }
+ 
+   // Advance to the first player
+   this.AdvancePlayer();
+};
+
+
+SimpleWarGame.prototype.BattleEnter = function()
+{
+   this.AllPlayersHandleEvent( SWGC.SW_EVENT_DO_BATTLE, undefined );
 };
 
 
@@ -87,8 +98,10 @@ SimpleWarGame.prototype.Deal = function()
    {
       var cardGroup = Array();
 
-      this.ExecuteTransaction( "CGE_DEAL", [ "TOP" ], cardGroup );
-      this.players[player].ExecuteTransaction( SWGC.SWP_TRANSACTION_DEAL, [ "TOP" ], cardGroup );
+      if( this.ExecuteTransaction( "CGE_DEAL", [ "TOP" ], cardGroup ) )
+      {
+         this.players[player].ExecuteTransaction( SWGC.SWP_TRANSACTION_DEAL, [ "TOP" ], cardGroup );
+      }
 
       player++;
 

@@ -25,7 +25,7 @@ function ActiveEntity( name )
    this.name         = name;
    this.initial      = undefined;
    this.currentState = undefined;
-   this.topState     = new State( this, TOP_STATE );
+   this.topState     = new State( this, this.name );
 }
 
 
@@ -68,6 +68,7 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
 
    if( state != undefined )
    {
+      console.log( "Adding event handler for event %d to state %s", eventId, state.name );
       state.AddEventHandler( eventId, routine );
    }
 };
@@ -132,9 +133,9 @@ ActiveEntity.prototype.SetInitialState = function( initialStateName, parentName 
  ******************************************************************************/
 ActiveEntity.prototype.Start = function()
 {
-   console.log( "Start: transition to %s", TOP_STATE );
+   console.log( "Start: transition to %s", this.name );
    this.currentState = this.topState;
-   this.Transition( TOP_STATE );
+   this.Transition( this.name );
 };
 
 
@@ -165,7 +166,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
    var destAncestors = Array();
    var srcAncestors  = Array();
    var found         = undefined;
-   var lcAncestor    = TOP_STATE;   // The Lowest Common Ancestor
+   var lcAncestor    = this.name;   // The Lowest Common Ancestor
    var destState     = this.topState.FindState( destStateName, true );
 
 
