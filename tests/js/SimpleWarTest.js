@@ -17,13 +17,16 @@ var gameSpec =
    },
    "players": [ 
       { "id": "0010",
-        "alias": "Alan"
+        "alias": "Alan",
+        "type": "User"
       },
       { "id": "0020",
-        "alias": "David"
+        "alias": "David",
+        "type": "AI"
       },
       { "id": "0030",
-        "alias": "Jordan"
+        "alias": "Jordan",
+        "type": "AI"
       }
    ],
  };

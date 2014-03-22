@@ -84,7 +84,7 @@ CardGame.prototype.AddPlayers = function( players )
 {
    for( var cntr = 0; cntr < players.length; cntr++ )
    {
-      this.AddPlayer( players[cntr].id, players[cntr].alias );
+      this.AddPlayer( players[cntr].id, players[cntr].alias, players[cntr].type );
    }
 };
 
@@ -300,7 +300,6 @@ CardGame.prototype.SendEvent = function( eventId, data )
       this.AllPlayersHandleEvent( eventId, data );
    }
 };
-
 
 
 CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )

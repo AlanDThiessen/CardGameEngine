@@ -1,6 +1,7 @@
 
 module.exports = SimpleWarGame;
 var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
+var SimpleWarPlayerAI = require( "./SimpleWarPlayerAI.js" );
 var CardGame = require( "../../CardGame.js" );
 var transDef = require( "../../TransactionDefinition.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
@@ -58,9 +59,16 @@ SimpleWarGame.prototype = new CardGame();
 SimpleWarGame.prototype.constructor = SimpleWarGame;
 
 
-SimpleWarGame.prototype.AddPlayer = function( id, alias )
+SimpleWarGame.prototype.AddPlayer = function( id, alias, type )
 {
-   this.players.push( new SimpleWarPlayer( id, alias ) );
+   if( type == "AI" )
+   {
+      this.players.push( new SimpleWarPlayerAI( this, id, alias ) );
+   }
+   else
+   {
+      this.players.push( new SimpleWarPlayer( this, id, alias ) );
+   }
 };
 
 

@@ -9,13 +9,14 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
  * Constructor
  *
  ******************************************************************************/
-function Player( id, alias )
+function Player( parent, id, alias )
 {
    // Call the parent class constructor
    CGEActiveEntity.call( this, "Player:" + alias );
 
    console.log( "New Player: %s", alias );
 
+   this.parentGame      = parent;
    this.id              = id;
    this.alias           = alias;
    this.score           = 0;
