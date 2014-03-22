@@ -98,7 +98,6 @@ CardContainer.prototype.GetGroup = function( cardArray, cardList )
          {
             if( action[1] == "ALL" )
             {
-debugger;
                numCards = this.cards.length;
             }
             else

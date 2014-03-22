@@ -75,6 +75,7 @@ function SimpleWarPlayer( parent, id, alias )
 
    this.AddEventHandler( SWP_STATE_READY,  SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle );
    this.AddEventHandler( SWP_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
+   this.AddEventHandler( SWP_STATE_WAIT,   SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction );
 
    // TODO: Need definitions for Max cards in deck
    this.AddContainer( "Stack",   undefined, 0, 52 );
@@ -83,13 +84,12 @@ function SimpleWarPlayer( parent, id, alias )
 
    // Add the valid transactions to the states
    this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_DICARD  );
+   this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_COLLECT );
    this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_GIVEUP  );
    this.AddValidTransaction( SWP_STATE_READY,  	SWGC.SWP_TRANSACTION_DEAL    );
    this.AddValidTransaction( SWP_STATE_BATTLE, 	SWGC.SWP_TRANSACTION_BATTLE  );
    this.AddValidTransaction( SWP_STATE_FLOP,   	SWGC.SWP_TRANSACTION_FLOP    );
    this.AddValidTransaction( SWP_STATE_DRAW,   	SWGC.SWP_TRANSACTION_BATTLE  );
-   this.AddValidTransaction( SWP_STATE_WAIT,   	SWGC.SWP_TRANSACTION_COLLECT );
-   this.AddValidTransaction( SWP_STATE_WAIT,   	SWGC.SWP_TRANSACTION_GIVEUP  );
 };
 
 //Inherit from ActiveEntity
@@ -111,8 +111,6 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 {
    var eventHandled = false;
 
-
-   console.log( "%s:BattleTransaction:%s", this.name, data );
    if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
    {
       eventHandled = true;
@@ -133,6 +131,23 @@ SimpleWarPlayer.prototype.WaitEnter = function()
    }
 
    this.Score();
+};
+
+
+SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
+{
+   var eventHandled = false;
+
+
+debugger;
+   if( (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP ) &&
+       ( data.ownerId == this.id ) )
+   {
+      eventHandled = true;
+      this.Transition( SWP_STATE_READY );
+   }
+
+   return eventHandled;
 };
 
 

@@ -319,12 +319,12 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
             var   cardArray = Array();
             if( srcEntity.ExecuteTransaction( srcTransName, cardList, cardArray ) )
             {
-               this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownderId : srcId, transaction: srcTransName } );
+               this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : srcId, transaction: srcTransName } );
                success = destEntity.ExecuteTransaction( destTransName, cardList, cardArray );
 
                if( success )
                {
-                  this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownderId : destId, transaction: destTransName } );
+                  this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : destId, transaction: destTransName } );
                }
             }
             else
