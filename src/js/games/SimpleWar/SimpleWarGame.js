@@ -19,7 +19,7 @@ var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 var SIMPLE_WAR_STATE_IN_PROGRESS = "InProgress";
 var SIMPLE_WAR_STATE_GAME_OVER   = "GameOver";
 var SIMPLE_WAR_STATE_BATTLE      = "Battle";
-var SIMPLE_WAR_STATE_WAR         = "War";
+var SIMPLE_WAR_STATE_SCORE       = "Score";
 
 
 /******************************************************************************
@@ -44,12 +44,13 @@ function SimpleWarGame( id )
    this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
    this.AddState( SIMPLE_WAR_STATE_GAME_OVER,   undefined                     );
    this.AddState( SIMPLE_WAR_STATE_BATTLE,      SIMPLE_WAR_STATE_IN_PROGRESS  );
-   this.AddState( SIMPLE_WAR_STATE_WAR,         SIMPLE_WAR_STATE_IN_PROGRESS  );
+   this.AddState( SIMPLE_WAR_STATE_SCORE,       SIMPLE_WAR_STATE_IN_PROGRESS  );
 
    this.SetInitialState( SIMPLE_WAR_STATE_BATTLE );
-   
+ 
    this.SetEnterRoutine( SIMPLE_WAR_STATE_IN_PROGRESS, this.InProgressEnter );
    this.SetEnterRoutine( SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter     );
+   this.SetEnterRoutine( SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter      );
 
    this.AddEventHandler( SIMPLE_WAR_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
    
@@ -93,7 +94,8 @@ SimpleWarGame.prototype.InProgressEnter = function()
 
 SimpleWarGame.prototype.BattleEnter = function()
 {
-   this.AllPlayersHandleEvent( SWGC.SW_EVENT_DO_BATTLE, undefined );
+   this.hasBattled = [];
+   this.SendEvent( SWGC.SW_EVENT_DO_BATTLE, undefined );
 };
 
 
@@ -112,15 +114,21 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
    // If all players have done battle, then let's do score!
    if( this.hasBattled.length >= this.NumPlayers() )
    {
-      // Clear out the array for future use
-      this.hasBattled = [];
- 
-      var topPlayers = this.ScoreBattle();
-      this.DetermineBattleResult( topPlayers );
+      this.Transition( SIMPLE_WAR_STATE_SCORE );
    }
 
    // Event has been handled
    return true;
+};
+
+
+SimpleWarGame.prototype.ScoreEnter = function()
+{
+   var topPlayers = this.ScoreBattle();
+   this.DetermineBattleResult( topPlayers );
+
+   // TODO: Check for game winner and go to game end
+   this.Transition( SIMPLE_WAR_STATE_BATTLE );
 };
 
 
