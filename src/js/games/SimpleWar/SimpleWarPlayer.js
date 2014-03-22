@@ -54,10 +54,10 @@ AddTransactionDefinition( SWGC.SWP_TRANSACTION_GIVEUP,   SWP_CONTAINER_DISCARD, 
  * Constructor
  *
  ******************************************************************************/
-function SimpleWarPlayer( id, alias )
+function SimpleWarPlayer( parent, id, alias )
 {
    // Call the parent class constructor
-   Player.call( this, id, alias );
+   Player.call( this, parent, id, alias );
 
    // Create the State Machine
    this.AddState( SWP_STATE_IN_GAME,   undefined         );

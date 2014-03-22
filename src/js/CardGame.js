@@ -84,7 +84,7 @@ CardGame.prototype.AddPlayers = function( players )
 {
    for( var cntr = 0; cntr < players.length; cntr++ )
    {
-      this.AddPlayer( players[cntr].id, players[cntr].alias );
+      this.AddPlayer( players[cntr].id, players[cntr].alias, players[cntr].type );
    }
 };
 
@@ -289,9 +289,9 @@ CardGame.prototype.SendEvent = function( eventId, data )
    // First, send all events to the game engine
    this.HandleEvent( eventId, data );
 
-   console.log( "Sending event to owner: %d", data.ownerId );
    if( ( data != undefined ) && ( data.ownerId != undefined ) )
    {
+       console.log( "Sending event to owner: %s", data.ownerId );
       var entity = this.GetEntityById( data.ownerId );
       entity.HandleEvent( eventId, data );
    }
@@ -300,7 +300,6 @@ CardGame.prototype.SendEvent = function( eventId, data )
       this.AllPlayersHandleEvent( eventId, data );
    }
 };
-
 
 
 CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
