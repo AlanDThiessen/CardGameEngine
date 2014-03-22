@@ -157,7 +157,7 @@ SimpleWarGame.prototype.ScoreBattle = function()
    var	topPlayers = [];
    var	topScore = 0;
 
-   console.log( "All players have battled, now let's determine a winner!" );
+   log.info( "All players have battled, now let's determine a winner!" );
    
    for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
    {
@@ -178,14 +178,14 @@ SimpleWarGame.prototype.ScoreBattle = function()
    
    if( topPlayers.length == 1 )
    {
-      console.log( "Battle Winner: %s", this.players[topPlayers[0]].name );
+      log.info( "Battle Winner: %s", this.players[topPlayers[0]].name );
    }
    else
    {
-      console.log( "Tie between:" );
+      log.info( "Tie between:" );
       for( var cntr = 0; cntr < topPlayers.length; cntr++ )
       {
-         console.log( "   - %s", this.players[topPlayers[cntr]].name );
+         log.info( "   - %s", this.players[topPlayers[cntr]].name );
       }
    }
 
