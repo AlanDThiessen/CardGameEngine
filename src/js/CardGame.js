@@ -39,11 +39,8 @@ function CardGame( name )
    this.currPlayer      = undefined;      // Reference to current player
 
    // TODO: Bug: generic card games can't have card limits
-   this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
-   this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
-
-   this.dealer = this.GetContainerById( CGE_DEALER );
-   this.table  = this.GetContainerById( CGE_TABLE );
+   this.table = this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
+   this.dealer = this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
 }
 
 //Inherit from CGEActiveEntity

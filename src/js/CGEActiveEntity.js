@@ -56,6 +56,8 @@ CGEActiveEntity.prototype.AddContainer = function( name, parent, minCards, maxCa
    }
 
    parentContainer.AddContainer( container );
+
+   return container;
 };
 
 
