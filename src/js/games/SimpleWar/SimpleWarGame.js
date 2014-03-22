@@ -37,6 +37,8 @@ function SimpleWarGame( id )
    // Call the parent class constructor
    CardGame.call( this, "Simple War" );
 
+   this.hasBattled = [];
+ 
    // Create the State Machine
    this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
    this.AddState( SIMPLE_WAR_STATE_GAME_OVER,   undefined                     );
@@ -47,6 +49,8 @@ function SimpleWarGame( id )
    
    this.SetEnterRoutine( SIMPLE_WAR_STATE_IN_PROGRESS, this.InProgressEnter );
    this.SetEnterRoutine( SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter     );
+
+   this.AddEventHandler( SIMPLE_WAR_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
    
    // Add the valid transactions to the states
    this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
@@ -92,6 +96,26 @@ SimpleWarGame.prototype.BattleEnter = function()
 };
 
 
+SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
+{
+   if( ( data != undefined ) &&
+       ( data.ownerId != undefined ) &&
+       ( data.transaction != undefined ) )
+   {
+      if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
+      {
+         this.hasBattled.push( data.ownerId );
+      }
+   }
+ 
+   // If all players have done battle, then let's do score!
+   if( this.hasBattled.length >= this.NumPlayers() )
+   {
+      this.ScoreBattle();
+   }
+};
+
+
 SimpleWarGame.prototype.Deal = function()
 {
    console.log( "SimpleWar: Deal" );
@@ -119,3 +143,44 @@ SimpleWarGame.prototype.Deal = function()
    }
 };
 
+
+SimpleWarGame.prototype.ScoreBattle = function()
+{
+   var	topPlayers = [];
+   var	topScore = 0;
+
+   debugger;
+   console.log( "All players have battled, now let's determine a winner!" );
+   
+   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
+   {
+      var score = this.players[cntr].GetScore();
+      
+      if( score > topScore )
+      {
+         topPlayers = [];
+         topPlayers.push( cntr );
+         topScore = score;
+      }
+      else if( score == topScore )
+      {
+         //  There's a tie situation here!
+         topPlayers.push( cntr );
+      }
+   }
+   
+   if( topPlayers.length == 1 )
+   {
+      console.log( "Battle Winner: %s", this.players[topPlayers[0]].name );
+   }
+   else
+   {
+      console.log( "Tie between:" );
+      for( var cntr = 0; cntr < topPlayers.length; cntr++ )
+      {
+         console.log( "   - %s", this.players[topPlayers[cntr]].name );
+      }
+   }
+
+   return topPlayers;
+};

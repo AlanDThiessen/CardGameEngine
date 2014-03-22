@@ -27,3 +27,8 @@ Player.prototype = new CGEActiveEntity();
 // Correct the constructor pointer
 Player.prototype.constructor = Player;
 
+
+Player.prototype.GetScore = function()
+{
+   return this.score;
+};

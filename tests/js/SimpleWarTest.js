@@ -185,10 +185,10 @@ cardGame.StartGame();
 
 
 Battle(); 
-console.log( "***** Player 0: Card Stack *****" );
-cardGame.players[0].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 1: Card Stack *****" );
-cardGame.players[1].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 2: Card Stack *****" );
-cardGame.players[2].rootContainer.containers[0].PrintCards();
+//console.log( "***** Player 0: Card Stack *****" );
+//cardGame.players[0].rootContainer.containers[0].PrintCards();
+//console.log( "***** Player 1: Card Stack *****" );
+//cardGame.players[1].rootContainer.containers[0].PrintCards();
+//console.log( "***** Player 2: Card Stack *****" );
+//cardGame.players[2].rootContainer.containers[0].PrintCards();
 

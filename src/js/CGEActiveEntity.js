@@ -149,7 +149,6 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
          }
          else
          {
-            debugger;
             var toContainer = this.rootContainer.GetContainerById( transDef.toContainerName );
             var fromContainer = this.rootContainer.GetContainerById( transDef.fromContainerName );
             var cardArray = Array();
