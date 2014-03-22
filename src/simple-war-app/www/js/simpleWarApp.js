@@ -4,9 +4,8 @@
 /******************************************************************************
  *  NodeJS stuff
  ******************************************************************************/
-module.exports = ActiveEntity;
-var State        = require( "./State.js" );
-
+var State   = require( "./State.js" );
+var log     = require("./Logger.js");
 
 var TOP_STATE  = "TOP";
 
@@ -69,7 +68,7 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
 
    if( state != undefined )
    {
-      console.log( "Adding event handler for event %d to state %s", eventId, state.name );
+      log.info( "Adding event handler for event %d to state %s", eventId, state.name );
       state.AddEventHandler( eventId, routine );
    }
 };
@@ -134,7 +133,7 @@ ActiveEntity.prototype.SetInitialState = function( initialStateName, parentName 
  ******************************************************************************/
 ActiveEntity.prototype.Start = function()
 {
-   console.log( "Start: transition to %s", this.name );
+   log.info( "Start: transition to %s", this.name );
    this.currentState = this.topState;
    this.Transition( this.name );
 };
@@ -171,7 +170,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
    var destState     = this.topState.FindState( destStateName, true );
 
 
-   console.log( "Transition: %s -> %s; ", this.currentState.name, destStateName );
+   log.info( "Transition: %s -> %s; ", this.currentState.name, destStateName );
 
    if( destState != undefined )
    {
@@ -186,8 +185,8 @@ ActiveEntity.prototype.Transition = function( destStateName )
       destState.GetAncestors( destAncestors );
       this.currentState.GetAncestors( srcAncestors );
       
-      console.log( destAncestors );
-      console.log( srcAncestors );
+      log.info( destAncestors );
+      log.info( srcAncestors );
 
       // Now, iterate from the bottom of the source ancestor list to find the 
       // Lowest common denominator of both states.
@@ -199,7 +198,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
          found = destAncestors.indexOf( lcAncestor );
       }
 
-      console.log( "Common Ancestor: %s", lcAncestor );
+      log.info( "Common Ancestor: %s", lcAncestor );
 
       // Did we find a common ancestor?
       if( found != -1  )
@@ -220,16 +219,18 @@ ActiveEntity.prototype.Transition = function( destStateName )
       {
          // We should never get here because every state should have the
          // topState as it's ancestor
-         console.error( "Could not find common ancestor state" );
+         log.error( "Could not find common ancestor state" );
       }
    }
    else
    {
-      console.log( "Transition to undefined state in ActiveEntity: %s", this.name );
+      log.info( "Transition to undefined state in ActiveEntity: %s", this.name );
    }
 };
 
-},{"./State.js":9}],2:[function(require,module,exports){
+module.exports = ActiveEntity;
+
+},{"./Logger.js":8,"./State.js":10}],2:[function(require,module,exports){
 
 module.exports = CGEActiveEntity;
 
@@ -400,7 +401,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
 };
 
 
-},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":10,"./games/SimpleWar/SimpleWarDefs.js":11}],3:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12}],3:[function(require,module,exports){
 
 module.exports = CGEState;
 
@@ -453,10 +454,8 @@ CGEState.prototype.IsTransactionValid = function( transDefName )
    return isValid;
 };
 
-},{"./State.js":9}],4:[function(require,module,exports){
-
-module.exports = Card;
-
+},{"./State.js":10}],4:[function(require,module,exports){
+var log = require('./Logger.js');
 
 /******************************************************************************
  *
@@ -482,13 +481,13 @@ function Card( suit, name, shortName, rank, color, count )
  ******************************************************************************/
 Card.prototype.Print = function()
 {
-   console.log( this.id + ' : ' + this.shortName + ' : ' + this.name );
+   log.info( this.id + ' : ' + this.shortName + ' : ' + this.name );
 };
 
+module.exports = Card;
 
-},{}],5:[function(require,module,exports){
+},{"./Logger.js":8}],5:[function(require,module,exports){
 
-module.exports = CardContainer;
 var Card = require( "./Card.js" );
 var CardGroup = require( "./CardGroup.js" );
 
@@ -691,9 +690,10 @@ CardContainer.prototype.GetHTML = function()
    return htmlStr;
 };
 
+module.exports = CardContainer;
+
 },{"./Card.js":4,"./CardGroup.js":7}],6:[function(require,module,exports){
 
-module.exports = CardGame;
 var ActiveEntity = require( "./ActiveEntity.js" );
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
@@ -707,6 +707,8 @@ var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 
 var CGE_DEALER = "Dealer";
 var CGE_TABLE = "Table";
+
+var log = require("./Logger.js");
 
 //Outgoing Transactions
 AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 1 );
@@ -750,8 +752,8 @@ CardGame.prototype.constructor = CardGame;
  ******************************************************************************/
 CardGame.prototype.Init = function( gameSpec, deckSpec )
 {
-   console.log( 'Initializing game of ' + gameSpec.name );
-   console.log( gameSpec );
+   log.info( 'Initializing game of ' + gameSpec.name );
+   log.info( gameSpec );
 
    this.gameName = gameSpec.server.name;
    this.id       = gameSpec.server.id;
@@ -762,7 +764,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
       this.isHost = true;
    }
 
-   console.log( "Adding players" );
+   log.info( "Adding players" );
    this.AddPlayers( gameSpec.players );
 
    this.CreateDeck( deckSpec );
@@ -896,7 +898,7 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
  ******************************************************************************/
 CardGame.prototype.AddPlayer = function( id, name )
 {
-   console.log( 'Please override virtual function \'CardGame.AddPlayer()\'.' );
+   log.info( 'Please override virtual function \'CardGame.AddPlayer()\'.' );
 };
 
 
@@ -935,7 +937,7 @@ CardGame.prototype.GetEntityById = function( id )
  ******************************************************************************/
 CardGame.prototype.Deal = function()
 {
-   console.log( 'Please override virtual function \'CardGame.Deal()\'.' );
+   log.info( 'Please override virtual function \'CardGame.Deal()\'.' );
 };
 
 
@@ -985,7 +987,7 @@ CardGame.prototype.SendEvent = function( eventId, data )
 
    if( ( data != undefined ) && ( data.ownerId != undefined ) )
    {
-       console.log( "Sending event to owner: %s", data.ownerId );
+       log.info( "Sending event to owner: %s", data.ownerId );
       var entity = this.GetEntityById( data.ownerId );
       entity.HandleEvent( eventId, data );
    }
@@ -1023,12 +1025,12 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
             }
             else
             {
-               console.error( "EventTransaction: src transaction failed" );
+               log.error( "EventTransaction: src transaction failed" );
             }
          }
          else
          {
-            console.error( "EventTransaction: srcId Not found!" );
+            log.error( "EventTransaction: srcId Not found!" );
          }
       }
       else
@@ -1043,10 +1045,11 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
    }
 };
 
-},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./TransactionDefinition.js":10,"./games/SimpleWar/SimpleWarDefs.js":11}],7:[function(require,module,exports){
+module.exports = CardGame;
 
-module.exports = CardGroup;
+},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12}],7:[function(require,module,exports){
 
+var log = require('./Logger.js');
 
 /******************************************************************************
  *
@@ -1119,7 +1122,7 @@ CardGroup.prototype.PrintCards = function()
 {
    var i;
    
-   console.log( this.id + ' holds ' + this.cards.length + ' cards ' );
+   log.info( this.id + ' holds ' + this.cards.length + ' cards ' );
 
    for( i = 0; i < this.cards.length; i++ )
    {
@@ -1259,12 +1262,89 @@ CardGroup.prototype.Shuffle = function()
 };
 
 
+module.exports = CardGroup;
 
-},{}],8:[function(require,module,exports){
+},{"./Logger.js":8}],8:[function(require,module,exports){
+log = { };
 
-module.exports = Player;
+log.DEBUG   = 0x01;
+log.INFO    = 0x02;
+log.WARN    = 0x04;
+log.ERROR   = 0x08;
+
+log.mask = 0xFF;
+
+log.debug = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.DEBUG);
+
+   if (log.mask & log.DEBUG) {
+      log._out.apply(this, args);
+   }
+}
+
+log.info = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.INFO);
+
+   if (log.mask & log.INFO) {
+      log._out.apply(this, args);
+   }
+}
+
+log.warn = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.INFO);
+
+   if (log.mask & log.WARN) {
+      log._out.apply(this, args);
+   }
+}
+
+log.error = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.INFO);
+
+   if (log.mask & log.ERROR) {
+      log._out.apply(this, args);
+   }
+}
+
+log._out = function (level, format) {
+   var i = -1;
+   var args = Array.prototype.slice.call(arguments, 2);
+
+   format = "" + format;
+
+   var str = format.replace(/\%[sd]/g, function () {
+      i++;  
+      return args[i];
+   });
+
+   switch (level) {
+      case log.DEBUG:
+         console.log("DEBUG: " + str);
+         break;
+
+      case log.INFO:
+         console.log("INFO: " + str);
+         break;
+
+      case log.WARN:
+         console.warn("WARN: " + str);
+         break;
+
+      case log.ERROR:
+         console.error("ERROR: " + str);
+         break;
+   }
+};
+
+module.exports = log;
+
+},{}],9:[function(require,module,exports){
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
-
+var log = require("./Logger.js");
 
 /******************************************************************************
  *
@@ -1277,7 +1357,7 @@ function Player( parent, id, alias )
    // Call the parent class constructor
    CGEActiveEntity.call( this, "Player:" + alias );
 
-   console.log( "New Player: %s", alias );
+   log.info("New Player: %s", alias);
 
    this.parentGame      = parent;
    this.id              = id;
@@ -1290,14 +1370,14 @@ Player.prototype = new CGEActiveEntity();
 // Correct the constructor pointer
 Player.prototype.constructor = Player;
 
+module.exports = Player;
 
-},{"./CGEActiveEntity.js":2}],9:[function(require,module,exports){
+},{"./CGEActiveEntity.js":2,"./Logger.js":8}],10:[function(require,module,exports){
 
 /******************************************************************************
  *  NodeJS stuff
  ******************************************************************************/
-module.exports = State;
-
+var log = require('./Logger.js');
 
 /******************************************************************************
  *  CLASS: State
@@ -1324,7 +1404,7 @@ function State( owner, name, parent )
    // Logging/Debug
    var ancestorList = Array();
    this.GetAncestors(ancestorList);
-   console.log( "Created New State: %s", ancestorList.join(':') );
+   log.debug( "Created New State: %s", ancestorList.join(':') );
 }
 
 
@@ -1362,7 +1442,7 @@ State.prototype.SetInitialState = function( stateName )
 
    if( state != undefined )
    {
-      console.log( "State %s: Initial State set to %s", this.name, state.name );
+      log.debug( "State %s: Initial State set to %s", this.name, state.name );
       this.initial = state;
    }
 };
@@ -1413,7 +1493,7 @@ State.prototype.EnterState = function( commonAncestor )
 
       this.inState = true;
       
-      console.log( "Enter State: %s", this.name );
+      log.debug( "Enter State: %s", this.name );
 
       if( this.enter != undefined )
       {
@@ -1436,7 +1516,7 @@ State.prototype.ExitState = function( commonAncestor )
    // If we are the common ancestor, then our state doesn't get exited.
    if( commonAncestor != this.name )
    {
-      console.log( "Exit State: %s", this.name );
+      log.debug( "Exit State: %s", this.name );
       
       this.inState = false;
 
@@ -1544,7 +1624,9 @@ State.prototype.FindState = function( name, goDeep )
    return( stateFound );
 };
 
-},{}],10:[function(require,module,exports){
+module.exports = State;
+
+},{"./Logger.js":8}],11:[function(require,module,exports){
 
 /******************************************************************************
  * Global array of Transaction Definitions
@@ -1611,7 +1693,7 @@ module.exports = {
  TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 
 
 var SWG_CONSTANTS = {
@@ -1638,7 +1720,7 @@ var SWG_CONSTANTS = {
 
 module.exports = SWG_CONSTANTS;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
 module.exports = SimpleWarGame;
 var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
@@ -1646,6 +1728,7 @@ var SimpleWarPlayerAI = require( "./SimpleWarPlayerAI.js" );
 var CardGame = require( "../../CardGame.js" );
 var transDef = require( "../../TransactionDefinition.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
+var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -1715,7 +1798,7 @@ SimpleWarGame.prototype.AddPlayer = function( id, alias, type )
 
 SimpleWarGame.prototype.InProgressEnter = function()
 {
-   console.log( "SimpleWar: InProgress Enter");
+   log.info( "SimpleWar: InProgress Enter");
    if( this.isHost )
    {
       this.dealer.Shuffle();
@@ -1735,12 +1818,12 @@ SimpleWarGame.prototype.BattleEnter = function()
 
 SimpleWarGame.prototype.Deal = function()
 {
-   console.log( "SimpleWar: Deal" );
+   log.info( "SimpleWar: Deal" );
 
    // Ensure players get an even number of cards
    var cardRemainder = this.dealer.NumCards() % this.players.length;
 
-   console.log( "Card Remainder: %d", cardRemainder );
+   log.info( "Card Remainder: %d", cardRemainder );
 
    var player = 0;
    while( this.dealer.NumCards() > cardRemainder )
@@ -1761,12 +1844,13 @@ SimpleWarGame.prototype.Deal = function()
 };
 
 
-},{"../../CardGame.js":6,"../../TransactionDefinition.js":10,"./SimpleWarDefs.js":11,"./SimpleWarPlayer.js":13,"./SimpleWarPlayerAI.js":14}],13:[function(require,module,exports){
+},{"../../CardGame.js":6,"../../Logger.js":8,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14,"./SimpleWarPlayerAI.js":15}],14:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
 var SWGC     = require( "./SimpleWarDefs.js" );
 var Player   = require( "../../Player.js" );
 var transDef = require( "../../TransactionDefinition.js" );
+var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -1862,7 +1946,7 @@ SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
 SimpleWarPlayer.prototype.DoBattle = function()
 {
-   console.log( '%s:DoBattle', this.name );
+   log.info( '%s:DoBattle', this.name );
    this.Transition( SWP_STATE_BATTLE );
 
    return true;
@@ -1874,7 +1958,7 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
    var eventHandled = false;
 
 
-   console.log( "%s:BattleTransaction:%s", this.name, data );
+   log.info( "%s:BattleTransaction:%s", this.name, data );
    if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
    {
       eventHandled = true;
@@ -1914,11 +1998,11 @@ SimpleWarPlayer.prototype.Score = function()
       cont.cards.forEach( CardScore );
    }
 
-   console.log( "Score Alert: %s = %d", this.name, score );
+   log.info( "Score Alert: %s = %d", this.name, score );
    this.score = score;
 };
 
-},{"../../Player.js":8,"../../TransactionDefinition.js":10,"./SimpleWarDefs.js":11}],14:[function(require,module,exports){
+},{"../../Logger.js":8,"../../Player.js":9,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12}],15:[function(require,module,exports){
 var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
 
@@ -1956,10 +2040,11 @@ SimpleWarPlayerAI.prototype.BattleEnter = function()
 module.exports = SimpleWarPlayerAI;
 
 
-},{"./SimpleWarDefs.js":11,"./SimpleWarPlayer.js":13}],15:[function(require,module,exports){
+},{"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14}],16:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
+var log = require ("../../src/js/Logger.js");
 
 var gameSpec = 
 {
@@ -2134,7 +2219,7 @@ function Battle()
 }
 
 
-console.log('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
+log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
 cardGame = new SimpleWarGame();
 
@@ -2144,14 +2229,14 @@ cardGame.StartGame();
 
 
 Battle(); 
-console.log( "***** Player 0: Card Stack *****" );
+log.info( "***** Player 0: Card Stack *****" );
 cardGame.players[0].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 1: Card Stack *****" );
+log.info( "***** Player 1: Card Stack *****" );
 cardGame.players[1].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 2: Card Stack *****" );
+log.info( "***** Player 2: Card Stack *****" );
 cardGame.players[2].rootContainer.containers[0].PrintCards();
 
 
-},{"../../src/js/games/SimpleWar/SimpleWarGame.js":12,"readline":16}],16:[function(require,module,exports){
+},{"../../src/js/Logger.js":8,"../../src/js/games/SimpleWar/SimpleWarGame.js":13,"readline":17}],17:[function(require,module,exports){
 
-},{}]},{},[15])
+},{}]},{},[16])
