@@ -162,12 +162,6 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
       }
    }
 
-   if( success )
-   {
-      // TODO: Move this event definition!
-      this.HandleEvent( SWGC.CGE_EVENT_TRANSACTION, transName );
-   }
-
    return success;
 };
 

@@ -100,7 +100,7 @@ SimpleWarPlayer.prototype.DoBattle = function()
 {
    console.log( '%s:DoBattle', this.name );
    this.Transition( SWP_STATE_BATTLE );
-   
+
    return true;
 };
 
@@ -111,7 +111,7 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 
 
    console.log( "%s:BattleTransaction:%s", this.name, data );
-   if( data == SWGC.SWP_TRANSACTION_BATTLE )
+   if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
    {
       eventHandled = true;
       this.Transition( SWP_STATE_WAIT );

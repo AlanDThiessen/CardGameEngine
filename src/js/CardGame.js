@@ -4,6 +4,7 @@ var ActiveEntity = require( "./ActiveEntity.js" );
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
+var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -27,7 +28,7 @@ function CardGame( name )
 {
    this.id              = undefined;
    this.name            = 'CardGame:'+ name;
- 
+
    // Call the parent class constructor
    CGEActiveEntity.call( this, this.name );
 
@@ -279,9 +280,27 @@ CardGame.prototype.GetContainerById = function( id )
 
 CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
 {
-   for( cntr = 0; cntr < this.players.length; cntr++ )
+   for( var cntr = 0; cntr < this.players.length; cntr++ )
    {
       this.players[cntr].HandleEvent( eventId, data );
+   }
+};
+
+
+CardGame.prototype.SendEvent = function( eventId, data )
+{
+   // First, send all events to the game engine
+   this.HandleEvent( eventId, data );
+
+   console.log( "Sending event to owner: %d", data.ownerId );
+   if( ( data != undefined ) && ( data.ownerId != undefined ) )
+   {
+      var entity = this.GetEntityById( data.ownerId );
+      entity.HandleEvent( eventId, data );
+   }
+   else
+   {
+      this.AllPlayersHandleEvent( eventId, data );
    }
 };
 
@@ -290,28 +309,38 @@ CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
 CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
 {
    var   destEntity = this.GetEntityById( destId );
+   var   success = false;
 
-   
+
    if( destEntity != undefined )
    {
-      // TODO: Implement fromOwner & fromTransName
       if( ( srcId != undefined ) && ( srcId != destId ) )
       {
          var srcEntity = this.GetEntityById( srcId );
-         
+ 
          if( srcEntity != undefined )
          {
             var   cardArray = Array();
- 
             if( srcEntity.ExecuteTransaction( destTransName, cardList, cardArray ) )
             {
-               destEntity.ExecuteTransaction( destTransName, cardList, cardArray );
+               this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownderId : srcId, transaction: srcTransName } );
+               success = destEntity.ExecuteTransaction( destTransName, cardList, cardArray );
+
+               if( success )
+               {
+                  this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownderId : destId, transaction: destTransName } );
+               }
             }
          }
       }
       else
       {
-         destEntity.ExecuteTransaction( destTransName, cardList, undefined );
+         success = destEntity.ExecuteTransaction( destTransName, cardList, undefined );
+
+	      if( success )
+	      {
+	         this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : destId, transaction: destTransName } );
+	      }
       }
    }
 };
