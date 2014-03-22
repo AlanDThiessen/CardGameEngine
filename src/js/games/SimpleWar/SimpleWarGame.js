@@ -96,12 +96,11 @@ SimpleWarGame.prototype.Deal = function()
    var player = 0;
    while( this.dealer.NumCards() > cardRemainder )
    {
-      var cardGroup = Array();
-
-      if( this.ExecuteTransaction( "CGE_DEAL", [ "TOP" ], cardGroup ) )
-      {
-         this.players[player].ExecuteTransaction( SWGC.SWP_TRANSACTION_DEAL, [ "TOP" ], cardGroup );
-      }
+      this.EventTransaction( this.players[player].id,
+                             SWGC.SWP_TRANSACTION_DEAL,
+                             this.id,
+                             "CGE_DEAL",
+                             undefined );
 
       player++;
 

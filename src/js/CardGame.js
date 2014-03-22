@@ -321,7 +321,7 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
          if( srcEntity != undefined )
          {
             var   cardArray = Array();
-            if( srcEntity.ExecuteTransaction( destTransName, cardList, cardArray ) )
+            if( srcEntity.ExecuteTransaction( srcTransName, cardList, cardArray ) )
             {
                this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownderId : srcId, transaction: srcTransName } );
                success = destEntity.ExecuteTransaction( destTransName, cardList, cardArray );
@@ -331,6 +331,14 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
                   this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownderId : destId, transaction: destTransName } );
                }
             }
+            else
+            {
+               console.error( "EventTransaction: src transaction failed" );
+            }
+         }
+         else
+         {
+            console.error( "EventTransaction: srcId Not found!" );
          }
       }
       else
