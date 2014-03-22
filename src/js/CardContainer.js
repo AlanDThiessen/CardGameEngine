@@ -29,15 +29,25 @@ CardContainer.prototype.constructor = CardContainer;
  * CardContainer.prototype.AddGroup
  * 
  ******************************************************************************/
-CardContainer.prototype.AddGroup = function( group )
+CardContainer.prototype.AddGroup = function( group, location )
 {
-   if (this.AcceptGroup(group) == true)
+   if (this.AcceptGroup( group ) == true)
    {
-      // TODO: Verify min/max cards
-      for( var cntr = 0; cntr < group.length; cntr++ )
+      var index;
+
+      if( location == "TOP" )
       {
-         this.cards.push( group[cntr] );
+         index = 0;
       }
+      else
+      {
+         index = -1;
+      }
+
+		while( group.length )
+	   {
+         this.cards.splice( index, 0, group.shift() );
+	   }
    }
 };
 
@@ -77,11 +87,41 @@ CardContainer.prototype.CanGetGroup = function( cardList )
  ******************************************************************************/
 CardContainer.prototype.GetGroup = function( cardArray, cardList )
 {
-   // ADT TODO: Finish this method
-   if( this.CanGetGroup(cardList ) == true )
+   if( this.CanGetGroup( cardList ) == true )
    {
-      // TODO: Implement card retrieval other than top
-      cardArray.push( this.GetCard( "TOP" ) );
+      for( var cntr = 0; cntr < cardList.length; cntr++ )
+      {
+         var numCards = 0;
+         var action = cardList[cntr].split( ':', 2 );
+ 
+         if( ( action[0] == "TOP" ) || ( action[0] == "BOTTOM" ) )
+         {
+            if( action[1] == "ALL" )
+            {
+debugger;
+               numCards = this.cards.length;
+            }
+            else
+            {
+               numCards = parseInt( action[1], 10 );
+               
+               if( isNaN( numCards ) )
+               {
+                  numCards = 0;
+               }
+               
+               if( numCards > this.cards.length )
+               {
+                  numCards = this.cards.length;
+               }
+            }
+
+            while( numCards-- )
+            {
+               cardArray.push( this.GetCard( action[0] ) );
+            }
+         }
+      }
    }
 };
 

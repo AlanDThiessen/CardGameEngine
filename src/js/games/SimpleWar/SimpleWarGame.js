@@ -139,7 +139,7 @@ SimpleWarGame.prototype.Deal = function()
                              SWGC.SWP_TRANSACTION_DEAL,
                              this.id,
                              "CGE_DEAL",
-                             undefined );
+                             ["TOP:1"] );
 
       player++;
 
@@ -200,7 +200,9 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    // Tell all players to discard
    for( var cntr = 0; cntr < numPlayers; cntr++ )
    {
-      this.EventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD );
+      this.EventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD,
+    		  						  undefined,             undefined,
+    		  						  ["TOP:ALL"] );
    }
 
    // If there is a tie, we need to go to War!
@@ -225,10 +227,9 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
  
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
-debugger;
          this.EventTransaction( this.players[winnerIndex].id, SWGC.SWP_TRANSACTION_COLLECT,
         		 						  this.players[cntr].id,        SWGC.SWP_TRANSACTION_GIVEUP,
-        		 						  ["ALL"] );
+        		 						  ["TOP:ALL"] );
       }
    }
 };

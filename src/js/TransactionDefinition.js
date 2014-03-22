@@ -6,11 +6,11 @@
 //{
    var TransactionDefs = Array();
 
-   function AddTransactionDefinition( name, from, to, minCards, maxCards )
+   function AddTransactionDefinition( name, from, to, minCards, maxCards, location )
    {
       if( GetTransactionDefinition( name ) == undefined )
       {
-         TransactionDefs.push( new TransactionDefinition( name, from, to, minCards, maxCards ) );
+         TransactionDefs.push( new TransactionDefinition( name, from, to, minCards, maxCards, location ) );
       }
    }
 
@@ -45,13 +45,14 @@ var TRANSACTION_TYPE_OUTBOUND = "Outbound";
  * Constructor
  *
  ******************************************************************************/
-function TransactionDefinition( name, from, to, minCards, maxCards )
+function TransactionDefinition( name, from, to, minCards, maxCards, location )
 {
    this.name               = name;
    this.fromContainerName  = from;
    this.toContainerName    = to;
    this.minCards           = minCards;
    this.maxCards           = maxCards;
+   this.location			   = location;
 };
 
 

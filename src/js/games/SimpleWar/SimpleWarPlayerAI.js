@@ -28,7 +28,9 @@ SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
 
 SimpleWarPlayerAI.prototype.BattleEnter = function()
 {
-	this.parentGame.EventTransaction( this.id, SWGC.SWP_TRANSACTION_BATTLE );
+   this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_BATTLE,
+                                     undefined,	undefined,
+                                     ["TOP:1"] );
 };
 
 

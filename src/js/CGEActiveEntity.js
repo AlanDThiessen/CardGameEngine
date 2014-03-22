@@ -133,7 +133,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
             
             if( toContainer != undefined )
             {
-               toContainer.AddGroup( cards );
+               toContainer.AddGroup( cards, transDef.location );
                success = true;
             }
          }
@@ -156,7 +156,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
             if( ( toContainer != undefined ) && ( fromContainer != undefined ) )
             {
                fromContainer.GetGroup( cardArray, cardList );
-               toContainer.AddGroup( cardArray );
+               toContainer.AddGroup( cardArray, transDef.location );
                success = true;
             } 
          }

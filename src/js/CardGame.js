@@ -15,7 +15,7 @@ var CGE_DEALER = "Dealer";
 var CGE_TABLE = "Table";
 
 //Outgoing Transactions
-AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 1 );
+AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 1, "TOP" );
 
 
 /******************************************************************************
