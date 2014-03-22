@@ -46,7 +46,7 @@ CardContainer.prototype.AddGroup = function( group, location )
 
 		while( group.length )
 	   {
-         this.cards.splice( index, 0, group.shift() );
+         this.cards.splice( this.cards.length, 0, group.shift() );
 	   }
    }
 };
