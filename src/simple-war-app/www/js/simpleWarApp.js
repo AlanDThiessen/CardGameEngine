@@ -2218,24 +2218,34 @@ function Battle()
    cardGame.EventTransaction( '0010', 'SWP_Battle' );
 }
 
+function main ()
+{
+   log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
-log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
+   cardGame = new SimpleWarGame();
 
-cardGame = new SimpleWarGame();
+   cardGame.Init( gameSpec, deckSpec );
 
-cardGame.Init( gameSpec, deckSpec );
-
-cardGame.StartGame();
+   cardGame.StartGame();
 
 
-Battle(); 
-log.info( "***** Player 0: Card Stack *****" );
-cardGame.players[0].rootContainer.containers[0].PrintCards();
-log.info( "***** Player 1: Card Stack *****" );
-cardGame.players[1].rootContainer.containers[0].PrintCards();
-log.info( "***** Player 2: Card Stack *****" );
-cardGame.players[2].rootContainer.containers[0].PrintCards();
+   Battle(); 
+   log.info( "***** Player 0: Card Stack *****" );
+   cardGame.players[0].rootContainer.containers[0].PrintCards();
+   log.info( "***** Player 1: Card Stack *****" );
+   cardGame.players[1].rootContainer.containers[0].PrintCards();
+   log.info( "***** Player 2: Card Stack *****" );
+   cardGame.players[2].rootContainer.containers[0].PrintCards();
+}
 
+if (typeof window === 'undefined')
+{
+   main();
+}
+else
+{
+   document.addEventListener('deviceready', main, false);
+}
 
 },{"../../src/js/Logger.js":8,"../../src/js/games/SimpleWar/SimpleWarGame.js":13,"readline":17}],17:[function(require,module,exports){
 
