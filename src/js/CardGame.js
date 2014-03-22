@@ -310,7 +310,7 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
 
    if( destEntity != undefined )
    {
-      if( ( srcId != undefined ) && ( srcId != destId ) )
+      if( srcId != undefined )
       {
          var srcEntity = this.GetEntityById( srcId );
  
@@ -347,4 +347,6 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
 	      }
       }
    }
+   
+   return success;
 };

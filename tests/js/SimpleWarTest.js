@@ -18,7 +18,7 @@ var gameSpec =
    "players": [ 
       { "id": "0010",
         "alias": "Alan",
-        "type": "User"
+        "type": "AI"
       },
       { "id": "0020",
         "alias": "David",
@@ -183,12 +183,11 @@ cardGame.Init( gameSpec, deckSpec );
 
 cardGame.StartGame();
 
-
-Battle(); 
-//console.log( "***** Player 0: Card Stack *****" );
-//cardGame.players[0].rootContainer.containers[0].PrintCards();
-//console.log( "***** Player 1: Card Stack *****" );
-//cardGame.players[1].rootContainer.containers[0].PrintCards();
-//console.log( "***** Player 2: Card Stack *****" );
-//cardGame.players[2].rootContainer.containers[0].PrintCards();
+//Battle(); 
+console.log( "***** Player 0: Card Stack *****" );
+cardGame.players[0].rootContainer.containers[0].PrintCards();
+console.log( "***** Player 1: Card Stack *****" );
+cardGame.players[1].rootContainer.containers[0].PrintCards();
+console.log( "***** Player 2: Card Stack *****" );
+cardGame.players[2].rootContainer.containers[0].PrintCards();
 

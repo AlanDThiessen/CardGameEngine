@@ -37,7 +37,7 @@ AddTransactionDefinition( SWGC.SWP_TRANSACTION_FLOP,     SWP_CONTAINER_STACK,   
 
 // Incoming Transactions
 AddTransactionDefinition( SWGC.SWP_TRANSACTION_DEAL,     TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_STACK,        1, 52 );
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_COLLECT,  TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_DISCARD,      1, 52 );
+AddTransactionDefinition( SWGC.SWP_TRANSACTION_COLLECT,  TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_STACK,        1, 52 );
 
 // Outgoing Transactions
 AddTransactionDefinition( SWGC.SWP_TRANSACTION_GIVEUP,   SWP_CONTAINER_DISCARD,    TRANSACTION_TYPE_OUTBOUND,  1, 52 );
@@ -82,12 +82,14 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddContainer( "Discard", undefined, 0, 52 );
 
    // Add the valid transactions to the states
-   this.AddValidTransaction( SWP_STATE_READY,  SWGC.SWP_TRANSACTION_DEAL    );
-   this.AddValidTransaction( SWP_STATE_BATTLE, SWGC.SWP_TRANSACTION_BATTLE  );
-   this.AddValidTransaction( SWP_STATE_FLOP,   SWGC.SWP_TRANSACTION_FLOP    );
-   this.AddValidTransaction( SWP_STATE_DRAW,   SWGC.SWP_TRANSACTION_BATTLE  );
-   this.AddValidTransaction( SWP_STATE_WAIT,   SWGC.SWP_TRANSACTION_COLLECT );
-   this.AddValidTransaction( SWP_STATE_WAIT,   SWGC.SWP_TRANSACTION_GIVEUP  );
+   this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_DICARD  );
+   this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_GIVEUP  );
+   this.AddValidTransaction( SWP_STATE_READY,  	SWGC.SWP_TRANSACTION_DEAL    );
+   this.AddValidTransaction( SWP_STATE_BATTLE, 	SWGC.SWP_TRANSACTION_BATTLE  );
+   this.AddValidTransaction( SWP_STATE_FLOP,   	SWGC.SWP_TRANSACTION_FLOP    );
+   this.AddValidTransaction( SWP_STATE_DRAW,   	SWGC.SWP_TRANSACTION_BATTLE  );
+   this.AddValidTransaction( SWP_STATE_WAIT,   	SWGC.SWP_TRANSACTION_COLLECT );
+   this.AddValidTransaction( SWP_STATE_WAIT,   	SWGC.SWP_TRANSACTION_GIVEUP  );
 };
 
 //Inherit from ActiveEntity

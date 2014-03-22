@@ -111,8 +111,15 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
    // If all players have done battle, then let's do score!
    if( this.hasBattled.length >= this.NumPlayers() )
    {
-      this.ScoreBattle();
+      // Clear out the array for future use
+      this.hasBattled = [];
+ 
+      var topPlayers = this.ScoreBattle();
+      this.DetermineBattleResult( topPlayers );
    }
+
+   // Event has been handled
+   return true;
 };
 
 
@@ -149,7 +156,6 @@ SimpleWarGame.prototype.ScoreBattle = function()
    var	topPlayers = [];
    var	topScore = 0;
 
-   debugger;
    console.log( "All players have battled, now let's determine a winner!" );
    
    for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
@@ -183,4 +189,46 @@ SimpleWarGame.prototype.ScoreBattle = function()
    }
 
    return topPlayers;
+};
+
+
+SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
+{
+   var numPlayers = this.NumPlayers();
+
+
+   // Tell all players to discard
+   for( var cntr = 0; cntr < numPlayers; cntr++ )
+   {
+      this.EventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD );
+   }
+
+   // If there is a tie, we need to go to War!
+   if( topPlayers.length > 1 )
+   {
+      for( var cntr = 0; cntr < numPlayers; cntr++ )
+      {
+         var doWar = false;
+ 
+         // If the current player index is in the list of winners, then signal war
+         if( topPlayers.indexOf( cntr ) != -1 )
+         {
+            doWar = true;
+         }
+ 
+         this.SendEvent( SWGC.SW_EVENT_DO_WAR, { ownerId: this.players[cntr].id, gotoWar: doWar } );
+      }
+   }
+   else
+   {
+      var winnerIndex = topPlayers.pop();
+ 
+      for( var cntr = 0; cntr < numPlayers; cntr++ )
+      {
+debugger;
+         this.EventTransaction( this.players[winnerIndex].id, SWGC.SWP_TRANSACTION_COLLECT,
+        		 						  this.players[cntr].id,        SWGC.SWP_TRANSACTION_GIVEUP,
+        		 						  ["ALL"] );
+      }
+   }
 };
