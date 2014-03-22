@@ -1,5 +1,4 @@
 
-module.exports = CardGame;
 var ActiveEntity = require( "./ActiveEntity.js" );
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
@@ -13,6 +12,8 @@ var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 
 var CGE_DEALER = "Dealer";
 var CGE_TABLE = "Table";
+
+var log = require("./Logger.js");
 
 //Outgoing Transactions
 AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 1, "TOP" );
@@ -56,8 +57,8 @@ CardGame.prototype.constructor = CardGame;
  ******************************************************************************/
 CardGame.prototype.Init = function( gameSpec, deckSpec )
 {
-   console.log( 'Initializing game of ' + gameSpec.name );
-   console.log( gameSpec );
+   log.info( 'Initializing game of ' + gameSpec.name );
+   log.info( gameSpec );
 
    this.gameName = gameSpec.server.name;
    this.id       = gameSpec.server.id;
@@ -68,7 +69,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
       this.isHost = true;
    }
 
-   console.log( "Adding players" );
+   log.info( "Adding players" );
    this.AddPlayers( gameSpec.players );
 
    this.CreateDeck( deckSpec );
@@ -202,7 +203,7 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
  ******************************************************************************/
 CardGame.prototype.AddPlayer = function( id, name )
 {
-   console.log( 'Please override virtual function \'CardGame.AddPlayer()\'.' );
+   log.info( 'Please override virtual function \'CardGame.AddPlayer()\'.' );
 };
 
 
@@ -241,7 +242,7 @@ CardGame.prototype.GetEntityById = function( id )
  ******************************************************************************/
 CardGame.prototype.Deal = function()
 {
-   console.log( 'Please override virtual function \'CardGame.Deal()\'.' );
+   log.info( 'Please override virtual function \'CardGame.Deal()\'.' );
 };
 
 
@@ -288,7 +289,7 @@ CardGame.prototype.SendEvent = function( eventId, data )
 {
    if( ( data != undefined ) && ( data.ownerId != undefined ) )
    {
-      console.log( "Sending event to owner: %s", data.ownerId );
+       log.info( "Sending event to owner: %s", data.ownerId );
       var entity = this.GetEntityById( data.ownerId );
       entity.HandleEvent( eventId, data );
    }
@@ -329,12 +330,12 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
             }
             else
             {
-               console.error( "EventTransaction: src transaction failed" );
+               log.error( "EventTransaction: src transaction failed" );
             }
          }
          else
          {
-            console.error( "EventTransaction: srcId Not found!" );
+            log.error( "EventTransaction: srcId Not found!" );
          }
       }
       else
@@ -350,3 +351,5 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
    
    return success;
 };
+
+module.exports = CardGame;

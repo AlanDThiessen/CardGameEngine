@@ -5,6 +5,7 @@ var SimpleWarPlayerAI = require( "./SimpleWarPlayerAI.js" );
 var CardGame = require( "../../CardGame.js" );
 var transDef = require( "../../TransactionDefinition.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
+var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -78,7 +79,7 @@ SimpleWarGame.prototype.AddPlayer = function( id, alias, type )
 
 SimpleWarGame.prototype.InProgressEnter = function()
 {
-   console.log( "SimpleWar: InProgress Enter");
+   log.info( "SimpleWar: InProgress Enter");
    if( this.isHost )
    {
       this.dealer.Shuffle();
@@ -125,12 +126,12 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 
 SimpleWarGame.prototype.Deal = function()
 {
-   console.log( "SimpleWar: Deal" );
+   log.info( "SimpleWar: Deal" );
 
    // Ensure players get an even number of cards
    var cardRemainder = this.dealer.NumCards() % this.players.length;
 
-   console.log( "Card Remainder: %d", cardRemainder );
+   log.info( "Card Remainder: %d", cardRemainder );
 
    var player = 0;
    while( this.dealer.NumCards() > cardRemainder )

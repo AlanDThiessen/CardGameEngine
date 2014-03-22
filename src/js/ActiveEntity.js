@@ -3,9 +3,8 @@
 /******************************************************************************
  *  NodeJS stuff
  ******************************************************************************/
-module.exports = ActiveEntity;
-var State        = require( "./State.js" );
-
+var State   = require( "./State.js" );
+var log     = require("./Logger.js");
 
 var TOP_STATE  = "TOP";
 
@@ -68,7 +67,7 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
 
    if( state != undefined )
    {
-      console.log( "Adding event handler for event %d to state %s", eventId, state.name );
+      log.info( "Adding event handler for event %d to state %s", eventId, state.name );
       state.AddEventHandler( eventId, routine );
    }
 };
@@ -133,7 +132,7 @@ ActiveEntity.prototype.SetInitialState = function( initialStateName, parentName 
  ******************************************************************************/
 ActiveEntity.prototype.Start = function()
 {
-   console.log( "Start: transition to %s", this.name );
+   log.info( "Start: transition to %s", this.name );
    this.currentState = this.topState;
    this.Transition( this.name );
 };
@@ -170,7 +169,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
    var destState     = this.topState.FindState( destStateName, true );
 
 
-   console.log( "Transition: %s -> %s; ", this.currentState.name, destStateName );
+   log.info( "Transition: %s -> %s; ", this.currentState.name, destStateName );
 
    if( destState != undefined )
    {
@@ -185,8 +184,8 @@ ActiveEntity.prototype.Transition = function( destStateName )
       destState.GetAncestors( destAncestors );
       this.currentState.GetAncestors( srcAncestors );
       
-      console.log( destAncestors );
-      console.log( srcAncestors );
+      log.info( destAncestors );
+      log.info( srcAncestors );
 
       // Now, iterate from the bottom of the source ancestor list to find the 
       // Lowest common denominator of both states.
@@ -198,7 +197,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
          found = destAncestors.indexOf( lcAncestor );
       }
 
-      console.log( "Common Ancestor: %s", lcAncestor );
+      log.info( "Common Ancestor: %s", lcAncestor );
 
       // Did we find a common ancestor?
       if( found != -1  )
@@ -219,11 +218,13 @@ ActiveEntity.prototype.Transition = function( destStateName )
       {
          // We should never get here because every state should have the
          // topState as it's ancestor
-         console.error( "Could not find common ancestor state" );
+         log.error( "Could not find common ancestor state" );
       }
    }
    else
    {
-      console.log( "Transition to undefined state in ActiveEntity: %s", this.name );
+      log.info( "Transition to undefined state in ActiveEntity: %s", this.name );
    }
 };
+
+module.exports = ActiveEntity;

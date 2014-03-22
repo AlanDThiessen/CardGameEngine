@@ -1,6 +1,5 @@
 
-module.exports = CardGroup;
-
+var log = require('./Logger.js');
 
 /******************************************************************************
  *
@@ -73,7 +72,7 @@ CardGroup.prototype.PrintCards = function()
 {
    var i;
    
-   console.log( this.id + ' holds ' + this.cards.length + ' cards ' );
+   log.info( this.id + ' holds ' + this.cards.length + ' cards ' );
 
    for( i = 0; i < this.cards.length; i++ )
    {
@@ -213,3 +212,4 @@ CardGroup.prototype.Shuffle = function()
 };
 
 
+module.exports = CardGroup;

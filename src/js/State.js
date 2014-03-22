@@ -2,8 +2,7 @@
 /******************************************************************************
  *  NodeJS stuff
  ******************************************************************************/
-module.exports = State;
-
+var log = require('./Logger.js');
 
 /******************************************************************************
  *  CLASS: State
@@ -30,7 +29,7 @@ function State( owner, name, parent )
    // Logging/Debug
    var ancestorList = Array();
    this.GetAncestors(ancestorList);
-   console.log( "Created New State: %s", ancestorList.join(':') );
+   log.debug( "Created New State: %s", ancestorList.join(':') );
 }
 
 
@@ -68,7 +67,7 @@ State.prototype.SetInitialState = function( stateName )
 
    if( state != undefined )
    {
-      console.log( "State %s: Initial State set to %s", this.name, state.name );
+      log.debug( "State %s: Initial State set to %s", this.name, state.name );
       this.initial = state;
    }
 };
@@ -119,7 +118,7 @@ State.prototype.EnterState = function( commonAncestor )
 
       this.inState = true;
       
-      console.log( "Enter State: %s", this.name );
+      log.debug( "Enter State: %s", this.name );
 
       if( this.enter != undefined )
       {
@@ -142,7 +141,7 @@ State.prototype.ExitState = function( commonAncestor )
    // If we are the common ancestor, then our state doesn't get exited.
    if( commonAncestor != this.name )
    {
-      console.log( "Exit State: %s", this.name );
+      log.debug( "Exit State: %s", this.name );
       
       this.inState = false;
 
@@ -249,3 +248,5 @@ State.prototype.FindState = function( name, goDeep )
 
    return( stateFound );
 };
+
+module.exports = State;

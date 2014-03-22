@@ -1,6 +1,4 @@
-
-module.exports = Card;
-
+var log = require('./Logger.js');
 
 /******************************************************************************
  *
@@ -26,6 +24,7 @@ function Card( suit, name, shortName, rank, color, count )
  ******************************************************************************/
 Card.prototype.Print = function()
 {
-   console.log( this.id + ' : ' + this.shortName + ' : ' + this.name );
+   log.info( this.id + ' : ' + this.shortName + ' : ' + this.name );
 };
 
+module.exports = Card;

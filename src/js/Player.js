@@ -1,7 +1,5 @@
-
-module.exports = Player;
 var CGEActiveEntity = require( "./CGEActiveEntity.js" );
-
+var log = require("./Logger.js");
 
 /******************************************************************************
  *
@@ -14,7 +12,7 @@ function Player( parent, id, alias )
    // Call the parent class constructor
    CGEActiveEntity.call( this, "Player:" + alias );
 
-   console.log( "New Player: %s", alias );
+   log.info("New Player: %s", alias);
 
    this.parentGame      = parent;
    this.id              = id;
@@ -32,3 +30,5 @@ Player.prototype.GetScore = function()
 {
    return this.score;
 };
+
+module.exports = Player;

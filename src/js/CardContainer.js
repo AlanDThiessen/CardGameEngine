@@ -1,5 +1,4 @@
 
-module.exports = CardContainer;
 var Card = require( "./Card.js" );
 var CardGroup = require( "./CardGroup.js" );
 
@@ -240,3 +239,5 @@ CardContainer.prototype.GetHTML = function()
 
    return htmlStr;
 };
+
+module.exports = CardContainer;

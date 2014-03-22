@@ -1,6 +1,7 @@
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
+var log = require ("../../src/js/Logger.js");
 
 var gameSpec = 
 {
@@ -175,7 +176,7 @@ function Battle()
 }
 
 
-console.log('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
+log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
 cardGame = new SimpleWarGame();
 
@@ -184,10 +185,10 @@ cardGame.Init( gameSpec, deckSpec );
 cardGame.StartGame();
 
 //Battle(); 
-console.log( "***** Player 0: Card Stack *****" );
+log.info( "***** Player 0: Card Stack *****" );
 cardGame.players[0].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 1: Card Stack *****" );
+log.info( "***** Player 1: Card Stack *****" );
 cardGame.players[1].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 2: Card Stack *****" );
+log.info( "***** Player 2: Card Stack *****" );
 cardGame.players[2].rootContainer.containers[0].PrintCards();
 

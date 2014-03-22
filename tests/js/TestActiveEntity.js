@@ -1,6 +1,7 @@
 
 //var State        = require( "../../src/js/State.js" );
 var ActiveEntity = require( "../../src/js/ActiveEntity.js" );
+var log = require("../../src/js/Logger.js");
 
 var TEST_STATE_A  = "A";
 var TEST_STATE_B  = "B";
@@ -21,16 +22,16 @@ function TestActiveEntity()
 {
    this.myName = "Alan";
    
-   console.log( "Starting test active entity" );
+   log.info( "Starting test active entity" );
    // Call the parent class constructor
    ActiveEntity.call( this, "TestActiveEntity" );
 
-   console.log( "creating top states" );
+   log.info( "creating top states" );
    // Set up our state machine:
    //    Two top states: A & B
    this.AddState( TEST_STATE_A );
    this.AddState( TEST_STATE_B );
-   console.log( "creating sub states" );
+   log.info( "creating sub states" );
    //    State A has two substates: A.A and A.B
    this.AddState( TEST_STATE_AA, TEST_STATE_A );
    this.AddState( TEST_STATE_AB, TEST_STATE_A );
@@ -38,17 +39,17 @@ function TestActiveEntity()
    this.AddState( TEST_STATE_BA, TEST_STATE_B );
    this.AddState( TEST_STATE_BB, TEST_STATE_B );
 
-   console.log( "Set Initial state" );
+   log.info( "Set Initial state" );
    // Set state A as the initial state
    this.SetInitialState( TEST_STATE_A );
    this.SetInitialState( TEST_STATE_AB, TEST_STATE_A );
 
-   console.log( "Add Event Handler" );
+   log.info( "Add Event Handler" );
    // State A Event Hander for Event #1:
    this.AddEventHandler( TEST_STATE_AB, 1, this.StateABHandleEvent1 );
    this.AddEventHandler( TEST_STATE_A, 1, this.StateAHandleEvent1 );
 
-   console.log( "Start state machine" );
+   log.info( "Start state machine" );
    // Start the state machine
    this.Start();
 }
@@ -66,11 +67,11 @@ TestActiveEntity.prototype.constructor = TestActiveEntity;
  ******************************************************************************/
 TestActiveEntity.prototype.StateABHandleEvent1 = function( eventId, data )
 {
-   console.log( "Event 1 Handled by A.B" );
+   log.info( "Event 1 Handled by A.B" );
    
-   console.log( "******************** %s ********************", this.myName );
-   console.log( this );
-   console.log( "****************************************" );
+   log.info( "******************** %s ********************", this.myName );
+   log.info( this );
+   log.info( "****************************************" );
 
    this.Transition( TEST_STATE_BB );
 
@@ -80,7 +81,7 @@ TestActiveEntity.prototype.StateABHandleEvent1 = function( eventId, data )
 
 TestActiveEntity.prototype.StateAHandleEvent1 = function( eventId, data )
 {
-   console.log( "Event 1 Handled by A" );
+   log.info( "Event 1 Handled by A" );
 
    this.Transition( TEST_STATE_A );
    

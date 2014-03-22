@@ -3,6 +3,7 @@ module.exports = SimpleWarPlayer;
 var SWGC     = require( "./SimpleWarDefs.js" );
 var Player   = require( "../../Player.js" );
 var transDef = require( "../../TransactionDefinition.js" );
+var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -100,7 +101,7 @@ SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
 SimpleWarPlayer.prototype.DoBattle = function()
 {
-   console.log( '%s:DoBattle', this.name );
+   log.info( '%s:DoBattle', this.name );
    this.Transition( SWP_STATE_BATTLE );
 
    return true;
@@ -166,6 +167,6 @@ SimpleWarPlayer.prototype.Score = function()
       cont.cards.forEach( CardScore );
    }
 
-   console.log( "Score Alert: %s = %d", this.name, score );
+   log.info( "Score Alert: %s = %d", this.name, score );
    this.score = score;
 };
