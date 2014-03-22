@@ -289,9 +289,9 @@ CardGame.prototype.SendEvent = function( eventId, data )
    // First, send all events to the game engine
    this.HandleEvent( eventId, data );
 
-   console.log( "Sending event to owner: %d", data.ownerId );
    if( ( data != undefined ) && ( data.ownerId != undefined ) )
    {
+       console.log( "Sending event to owner: %s", data.ownerId );
       var entity = this.GetEntityById( data.ownerId );
       entity.HandleEvent( eventId, data );
    }

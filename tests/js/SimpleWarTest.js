@@ -172,8 +172,6 @@ var deckSpec =
 function Battle()
 {
    cardGame.EventTransaction( '0010', 'SWP_Battle' );
-   cardGame.EventTransaction( '0020', 'SWP_Battle' );
-   cardGame.EventTransaction( '0030', 'SWP_Battle' );
 }
 
 
@@ -185,17 +183,12 @@ cardGame.Init( gameSpec, deckSpec );
 
 cardGame.StartGame();
 
-console.log( "***** Player 0: Card Stack *****" );
-cardGame.players[0].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 1: Card Stack *****" );
-cardGame.players[1].rootContainer.containers[0].PrintCards();
-//console.log( "***** Player 2: Card Stack *****" );
-//cardGame.players[2].rootContainer.containers[0].PrintCards();
 
-debugger;
 Battle(); 
 console.log( "***** Player 0: Card Stack *****" );
 cardGame.players[0].rootContainer.containers[0].PrintCards();
 console.log( "***** Player 1: Card Stack *****" );
 cardGame.players[1].rootContainer.containers[0].PrintCards();
+console.log( "***** Player 2: Card Stack *****" );
+cardGame.players[2].rootContainer.containers[0].PrintCards();
 
