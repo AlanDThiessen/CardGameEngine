@@ -778,7 +778,7 @@ CardGame.prototype.AddPlayers = function( players )
 {
    for( var cntr = 0; cntr < players.length; cntr++ )
    {
-      this.AddPlayer( players[cntr].id, players[cntr].alias );
+      this.AddPlayer( players[cntr].id, players[cntr].alias, players[cntr].type );
    }
 };
 
@@ -983,9 +983,9 @@ CardGame.prototype.SendEvent = function( eventId, data )
    // First, send all events to the game engine
    this.HandleEvent( eventId, data );
 
-   console.log( "Sending event to owner: %d", data.ownerId );
    if( ( data != undefined ) && ( data.ownerId != undefined ) )
    {
+       console.log( "Sending event to owner: %s", data.ownerId );
       var entity = this.GetEntityById( data.ownerId );
       entity.HandleEvent( eventId, data );
    }
@@ -994,7 +994,6 @@ CardGame.prototype.SendEvent = function( eventId, data )
       this.AllPlayersHandleEvent( eventId, data );
    }
 };
-
 
 
 CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
@@ -1273,13 +1272,14 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
  * Constructor
  *
  ******************************************************************************/
-function Player( id, alias )
+function Player( parent, id, alias )
 {
    // Call the parent class constructor
    CGEActiveEntity.call( this, "Player:" + alias );
 
    console.log( "New Player: %s", alias );
 
+   this.parentGame      = parent;
    this.id              = id;
    this.alias           = alias;
    this.score           = 0;
@@ -1642,6 +1642,7 @@ module.exports = SWG_CONSTANTS;
 
 module.exports = SimpleWarGame;
 var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
+var SimpleWarPlayerAI = require( "./SimpleWarPlayerAI.js" );
 var CardGame = require( "../../CardGame.js" );
 var transDef = require( "../../TransactionDefinition.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
@@ -1699,9 +1700,16 @@ SimpleWarGame.prototype = new CardGame();
 SimpleWarGame.prototype.constructor = SimpleWarGame;
 
 
-SimpleWarGame.prototype.AddPlayer = function( id, alias )
+SimpleWarGame.prototype.AddPlayer = function( id, alias, type )
 {
-   this.players.push( new SimpleWarPlayer( id, alias ) );
+   if( type == "AI" )
+   {
+      this.players.push( new SimpleWarPlayerAI( this, id, alias ) );
+   }
+   else
+   {
+      this.players.push( new SimpleWarPlayer( this, id, alias ) );
+   }
 };
 
 
@@ -1753,7 +1761,7 @@ SimpleWarGame.prototype.Deal = function()
 };
 
 
-},{"../../CardGame.js":6,"../../TransactionDefinition.js":10,"./SimpleWarDefs.js":11,"./SimpleWarPlayer.js":13}],13:[function(require,module,exports){
+},{"../../CardGame.js":6,"../../TransactionDefinition.js":10,"./SimpleWarDefs.js":11,"./SimpleWarPlayer.js":13,"./SimpleWarPlayerAI.js":14}],13:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
 var SWGC     = require( "./SimpleWarDefs.js" );
@@ -1810,10 +1818,10 @@ AddTransactionDefinition( SWGC.SWP_TRANSACTION_GIVEUP,   SWP_CONTAINER_DISCARD, 
  * Constructor
  *
  ******************************************************************************/
-function SimpleWarPlayer( id, alias )
+function SimpleWarPlayer( parent, id, alias )
 {
    // Call the parent class constructor
-   Player.call( this, id, alias );
+   Player.call( this, parent, id, alias );
 
    // Create the State Machine
    this.AddState( SWP_STATE_IN_GAME,   undefined         );
@@ -1911,6 +1919,44 @@ SimpleWarPlayer.prototype.Score = function()
 };
 
 },{"../../Player.js":8,"../../TransactionDefinition.js":10,"./SimpleWarDefs.js":11}],14:[function(require,module,exports){
+var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
+var SWGC     = require( "./SimpleWarDefs.js" );
+
+/******************************************************************************
+ * CLASS Definition: Simple War Player AI
+ ******************************************************************************/
+
+/******************************************************************************
+ *
+ * Class: SimpleWarPlayerAI
+ * Inherits From: Player
+ * Constructor
+ *
+ ******************************************************************************/
+function SimpleWarPlayerAI( parent, id, alias )
+{
+   // Call the parent class constructor
+   SimpleWarPlayer.call( this, parent, id, alias );
+
+   this.SetEnterRoutine( "Battle", this.BattleEnter );
+};
+
+//Inherit from ActiveEntity
+SimpleWarPlayerAI.prototype = new SimpleWarPlayer();
+//Correct the constructor pointer
+SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
+
+
+SimpleWarPlayerAI.prototype.BattleEnter = function()
+{
+	this.parentGame.EventTransaction( this.id, SWGC.SWP_TRANSACTION_BATTLE );
+};
+
+
+module.exports = SimpleWarPlayerAI;
+
+
+},{"./SimpleWarDefs.js":11,"./SimpleWarPlayer.js":13}],15:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
@@ -1930,13 +1976,16 @@ var gameSpec =
    },
    "players": [ 
       { "id": "0010",
-        "alias": "Alan"
+        "alias": "Alan",
+        "type": "User"
       },
       { "id": "0020",
-        "alias": "David"
+        "alias": "David",
+        "type": "AI"
       },
       { "id": "0030",
-        "alias": "Jordan"
+        "alias": "Jordan",
+        "type": "AI"
       }
    ],
  };
@@ -2082,8 +2131,6 @@ var deckSpec =
 function Battle()
 {
    cardGame.EventTransaction( '0010', 'SWP_Battle' );
-   cardGame.EventTransaction( '0020', 'SWP_Battle' );
-   cardGame.EventTransaction( '0030', 'SWP_Battle' );
 }
 
 
@@ -2095,21 +2142,16 @@ cardGame.Init( gameSpec, deckSpec );
 
 cardGame.StartGame();
 
-console.log( "***** Player 0: Card Stack *****" );
-cardGame.players[0].rootContainer.containers[0].PrintCards();
-console.log( "***** Player 1: Card Stack *****" );
-cardGame.players[1].rootContainer.containers[0].PrintCards();
-//console.log( "***** Player 2: Card Stack *****" );
-//cardGame.players[2].rootContainer.containers[0].PrintCards();
 
-debugger;
 Battle(); 
 console.log( "***** Player 0: Card Stack *****" );
 cardGame.players[0].rootContainer.containers[0].PrintCards();
 console.log( "***** Player 1: Card Stack *****" );
 cardGame.players[1].rootContainer.containers[0].PrintCards();
+console.log( "***** Player 2: Card Stack *****" );
+cardGame.players[2].rootContainer.containers[0].PrintCards();
 
 
-},{"../../src/js/games/SimpleWar/SimpleWarGame.js":12,"readline":15}],15:[function(require,module,exports){
+},{"../../src/js/games/SimpleWar/SimpleWarGame.js":12,"readline":16}],16:[function(require,module,exports){
 
-},{}]},{},[14])
+},{}]},{},[15])
