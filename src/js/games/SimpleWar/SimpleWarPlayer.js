@@ -194,7 +194,6 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data )
       {
          this.score = 0;
       }
-         
 
       eventHandled = true;
    }

@@ -186,19 +186,19 @@ SimpleWarGame.prototype.ScoreBattle = function()
       if( score > topScore )
       {
          topPlayers = [];
-         topPlayers.push( cntr );
+         topPlayers.push( this.atBattle[cntr] );
          topScore = score;
       }
       else if( score == topScore )
       {
          //  There's a tie situation here!
-         topPlayers.push( cntr );
+         topPlayers.push( this.atBattle[cntr] );
       }
    }
    
    if( topPlayers.length == 1 )
    {
-      log.info( "SWGame : Battle Winner: %s", this.players[topPlayers[0]].name );
+      log.info( "SWGame : Battle Winner: %s", this.players[ topPlayers[0] ].name );
    }
    else
    {
@@ -206,16 +206,8 @@ SimpleWarGame.prototype.ScoreBattle = function()
       
       for( var cntr = 0; cntr < topPlayers.length; cntr++ )
       {
-         log.info( "SWGame :   - %s", this.players[topPlayers[cntr]].name );
+         log.info( "SWGame :   - %s", this.players[ topPlayers[cntr] ].name );
       }
-   }
-
-   log.info( "SWGame : Stack Counts:" );
-
-   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
-   {
-      var cont = this.players[cntr].rootContainer.GetContainerById( "Stack" );
-      log.info( "SWGame :   - %s : %d", this.players[cntr].name, cont.NumCards() );
    }
 
    return topPlayers;
@@ -263,6 +255,14 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
                                    ["TOP:ALL"] );
       }
 
+      log.info( "SWGame : Stack Counts:" );
+   
+      for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
+      {
+         var cont = this.players[cntr].rootContainer.GetContainerById( "Stack" );
+         log.info( "SWGame :   - %s : %d", this.players[cntr].name, cont.NumCards() );
+      }
+   
       this.ResetBattleList();
    }
 };
