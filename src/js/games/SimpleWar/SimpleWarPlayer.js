@@ -62,6 +62,7 @@ function SimpleWarPlayer( parent, id, alias )
    this.status = new PlayerStatus;
    
    this.status.id = this.id;
+   this.status.type = 'USER';
    this.status.alias = this.alias;
 
    // Create the State Machine
