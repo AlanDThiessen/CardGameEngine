@@ -4,7 +4,7 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
 var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
-var EventEmitter = require('events').EventEmitter;
+var Events = require('events');
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -40,6 +40,8 @@ function CardGame( name )
    this.currPlayerIndex = -1;             // Index to current player
    this.currPlayer      = undefined;      // Reference to current player
    this.events            = [];
+   
+   this.InitEvents();
 
    // TODO: Bug: generic card games can't have card limits
    this.table = this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
@@ -74,7 +76,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    log.info( "CGame  : Adding players" );
    this.AddPlayers( gameSpec.players );
    
-   this.InitEvents();
+   //this.InitEvents();
 
    this.CreateDeck( deckSpec );
 
@@ -118,9 +120,10 @@ CardGame.prototype.InitEvents = function()
    var that = this;
  
    // TODO: Make events work
-   this.emitter = new EventEmitter();
-   this.emitter.addListener( this.id, function() {
+   this.emitter = new Events.EventEmitter();
+   this.emitter.addListener( "EventQueue", function() {
       that.ProcessEvents();
+      //console.log( "Would call ProcessEvents here" );
       } );
 };
 
@@ -142,7 +145,7 @@ CardGame.prototype.StartGame = function()
    //this.UI.Start();
 
    // Now, start the game
-   //ActiveEntity.Start.call( this );
+   //this.InitEvents();
    this.Start();
   
    // Enter the event loop
@@ -323,7 +326,7 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
    this.events.push( event );
  
    // TODO: Make events work
-   this.emitter.emit( this.id );
+   this.emitter.emit( "EventQueue" );
 };
 
 
@@ -437,7 +440,7 @@ CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrc
                  srcTransName      : inSrcTransName,
                  cardList         : inCardList
                };
-   
+debugger;
    this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
 };
 

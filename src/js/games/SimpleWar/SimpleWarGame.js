@@ -57,6 +57,7 @@ function SimpleWarGame( id )
    this.SetEnterRoutine( SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter      );
 
    this.AddEventHandler( SIMPLE_WAR_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
+   this.AddEventHandler( SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL, this.Deal );
    
    // Add the valid transactions to the states
    this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
@@ -87,7 +88,8 @@ SimpleWarGame.prototype.InProgressEnter = function()
    if( this.isHost )
    {
       this.dealer.Shuffle();
-      this.Deal();
+      this.SendEvent( SWGC.CGE_EVENT_DEAL );
+      //this.Deal();
    }
 
    // Advance to the first player
@@ -159,9 +161,11 @@ SimpleWarGame.prototype.Deal = function()
    log.debug( "SWGame : Card Remainder: %d", cardRemainder );
 
    var player = 0;
+   var numDeals = 0;
    while( this.dealer.NumCards() > cardRemainder )
    {
-      this.ProcessEventTransaction( this.players[player].id,
+      console.log( "Do Deal: %d", numDeals++ );
+      this.EventTransaction( this.players[player].id,
                                     SWGC.SWP_TRANSACTION_DEAL,
                                     this.id,
                                     "CGE_DEAL",
