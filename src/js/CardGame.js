@@ -287,18 +287,21 @@ CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
 
 CardGame.prototype.SendEvent = function( eventId, data )
 {
-   if( ( data != undefined ) && ( data.ownerId != undefined ) )
+   if( eventId != SWGC.CGE_EVENT_STATUS_UPDATE )
    {
-      var entity = this.GetEntityById( data.ownerId );
-      entity.HandleEvent( eventId, data );
+      if( ( data != undefined ) && ( data.ownerId != undefined ) )
+      {
+         var entity = this.GetEntityById( data.ownerId );
+         entity.HandleEvent( eventId, data );
+      }
+      else
+      {
+         this.AllPlayersHandleEvent( eventId, data );
+      }
+   
+      // Send all events to the game engine
+      this.HandleEvent( eventId, data );
    }
-   else
-   {
-      this.AllPlayersHandleEvent( eventId, data );
-   }
-
-   // Send all events to the game engine
-   this.HandleEvent( eventId, data );
 };
 
 
