@@ -161,10 +161,10 @@ SimpleWarGame.prototype.Deal = function()
    log.debug( "SWGame : Card Remainder: %d", cardRemainder );
 
    var player = 0;
-   var numDeals = 0;
-   while( this.dealer.NumCards() > cardRemainder )
+   var numCards = this.dealer.NumCards() - cardRemainder;
+   
+   while( numCards )
    {
-      console.log( "Do Deal: %d", numDeals++ );
       this.EventTransaction( this.players[player].id,
                                     SWGC.SWP_TRANSACTION_DEAL,
                                     this.id,
@@ -177,6 +177,8 @@ SimpleWarGame.prototype.Deal = function()
       {
          player = 0;
       }
+      
+      numCards--;
    }
 };
 

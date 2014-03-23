@@ -41,8 +41,6 @@ function CardGame( name )
    this.currPlayer      = undefined;      // Reference to current player
    this.events            = [];
    
-   this.InitEvents();
-
    // TODO: Bug: generic card games can't have card limits
    this.table = this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
    this.dealer = this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
@@ -76,7 +74,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    log.info( "CGame  : Adding players" );
    this.AddPlayers( gameSpec.players );
    
-   //this.InitEvents();
+   this.InitEvents();
 
    this.CreateDeck( deckSpec );
 
@@ -339,7 +337,7 @@ CardGame.prototype.ProcessEvents = function()
    //{
       event = this.events.shift();
       if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
-         this.EventTransaction( event.destId,
+         this.ProcessEventTransaction( event.destId,
                                        event.destTransName,
                                        event.srcId,
                                        event.srcTransName,
