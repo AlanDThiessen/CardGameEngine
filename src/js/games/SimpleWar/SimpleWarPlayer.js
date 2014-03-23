@@ -73,6 +73,7 @@ function SimpleWarPlayer( parent, id, alias )
 
    this.SetInitialState( SWP_STATE_READY );
 
+   this.SetEnterRoutine( SWP_STATE_IN_GAME,   this.InGameEnter    );
    this.SetEnterRoutine( SWP_STATE_WAIT,      this.WaitEnter      );
    this.SetExitRoutine(  SWP_STATE_IN_GAME,   this.InProgressExit );
 
@@ -83,7 +84,7 @@ function SimpleWarPlayer( parent, id, alias )
 
    // TODO: Need definitions for Max cards in deck
    this.stack = this.AddContainer( "Stack",   undefined, 0, 52 );
-   this.AddContainer( "Battle",  undefined, 0,  1 );
+   this.battle = this.AddContainer( "Battle",  undefined, 0,  1 );
    this.AddContainer( "Discard", undefined, 0, 52 );
 
    // Add the valid transactions to the states
@@ -100,6 +101,12 @@ function SimpleWarPlayer( parent, id, alias )
 SimpleWarPlayer.prototype = new Player();
 //Correct the constructor pointer
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
+
+
+SimpleWarPlayer.prototype.InGameEnter = function()
+{
+   this.UpdateStatus();
+};
 
 
 SimpleWarPlayer.prototype.InProgressExit = function()
@@ -127,6 +134,14 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 
    if( ( data.ownerId == this.id ) && ( data.transaction == SWGC.SWP_TRANSACTION_BATTLE ) )
    {
+      this.status.stackSize = this.stack.NumCards();
+      if( this.battle.NumCards() > 0 )
+      {
+         this.status.battleStackTop = this.battle.cards[0].shortName;
+      }
+      
+      this.UpdateStatus();
+
       this.Transition( SWP_STATE_WAIT );
       
       eventHandled = true;
@@ -158,6 +173,10 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
       }
       else
       {
+         this.status.stackSize = this.stack.NumCards();
+         this.status.battleStackTop = '';
+         this.UpdateStatus();
+
          this.Transition( SWP_STATE_READY );
       }
 
@@ -187,6 +206,10 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data )
          this.score = 0;
       }
 
+      this.status.stackSize = this.stack.NumCards();
+      this.status.battleStackTop = '';
+      this.UpdateStatus();
+      
       eventHandled = true;
    }
 
@@ -222,5 +245,6 @@ SimpleWarPlayer.prototype.IsInGame = function()
 
 SimpleWarPlayer.prototype.UpdateStatus = function()
 {
+   debugger;
    this.parentGame.UpdatePlayerStatus( this.id, this.status );
 };
