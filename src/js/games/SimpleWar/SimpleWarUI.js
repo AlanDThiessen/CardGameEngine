@@ -36,11 +36,11 @@ SimpleWarUI.prototype.MainEnter = function ()
 SimpleWarUI.prototype.HandleEvent = function (eventId, data)
 {
    var textBox;
-
-// Call super how?
-//   CGEActiveEntity.HandleEvent.call(this, eventId, data);
+   var playersIds;
+   var status;
 
    log.warn("SimpleWarUI.HandleEvent: %s %s", eventId, data);
+
 /*
    if (typeof window !== 'undefined')
    {
@@ -48,6 +48,13 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
       textBox.innerHTML = "\nSimpleWarUI.HandleEvent: " + eventId + " " + data + textBox.innerHTML;
    }
    */
+
+   playerIds = this.parentGame.GetPlayerIds();
+   for (var i = 0; i < playerIds.length; i++)
+   {
+      status = this.parentGame.GetPlayerStatus(playerIds[i]);
+      log.info("UI Status: %s, %s" + status.id, status.battleStackTop);
+   }
 };
 
 module.exports = SimpleWarUI;
