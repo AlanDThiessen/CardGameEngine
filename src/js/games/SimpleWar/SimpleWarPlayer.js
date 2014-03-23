@@ -101,7 +101,7 @@ SimpleWarPlayer.prototype.InProgressExit = function()
 {
    // NOTE: Game/UI won't receive notification of this transaction'
    // Discard our Battle stack
-   this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
+   //this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
    this.inGame = false;
    log.info( "SwPlay : %s is Out", this.name );
 };
@@ -122,14 +122,7 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 
    if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
    {
-      if( this.stack.IsEmpty() )
-      {
-         this.Transition( SWP_STATE_OUT );
-      }
-      else
-      {
-         this.Transition( SWP_STATE_WAIT );
-      }
+      this.Transition( SWP_STATE_WAIT );
       
       eventHandled = true;
    }
@@ -155,6 +148,7 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
       // TODO: Fix bug where player will go out even if he just won the battle
       if( this.stack.IsEmpty() )
       {
+         this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
          this.Transition( SWP_STATE_OUT );
       }
       else
@@ -181,14 +175,7 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data )
          this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
                                            undefined,	undefined,
                                            ["TOP:3"] );
-         if( this.stack.IsEmpty() )
-         {
-            this.Transition( SWP_STATE_OUT );
-         }
-         else
-         {
-            this.Transition( SWP_STATE_READY );
-         }
+         this.Transition( SWP_STATE_READY );
       }
       else
       {

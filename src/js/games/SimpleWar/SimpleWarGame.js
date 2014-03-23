@@ -259,8 +259,14 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    
       for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
       {
-         var cont = this.players[cntr].rootContainer.GetContainerById( "Stack" );
-         log.info( "SWGame :   - %s : %d", this.players[cntr].name, cont.NumCards() );
+         var cont1 = this.players[cntr].rootContainer.GetContainerById( "Stack" );
+         var cont2 = this.players[cntr].rootContainer.GetContainerById( "Battle" );
+         var cont3 = this.players[cntr].rootContainer.GetContainerById( "Discard" );
+         log.info( "SWGame :   - %s : %d %d %d",
+                   this.players[cntr].name,
+                   cont1.NumCards(),
+                   cont2.NumCards(),
+                   cont3.NumCards() );
       }
    
       this.ResetBattleList();
