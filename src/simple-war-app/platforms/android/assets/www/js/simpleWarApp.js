@@ -2460,20 +2460,21 @@ SimpleWarUI.prototype.MainEnter = function ()
    {
       playerStatus = this.parentGame.GetPlayerStatus(playerIds[i]);
 
+      infoDiv = document.createElement('div');
+      infoDiv.id = playerStatus.alias + '-info';
+      infoDiv.appendChild(document.createTextNode(playerStatus.alias));
+      infoDiv.className = 'info';
+      gameDiv.appendChild(infoDiv);
+
       playerStack = document.createElement('div');
       playerStack.id = playerStatus.alias + '-stack';
-      playerStack.appendChild(document.createTextNode(playerStatus.alias + ' Stack'));
+      playerStack.className = 'card-down';
       gameDiv.appendChild(playerStack);
 
       battleStack = document.createElement('div');
       battleStack.id = playerStatus.alias + '-battle';
-      battleStack.appendChild(document.createTextNode(playerStatus.alias + ' Battle'));
+      battleStack.className = 'card-up';
       gameDiv.appendChild(battleStack);
-
-      infoDiv = document.createElement('div');
-      infoDiv.id = playerStatus.alias + '-info';
-      infoDiv.appendChild(document.createTextNode(playerStatus.alias + ' Info'));
-      gameDiv.appendChild(infoDiv);
 
       if (playerStatus.type !== 'AI')
       {
@@ -2487,7 +2488,10 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
    var   playerStatus,
          playerStack,
          battleStack,
-         infoDiv;
+         infoDiv,
+         x,
+         xPos,
+         yPos;
 
    if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
    {
@@ -2499,13 +2503,75 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
       playerStack = document.getElementById(playerStatus.alias + '-stack');
       if (playerStack)
       {
-         playerStack.innerHTML = playerStatus.alias + ' Stack ' + playerStatus.stackSize;
+         if (playerStatus.stackSize > 0)
+         {
+            playerStack.style.backgroundImage = 'url("./img/cards.png")';
+         }
+         else
+         {
+            playerStack.style.backgroundImage = '';
+         }
+      }
+
+      infoDiv = document.getElementById(playerStatus.alias + '-info');
+      if (infoDiv)
+      {
+         infoDiv.innerHTML = playerStatus.alias + '<br>' + playerStatus.stackSize + ' cards';
       }
 
       battleStack = document.getElementById(playerStatus.alias + '-battle');
       if (battleStack)
       {
-         battleStack.innerHTML = playerStatus.alias + ' Battle ' + playerStatus.battleStackTop;
+         xPos = '0';
+         yPos = '0';
+
+         switch (playerStatus.battleStackTop.charAt(0))
+         {
+            case 'H':
+               yPos = '-140px';
+               break;
+
+            case 'S':
+               yPos = '-280px';
+               break;
+
+            case 'D':
+               yPos = '-420px';
+               break;
+         }
+
+         switch (playerStatus.battleStackTop.charAt(1))
+         {
+            case 'A':
+               break;
+
+            case 'K':
+               xPos = '-1200px';
+               break;
+
+            case 'Q':
+               xPos = '-1100px';
+               break;
+
+            case 'J':
+               xPos = '-1000px';
+               break;
+
+            default:
+               x = (parseInt(playerStatus.battleStackTop.charAt(1), 10) - 1) * 100;
+               xPos = '-' + x + 'px';
+               break;
+         }
+
+         if (playerStatus.battleStackTop === '')
+         {
+            battleStack.style.backgroundImage = '';
+         }
+         else 
+         {
+            battleStack.style.backgroundImage = 'url("./img/cards.png")';
+            battleStack.style.backgroundPosition = xPos + ' ' + yPos;
+         }
       }
    }
 };
