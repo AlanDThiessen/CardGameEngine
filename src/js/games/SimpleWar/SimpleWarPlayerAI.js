@@ -30,9 +30,14 @@ SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
 
 SimpleWarPlayerAI.prototype.BattleEnter = function()
 {
-   this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_BATTLE,
-                                     undefined,	undefined,
-                                     ["TOP:1"] );
+   var that = this;
+   var timeout = ((Math.random() * 5) + 1) * 500;
+
+   setTimeout(function () {
+      that.parentGame.EventTransaction( that.id,   SWGC.SWP_TRANSACTION_BATTLE,
+                                        undefined,	undefined,
+                                        ["TOP:1"] );
+   }, timeout);
 };
 
 
