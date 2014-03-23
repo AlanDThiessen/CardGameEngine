@@ -17,6 +17,7 @@ var SWG_CONSTANTS = {
     ***************************************************************************/
    // TODO: This needs to go somewhere else
    CGE_EVENT_TRANSACTION   :    1,
+   CGE_EVENT_STATUS_UPDATE :  100,
    
    SW_EVENT_DO_BATTLE      : 1000,
    SW_EVENT_DO_WAR         : 1001,

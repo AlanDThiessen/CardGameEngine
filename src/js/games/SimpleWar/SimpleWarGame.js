@@ -293,6 +293,8 @@ SimpleWarGame.prototype.ResetBattleList = function()
 SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
 {
    this.status.id = status;
+   
+   this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
 };
 
 
