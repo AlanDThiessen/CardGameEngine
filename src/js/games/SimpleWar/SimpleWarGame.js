@@ -297,15 +297,15 @@ SimpleWarGame.prototype.AddUI = function()
 
 SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
 {
-   this.status.id = status;
-   
+   this.status[id] = status;
+
    this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
 };
 
 
 SimpleWarGame.prototype.GetPlayerStatus = function( id )
 {
-   return this.status.id;
+   return this.status[id];
 };
 
 
