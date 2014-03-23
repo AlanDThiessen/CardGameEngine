@@ -78,7 +78,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    this.CreateDeck( deckSpec );
 
-   //this.AddUI();
+   this.AddUI();
 };
 
 
@@ -139,14 +139,10 @@ CardGame.prototype.StartGame = function()
       this.players[cntr].Start();
    }
 
-   //this.UI.Start();
+   this.UI.Start();
 
    // Now, start the game
-   //this.InitEvents();
    this.Start();
-  
-   // Enter the event loop
-   //this.ProcessEvents();
 };
 
 
@@ -326,7 +322,6 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
 
 CardGame.prototype.ProcessEvents = function()
 {
-   var   done = false;
    var event;
    
    event = this.events.shift();
@@ -342,11 +337,6 @@ CardGame.prototype.ProcessEvents = function()
       }
       else {
          this.DispatchEvent( event.eventId, event.data );
-      }
-
-      if( event.eventId == SWGC.CGE_EVENT_EXIT )
-      {
-         done = true;
       }
    }
 };
@@ -371,7 +361,7 @@ CardGame.prototype.DispatchEvent = function( eventId, data )
    }
  
    // Send all events to the UI
-   //this.UI.HandleEvent( eventId, data);
+   this.UI.HandleEvent( eventId, data);
 };
 
 
