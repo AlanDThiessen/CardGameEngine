@@ -2063,15 +2063,24 @@ SimpleWarGame.prototype.AddUI = function()
 
 SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
 {
+<<<<<<< HEAD
+   this.status.id = status;
+   
+=======
    this.status[id] = status;
 
+>>>>>>> new_branch
    this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
 };
 
 
 SimpleWarGame.prototype.GetPlayerStatus = function( id )
 {
+<<<<<<< HEAD
+   return this.status.id;
+=======
    return this.status[id];
+>>>>>>> new_branch
 };
 
 
@@ -2083,10 +2092,17 @@ SimpleWarGame.prototype.GetPlayerIds = function()
    {
       ids.push( this.players[cntr].id );
    }
+<<<<<<< HEAD
 
    return ids;
 };
 
+=======
+
+   return ids;
+};
+
+>>>>>>> new_branch
 },{"../../CardGame.js":6,"../../Logger.js":8,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14,"./SimpleWarPlayerAI.js":15,"./SimpleWarStatus.js":16,"./SimpleWarUI.js":17}],14:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
@@ -2336,6 +2352,10 @@ SimpleWarPlayer.prototype.IsInGame = function()
 
 SimpleWarPlayer.prototype.UpdateStatus = function()
 {
+<<<<<<< HEAD
+   debugger;
+=======
+>>>>>>> new_branch
    this.parentGame.UpdatePlayerStatus( this.id, this.status );
 };
 
@@ -2485,6 +2505,16 @@ SimpleWarUI.prototype.MainEnter = function ()
 
 SimpleWarUI.prototype.HandleEvent = function (eventId, data)
 {
+<<<<<<< HEAD
+   var textBox;
+   var playerIds;
+   var status;
+
+   log.warn("SimpleWarUI.HandleEvent: %s %s", eventId, data);
+
+/*
+   if (typeof window !== 'undefined')
+=======
    var   playerStatus,
          playerStack,
          battleStack,
@@ -2494,6 +2524,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          yPos;
 
    if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
+>>>>>>> new_branch
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
       log.info('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
@@ -2574,6 +2605,17 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          }
       }
    }
+<<<<<<< HEAD
+   */
+
+   playerIds = this.parentGame.GetPlayerIds();
+   for (var i = 0; i < playerIds.length; i++)
+   {
+      status = this.parentGame.GetPlayerStatus(playerIds[i]);
+      log.info("UI Status: %s, %s" + status.id, status.battleStackTop);
+   }
+=======
+>>>>>>> new_branch
 };
 
 module.exports = SimpleWarUI;

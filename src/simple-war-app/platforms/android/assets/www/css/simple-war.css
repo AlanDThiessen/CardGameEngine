@@ -1,31 +1,27 @@
 body {
    background-color: green;
    color: white;
+   font-size: 24px;
+   background-image: url('../img/felt.png');
 }
 
-#playerStack {
-   width: 150px;
-   height: 200px;
-   background-color: blue;
-   position: absolute;
-   top: 980px;
-   left: 285px;
+.info {
+   clear: both;
+   margin-top: 1em;
 }
 
-#opponentAStack {
-   width: 200px;
-   height: 150px;
-   background-color: blue;
-   position: absolute;
-   top: 500px;
-   left: 100px;
+.card-down {
+   float: left;
+   margin: 1em;
+   background-image: url('../img/cards.png');
+   background-position: 0 -560px;
+   width: 100px;
+   height: 140px;
 }
 
-#opponentBStack {
-   width: 200px;
-   height: 150px;
-   background-color: blue;
-   position: absolute;
-   top: 100px;
-   left: 500px;
+.card-up {
+   margin: 1em;
+   float: left;
+   width: 100px;
+   height: 140px;
 }

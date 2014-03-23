@@ -48,6 +48,11 @@ SimpleWarUI.prototype.MainEnter = function ()
    {
       playerStatus = this.parentGame.GetPlayerStatus(playerIds[i]);
 
+<<<<<<< HEAD
+      playerStack = document.createElement('div');
+      playerStack.id = playerStatus.alias + '-stack';
+      playerStack.appendChild(document.createTextNode(playerStatus.alias + ' Stack'));
+=======
       infoDiv = document.createElement('div');
       infoDiv.id = playerStatus.alias + '-info';
       infoDiv.appendChild(document.createTextNode(playerStatus.alias));
@@ -57,13 +62,25 @@ SimpleWarUI.prototype.MainEnter = function ()
       playerStack = document.createElement('div');
       playerStack.id = playerStatus.alias + '-stack';
       playerStack.className = 'card-down';
+>>>>>>> new_branch
       gameDiv.appendChild(playerStack);
 
       battleStack = document.createElement('div');
       battleStack.id = playerStatus.alias + '-battle';
+<<<<<<< HEAD
+      battleStack.appendChild(document.createTextNode(playerStatus.alias + ' Battle'));
+      gameDiv.appendChild(battleStack);
+
+      infoDiv = document.createElement('div');
+      infoDiv.id = playerStatus.alias + '-info';
+      infoDiv.appendChild(document.createTextNode(playerStatus.alias + ' Info'));
+      gameDiv.appendChild(infoDiv);
+
+=======
       battleStack.className = 'card-up';
       gameDiv.appendChild(battleStack);
 
+>>>>>>> new_branch
       if (playerStatus.type !== 'AI')
       {
          this.playerId = playerStatus.id;
@@ -76,10 +93,14 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
    var   playerStatus,
          playerStack,
          battleStack,
+<<<<<<< HEAD
+         infoDiv;
+=======
          infoDiv,
          x,
          xPos,
          yPos;
+>>>>>>> new_branch
 
    if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
    {
@@ -91,6 +112,9 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
       playerStack = document.getElementById(playerStatus.alias + '-stack');
       if (playerStack)
       {
+<<<<<<< HEAD
+         playerStack.innerHTML = playerStatus.alias + ' Stack ' + playerStatus.stackSize;
+=======
          if (playerStatus.stackSize > 0)
          {
             playerStack.style.backgroundImage = 'url("./img/cards.png")';
@@ -105,11 +129,15 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
       if (infoDiv)
       {
          infoDiv.innerHTML = playerStatus.alias + '<br>' + playerStatus.stackSize + ' cards';
+>>>>>>> new_branch
       }
 
       battleStack = document.getElementById(playerStatus.alias + '-battle');
       if (battleStack)
       {
+<<<<<<< HEAD
+         battleStack.innerHTML = playerStatus.alias + ' Battle ' + playerStatus.battleStackTop;
+=======
          xPos = '0';
          yPos = '0';
 
@@ -160,6 +188,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
             battleStack.style.backgroundImage = 'url("./img/cards.png")';
             battleStack.style.backgroundPosition = xPos + ' ' + yPos;
          }
+>>>>>>> new_branch
       }
    }
 };

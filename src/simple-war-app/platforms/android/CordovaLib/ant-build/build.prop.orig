@@ -1,5 +1,9 @@
 #Last build type
-#Sun, 23 Mar 2014 14:35:47 -0400
+<<<<<<< HEAD
+#Sun, 23 Mar 2014 02:11:00 -0400
+=======
+#Sun, 23 Mar 2014 14:35:46 -0400
+>>>>>>> new_branch
 
 build.last.target=debug
 
