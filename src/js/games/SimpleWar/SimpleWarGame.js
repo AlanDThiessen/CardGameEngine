@@ -135,7 +135,7 @@ SimpleWarGame.prototype.ScoreEnter = function()
 
    if( this.atBattle.length == 1 )
    {
-      log.info( "SWGame : %s Wins!!!", this.players[ atBattle[0] ].name );
+      log.info( "SWGame : %s Wins!!!", this.players[ this.atBattle[0] ].name );
       this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
    }
    else
@@ -182,7 +182,7 @@ SimpleWarGame.prototype.ScoreBattle = function()
    for( var cntr = 0; cntr < this.atBattle.length; cntr++ )
    {
       var score = this.players[ this.atBattle[cntr] ].GetScore();
-      
+ 
       if( score > topScore )
       {
          topPlayers = [];
@@ -208,6 +208,14 @@ SimpleWarGame.prototype.ScoreBattle = function()
       {
          log.info( "SWGame :   - %s", this.players[topPlayers[cntr]].name );
       }
+   }
+
+   log.info( "SWGame : Stack Counts:" );
+
+   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
+   {
+      var cont = this.players[cntr].rootContainer.GetContainerById( "Stack" );
+      log.info( "SWGame :   - %s : %d", this.players[cntr].name, cont.NumCards() );
    }
 
    return topPlayers;

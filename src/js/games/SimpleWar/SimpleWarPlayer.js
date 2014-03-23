@@ -174,19 +174,27 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data )
    var eventHandled = false;
 
 
-   if( ( data.gotoWar ) && ( data.ownerId == this.id ) )
+   if( data.ownerId == this.id )
    {
-      this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
-                                        undefined,	undefined,
-                                        ["TOP:3"] );
-      if( this.stack.IsEmpty() )
+      if( data.gotoWar )
       {
-         this.Transition( SWP_STATE_OUT );
+         this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
+                                           undefined,	undefined,
+                                           ["TOP:3"] );
+         if( this.stack.IsEmpty() )
+         {
+            this.Transition( SWP_STATE_OUT );
+         }
+         else
+         {
+            this.Transition( SWP_STATE_READY );
+         }
       }
       else
       {
-         this.Transition( SWP_STATE_READY );
+         this.score = 0;
       }
+         
 
       eventHandled = true;
    }
