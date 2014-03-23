@@ -60,11 +60,11 @@ log._out = function (level, format) {
          break;
 
       case log.INFO:
-         console.log("INFO: " + str);
+         console.log(" INFO: " + str);
          break;
 
       case log.WARN:
-         console.warn("WARN: " + str);
+         console.warn(" WARN: " + str);
          break;
 
       case log.ERROR:
