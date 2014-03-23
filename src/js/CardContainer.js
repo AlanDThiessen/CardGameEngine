@@ -110,6 +110,7 @@ CardContainer.prototype.GetGroup = function( cardArray, cardList )
                
                if( numCards > this.cards.length )
                {
+                  log.warn( "CGCntnr: '%s' Out of Cards", this.id );
                   numCards = this.cards.length;
                }
             }

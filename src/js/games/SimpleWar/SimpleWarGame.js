@@ -39,7 +39,7 @@ function SimpleWarGame( id )
    CardGame.call( this, "Simple War" );
 
    this.hasBattled   = [];
-//   this.atBattle		= [];
+   this.atBattle     = [];
  
    // Create the State Machine
    this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
@@ -89,7 +89,7 @@ SimpleWarGame.prototype.InProgressEnter = function()
 
    // Advance to the first player
    this.AdvancePlayer();
-   //this.ResetBattleList();
+   this.ResetBattleList();
 };
 
 
@@ -103,6 +103,9 @@ SimpleWarGame.prototype.BattleEnter = function()
 
 SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 {
+   var	eventHandled = false;
+
+
    if( ( data             != undefined ) &&
        ( data.ownerId     != undefined ) &&
        ( data.transaction != undefined ) )
@@ -110,30 +113,35 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
       if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
       {
          this.hasBattled.push( data.ownerId );
+ 
+         // If all players have done battle, then let's do score!
+         if( this.hasBattled.length >= this.atBattle.length )
+         {
+            this.Transition( SIMPLE_WAR_STATE_SCORE );
+         }
+
+         eventHandled = true;
       }
    }
- 
-   // If all players have done battle, then let's do score!
-   //if( this.hasBattled.length >= this.atBattle.length )
-   if( this.hasBattled.length >= this.NumPlayers() )
-   {
-      this.Transition( SIMPLE_WAR_STATE_SCORE );
-   }
 
-   // Event has been handled
-   return true;
+   return eventHandled;
 };
 
 
 SimpleWarGame.prototype.ScoreEnter = function()
 {
-   //this.atBattle = this.ScoreBattle();
-   //this.DetermineBattleResult( this.atBattle );
-   var atBattle = this.ScoreBattle();
-   this.DetermineBattleResult( atBattle );
+   this.atBattle = this.ScoreBattle();
+   this.DetermineBattleResult( this.atBattle );
 
-   // TODO: Check for game winner and go to game end
-   this.Transition( SIMPLE_WAR_STATE_BATTLE );
+   if( this.atBattle.length == 1 )
+   {
+      log.info( "SWGame : %s Wins!!!", this.players[ atBattle[0] ].name );
+      this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
+   }
+   else
+   {
+      this.Transition( SIMPLE_WAR_STATE_BATTLE );
+   }
 };
 
 
@@ -170,9 +178,10 @@ SimpleWarGame.prototype.ScoreBattle = function()
    var   topPlayers = [];
    var   topScore = 0;
 
-   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
+
+   for( var cntr = 0; cntr < this.atBattle.length; cntr++ )
    {
-      var score = this.players[cntr].GetScore();
+      var score = this.players[ this.atBattle[cntr] ].GetScore();
       
       if( score > topScore )
       {
@@ -246,7 +255,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
                                    ["TOP:ALL"] );
       }
 
-      //this.ResetBattleList();
+      this.ResetBattleList();
    }
 };
 
@@ -257,7 +266,10 @@ SimpleWarGame.prototype.ResetBattleList = function()
 
    for( cntr = 0; cntr < this.NumPlayers(); cntr++ )
    {
-      this.atBattle.push( cntr );
+      if( this.players[cntr].IsInGame() )
+      {
+         this.atBattle.push( cntr );
+      }
    }
 };
 

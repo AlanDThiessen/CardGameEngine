@@ -57,6 +57,8 @@ function SimpleWarPlayer( parent, id, alias )
    // Call the parent class constructor
    Player.call( this, parent, id, alias );
 
+   this.inGame = true;
+
    // Create the State Machine
    this.AddState( SWP_STATE_IN_GAME,   undefined         );
    this.AddState( SWP_STATE_OUT,       undefined         );
@@ -66,7 +68,8 @@ function SimpleWarPlayer( parent, id, alias )
 
    this.SetInitialState( SWP_STATE_READY );
 
-   this.SetEnterRoutine( SWP_STATE_WAIT,      this.WaitEnter     );
+   this.SetEnterRoutine( SWP_STATE_WAIT,      this.WaitEnter      );
+   this.SetExitRoutine(  SWP_STATE_IN_GAME,   this.InProgressExit );
 
    this.AddEventHandler( SWP_STATE_READY,  SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle );
    this.AddEventHandler( SWP_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
@@ -74,7 +77,7 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddEventHandler( SWP_STATE_WAIT,   SWGC.SW_EVENT_DO_WAR,       this.DoWar );
 
    // TODO: Need definitions for Max cards in deck
-   this.AddContainer( "Stack",   undefined, 0, 52 );
+   this.stack = this.AddContainer( "Stack",   undefined, 0, 52 );
    this.AddContainer( "Battle",  undefined, 0,  1 );
    this.AddContainer( "Discard", undefined, 0, 52 );
 
@@ -82,6 +85,7 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_DICARD  );
    this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_COLLECT );
    this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_GIVEUP  );
+   this.AddValidTransaction( SWP_STATE_OUT,       SWGC.SWP_TRANSACTION_GIVEUP  );
    this.AddValidTransaction( SWP_STATE_READY,     SWGC.SWP_TRANSACTION_DEAL    );
    this.AddValidTransaction( SWP_STATE_BATTLE,    SWGC.SWP_TRANSACTION_BATTLE  );
    this.AddValidTransaction( SWP_STATE_WAIT,      SWGC.SWP_TRANSACTION_FLOP    );
@@ -93,8 +97,19 @@ SimpleWarPlayer.prototype = new Player();
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
 
+SimpleWarPlayer.prototype.InProgressExit = function()
+{
+   // NOTE: Game/UI won't receive notification of this transaction'
+   // Discard our Battle stack
+   this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
+   this.inGame = false;
+   log.info( "SwPlay : %s is Out", this.name );
+};
+
+
 SimpleWarPlayer.prototype.DoBattle = function()
 {
+   this.score = 0;
    this.Transition( SWP_STATE_BATTLE );
 
    return true;
@@ -107,8 +122,16 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 
    if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
    {
+      if( this.stack.IsEmpty() )
+      {
+         this.Transition( SWP_STATE_OUT );
+      }
+      else
+      {
+         this.Transition( SWP_STATE_WAIT );
+      }
+      
       eventHandled = true;
-      this.Transition( SWP_STATE_WAIT );
    }
 
    return eventHandled;
@@ -129,8 +152,17 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
    if( ( data.transaction == SWGC.SWP_TRANSACTION_GIVEUP ) &&
        ( data.ownerId == this.id ) )
    {
+      // TODO: Fix bug where player will go out even if he just won the battle
+      if( this.stack.IsEmpty() )
+      {
+         this.Transition( SWP_STATE_OUT );
+      }
+      else
+      {
+         this.Transition( SWP_STATE_READY );
+      }
+
       eventHandled = true;
-      this.Transition( SWP_STATE_READY );
    }
 
    return eventHandled;
@@ -147,7 +179,14 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data )
       this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
                                         undefined,	undefined,
                                         ["TOP:3"] );
-      this.Transition( SWP_STATE_READY );
+      if( this.stack.IsEmpty() )
+      {
+         this.Transition( SWP_STATE_OUT );
+      }
+      else
+      {
+         this.Transition( SWP_STATE_READY );
+      }
 
       eventHandled = true;
    }
@@ -173,4 +212,10 @@ SimpleWarPlayer.prototype.Score = function()
 
    log.info( "SWPlay : %s: Score: = %d", this.name, score );
    this.score = score;
+};
+
+
+SimpleWarPlayer.prototype.IsInGame = function()
+{
+   return this.inGame;
 };
