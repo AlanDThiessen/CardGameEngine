@@ -1,0 +1,31 @@
+body {
+   background-color: green;
+   color: white;
+}
+
+#playerStack {
+   width: 150px;
+   height: 200px;
+   background-color: blue;
+   position: absolute;
+   top: 980px;
+   left: 285px;
+}
+
+#opponentAStack {
+   width: 200px;
+   height: 150px;
+   background-color: blue;
+   position: absolute;
+   top: 500px;
+   left: 100px;
+}
+
+#opponentBStack {
+   width: 200px;
+   height: 150px;
+   background-color: blue;
+   position: absolute;
+   top: 100px;
+   left: 500px;
+}
