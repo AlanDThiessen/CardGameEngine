@@ -24,7 +24,7 @@ function Card( suit, name, shortName, rank, color, count )
  ******************************************************************************/
 Card.prototype.Print = function()
 {
-   log.info( this.id + ' : ' + this.shortName + ' : ' + this.name );
+   log.info( "CGCard :    " + this.id + ' : ' + this.shortName + ' : ' + this.name );
 };
 
 module.exports = Card;

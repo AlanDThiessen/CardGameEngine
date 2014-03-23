@@ -3,6 +3,8 @@ var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
 var log = require ("../../src/js/Logger.js");
 
+log.mask = 0xFE;
+
 var gameSpec = 
 {
    "id": "simple-war",
@@ -185,10 +187,10 @@ cardGame.Init( gameSpec, deckSpec );
 cardGame.StartGame();
 
 //Battle(); 
-log.info( "***** Player 0: Card Stack *****" );
+log.info( "SWTest : ***** Player 0: Card Stack *****" );
 cardGame.players[0].rootContainer.containers[0].PrintCards();
-log.info( "***** Player 1: Card Stack *****" );
+log.info( "SWTest : ***** Player 1: Card Stack *****" );
 cardGame.players[1].rootContainer.containers[0].PrintCards();
-log.info( "***** Player 2: Card Stack *****" );
+log.info( "SWTest : ***** Player 2: Card Stack *****" );
 cardGame.players[2].rootContainer.containers[0].PrintCards();
 

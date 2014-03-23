@@ -19,9 +19,6 @@ var SWP_STATE_OUT             = "Out";       // Top:Out
 var SWP_STATE_READY           = "Ready";     // Top:InGame:Ready
 var SWP_STATE_BATTLE          = "Battle";    // Top:InGame:Battle
 var SWP_STATE_WAIT            = "Wait";      // Top:InGame:Wait
-var SWP_STATE_WAR             = "War";       // Top:InGame:War
-var SWP_STATE_FLOP            = "Flop";      // Top:InGame:War:Flop
-var SWP_STATE_DRAW            = "Draw";      // Top:InGame:War:Draw
 
 /******************************************************************************
  * Containers
@@ -66,9 +63,6 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddState( SWP_STATE_READY,     SWP_STATE_IN_GAME );
    this.AddState( SWP_STATE_BATTLE,    SWP_STATE_IN_GAME );
    this.AddState( SWP_STATE_WAIT,      SWP_STATE_IN_GAME );
-   this.AddState( SWP_STATE_WAR,       SWP_STATE_IN_GAME );
-   this.AddState( SWP_STATE_FLOP,      SWP_STATE_WAR     );
-   this.AddState( SWP_STATE_DRAW,      SWP_STATE_WAR     );
 
    this.SetInitialState( SWP_STATE_READY );
 
@@ -77,6 +71,7 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddEventHandler( SWP_STATE_READY,  SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle );
    this.AddEventHandler( SWP_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
    this.AddEventHandler( SWP_STATE_WAIT,   SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction );
+   this.AddEventHandler( SWP_STATE_WAIT,   SWGC.SW_EVENT_DO_WAR,       this.DoWar );
 
    // TODO: Need definitions for Max cards in deck
    this.AddContainer( "Stack",   undefined, 0, 52 );
@@ -84,13 +79,12 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddContainer( "Discard", undefined, 0, 52 );
 
    // Add the valid transactions to the states
-   this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_DICARD  );
-   this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_COLLECT );
-   this.AddValidTransaction( SWP_STATE_IN_GAME,	SWGC.SWP_TRANSACTION_GIVEUP  );
-   this.AddValidTransaction( SWP_STATE_READY,  	SWGC.SWP_TRANSACTION_DEAL    );
-   this.AddValidTransaction( SWP_STATE_BATTLE, 	SWGC.SWP_TRANSACTION_BATTLE  );
-   this.AddValidTransaction( SWP_STATE_FLOP,   	SWGC.SWP_TRANSACTION_FLOP    );
-   this.AddValidTransaction( SWP_STATE_DRAW,   	SWGC.SWP_TRANSACTION_BATTLE  );
+   this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_DICARD  );
+   this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_COLLECT );
+   this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_GIVEUP  );
+   this.AddValidTransaction( SWP_STATE_READY,     SWGC.SWP_TRANSACTION_DEAL    );
+   this.AddValidTransaction( SWP_STATE_BATTLE,    SWGC.SWP_TRANSACTION_BATTLE  );
+   this.AddValidTransaction( SWP_STATE_WAIT,      SWGC.SWP_TRANSACTION_FLOP    );
 };
 
 //Inherit from ActiveEntity
@@ -101,7 +95,6 @@ SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
 SimpleWarPlayer.prototype.DoBattle = function()
 {
-   log.info( '%s:DoBattle', this.name );
    this.Transition( SWP_STATE_BATTLE );
 
    return true;
@@ -124,13 +117,6 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 
 SimpleWarPlayer.prototype.WaitEnter = function()
 {
-   var cont = this.rootContainer.GetContainerById( "Battle" );
-   
-   if( cont != undefined )
-   {
-      cont.PrintCards();
-   }
-
    this.Score();
 };
 
@@ -140,12 +126,30 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
    var eventHandled = false;
 
 
-debugger;
-   if( (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP ) &&
+   if( ( data.transaction == SWGC.SWP_TRANSACTION_GIVEUP ) &&
        ( data.ownerId == this.id ) )
    {
       eventHandled = true;
       this.Transition( SWP_STATE_READY );
+   }
+
+   return eventHandled;
+};
+
+
+SimpleWarPlayer.prototype.DoWar = function( eventId, data )
+{
+   var eventHandled = false;
+
+
+   if( ( data.gotoWar ) && ( data.ownerId == this.id ) )
+   {
+      this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
+                                        undefined,	undefined,
+                                        ["TOP:3"] );
+      this.Transition( SWP_STATE_READY );
+
+      eventHandled = true;
    }
 
    return eventHandled;
@@ -167,6 +171,6 @@ SimpleWarPlayer.prototype.Score = function()
       cont.cards.forEach( CardScore );
    }
 
-   log.info( "Score Alert: %s = %d", this.name, score );
+   log.info( "SWPlay : %s: Score: = %d", this.name, score );
    this.score = score;
 };

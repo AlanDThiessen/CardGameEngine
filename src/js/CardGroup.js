@@ -72,12 +72,15 @@ CardGroup.prototype.PrintCards = function()
 {
    var i;
    
-   log.info( this.id + ' holds ' + this.cards.length + ' cards ' );
+   log.info( "CGroup : ****************************************" );
+   log.info( "CGroup :    '" + this.id + "' holds " + this.cards.length + ' cards ' );
 
    for( i = 0; i < this.cards.length; i++ )
    {
       this.cards[i].Print();
    }
+
+   log.info( "CGroup : ****************************************" );
 };
 
 

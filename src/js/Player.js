@@ -12,7 +12,7 @@ function Player( parent, id, alias )
    // Call the parent class constructor
    CGEActiveEntity.call( this, "Player:" + alias );
 
-   log.info("New Player: %s", alias);
+   log.info( "CGPlay : New Player: %s", alias );
 
    this.parentGame      = parent;
    this.id              = id;

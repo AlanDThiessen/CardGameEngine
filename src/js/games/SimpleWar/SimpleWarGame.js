@@ -38,7 +38,8 @@ function SimpleWarGame( id )
    // Call the parent class constructor
    CardGame.call( this, "Simple War" );
 
-   this.hasBattled = [];
+   this.hasBattled   = [];
+//   this.atBattle		= [];
  
    // Create the State Machine
    this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
@@ -80,20 +81,21 @@ SimpleWarGame.prototype.AddPlayer = function( id, alias, type )
 
 SimpleWarGame.prototype.InProgressEnter = function()
 {
-   log.info( "SimpleWar: InProgress Enter");
    if( this.isHost )
    {
       this.dealer.Shuffle();
       this.Deal();
    }
- 
+
    // Advance to the first player
    this.AdvancePlayer();
+   //this.ResetBattleList();
 };
 
 
 SimpleWarGame.prototype.BattleEnter = function()
 {
+   log.info( "SWGame : ************************* BATTLE *************************");
    this.hasBattled = [];
    this.SendEvent( SWGC.SW_EVENT_DO_BATTLE, undefined );
 };
@@ -101,8 +103,8 @@ SimpleWarGame.prototype.BattleEnter = function()
 
 SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 {
-   if( ( data != undefined ) &&
-       ( data.ownerId != undefined ) &&
+   if( ( data             != undefined ) &&
+       ( data.ownerId     != undefined ) &&
        ( data.transaction != undefined ) )
    {
       if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
@@ -112,6 +114,7 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
    }
  
    // If all players have done battle, then let's do score!
+   //if( this.hasBattled.length >= this.atBattle.length )
    if( this.hasBattled.length >= this.NumPlayers() )
    {
       this.Transition( SIMPLE_WAR_STATE_SCORE );
@@ -124,8 +127,10 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 
 SimpleWarGame.prototype.ScoreEnter = function()
 {
-   var topPlayers = this.ScoreBattle();
-   this.DetermineBattleResult( topPlayers );
+   //this.atBattle = this.ScoreBattle();
+   //this.DetermineBattleResult( this.atBattle );
+   var atBattle = this.ScoreBattle();
+   this.DetermineBattleResult( atBattle );
 
    // TODO: Check for game winner and go to game end
    this.Transition( SIMPLE_WAR_STATE_BATTLE );
@@ -134,12 +139,12 @@ SimpleWarGame.prototype.ScoreEnter = function()
 
 SimpleWarGame.prototype.Deal = function()
 {
-   log.info( "SimpleWar: Deal" );
+   log.info( "SWGame : Deal" );
 
    // Ensure players get an even number of cards
-   var cardRemainder = this.dealer.NumCards() % this.players.length;
+   var cardRemainder = this.dealer.NumCards() % this.NumPlayers();
 
-   log.info( "Card Remainder: %d", cardRemainder );
+   log.debug( "SWGame : Card Remainder: %d", cardRemainder );
 
    var player = 0;
    while( this.dealer.NumCards() > cardRemainder )
@@ -162,11 +167,9 @@ SimpleWarGame.prototype.Deal = function()
 
 SimpleWarGame.prototype.ScoreBattle = function()
 {
-   var	topPlayers = [];
-   var	topScore = 0;
+   var   topPlayers = [];
+   var   topScore = 0;
 
-   log.info( "All players have battled, now let's determine a winner!" );
-   
    for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
    {
       var score = this.players[cntr].GetScore();
@@ -186,14 +189,15 @@ SimpleWarGame.prototype.ScoreBattle = function()
    
    if( topPlayers.length == 1 )
    {
-      log.info( "Battle Winner: %s", this.players[topPlayers[0]].name );
+      log.info( "SWGame : Battle Winner: %s", this.players[topPlayers[0]].name );
    }
    else
    {
-      log.info( "Tie between:" );
+      log.info( "SWGame : Tie between:" );
+      
       for( var cntr = 0; cntr < topPlayers.length; cntr++ )
       {
-         log.info( "   - %s", this.players[topPlayers[cntr]].name );
+         log.info( "SWGame :   - %s", this.players[topPlayers[cntr]].name );
       }
    }
 
@@ -210,13 +214,14 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    for( var cntr = 0; cntr < numPlayers; cntr++ )
    {
       this.EventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD,
-    		  						  undefined,             undefined,
-    		  						  ["TOP:ALL"] );
+                                undefined,             undefined,
+                                ["TOP:ALL"] );
    }
 
    // If there is a tie, we need to go to War!
    if( topPlayers.length > 1 )
    {
+      log.info( "SWGame : ************************* WAR!!! *************************");
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
          var doWar = false;
@@ -226,7 +231,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
          {
             doWar = true;
          }
- 
+
          this.SendEvent( SWGC.SW_EVENT_DO_WAR, { ownerId: this.players[cntr].id, gotoWar: doWar } );
       }
    }
@@ -237,8 +242,22 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
          this.EventTransaction( this.players[winnerIndex].id, SWGC.SWP_TRANSACTION_COLLECT,
-        		 						  this.players[cntr].id,        SWGC.SWP_TRANSACTION_GIVEUP,
-        		 						  ["TOP:ALL"] );
+                                   this.players[cntr].id,        SWGC.SWP_TRANSACTION_GIVEUP,
+                                   ["TOP:ALL"] );
       }
+
+      //this.ResetBattleList();
    }
 };
+
+
+SimpleWarGame.prototype.ResetBattleList = function()
+{
+   this.atBattle = [];
+
+   for( cntr = 0; cntr < this.NumPlayers(); cntr++ )
+   {
+      this.atBattle.push( cntr );
+   }
+};
+

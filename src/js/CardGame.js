@@ -57,7 +57,7 @@ CardGame.prototype.constructor = CardGame;
  ******************************************************************************/
 CardGame.prototype.Init = function( gameSpec, deckSpec )
 {
-   log.info( 'Initializing game of ' + gameSpec.name );
+   log.info( 'CGame  : Initializing game of ' + gameSpec.name );
    log.info( gameSpec );
 
    this.gameName = gameSpec.server.name;
@@ -69,7 +69,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
       this.isHost = true;
    }
 
-   log.info( "Adding players" );
+   log.info( "CGame  : Adding players" );
    this.AddPlayers( gameSpec.players );
 
    this.CreateDeck( deckSpec );
@@ -203,7 +203,7 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
  ******************************************************************************/
 CardGame.prototype.AddPlayer = function( id, name )
 {
-   log.info( 'Please override virtual function \'CardGame.AddPlayer()\'.' );
+   log.error( 'CGame  : Please override virtual function \'CardGame.AddPlayer()\'.' );
 };
 
 
@@ -242,7 +242,7 @@ CardGame.prototype.GetEntityById = function( id )
  ******************************************************************************/
 CardGame.prototype.Deal = function()
 {
-   log.info( 'Please override virtual function \'CardGame.Deal()\'.' );
+   log.info( 'CGame  : Please override virtual function \'CardGame.Deal()\'.' );
 };
 
 
@@ -289,7 +289,6 @@ CardGame.prototype.SendEvent = function( eventId, data )
 {
    if( ( data != undefined ) && ( data.ownerId != undefined ) )
    {
-       log.info( "Sending event to owner: %s", data.ownerId );
       var entity = this.GetEntityById( data.ownerId );
       entity.HandleEvent( eventId, data );
    }
@@ -297,7 +296,7 @@ CardGame.prototype.SendEvent = function( eventId, data )
    {
       this.AllPlayersHandleEvent( eventId, data );
    }
- 
+
    // Send all events to the game engine
    this.HandleEvent( eventId, data );
 };
@@ -318,6 +317,7 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
          if( srcEntity != undefined )
          {
             var   cardArray = Array();
+
             if( srcEntity.ExecuteTransaction( srcTransName, cardList, cardArray ) )
             {
                this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : srcId, transaction: srcTransName } );
@@ -330,22 +330,22 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
             }
             else
             {
-               log.error( "EventTransaction: src transaction failed" );
+               log.error( "CGame  : EventTransaction: src transaction failed" );
             }
          }
          else
          {
-            log.error( "EventTransaction: srcId Not found!" );
+            log.error( "CGame  : EventTransaction: srcId Not found!" );
          }
       }
       else
       {
          success = destEntity.ExecuteTransaction( destTransName, cardList, undefined );
 
-	      if( success )
-	      {
-	         this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : destId, transaction: destTransName } );
-	      }
+         if( success )
+         {
+            this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : destId, transaction: destTransName } );
+         }
       }
    }
    

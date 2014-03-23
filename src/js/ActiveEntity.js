@@ -67,7 +67,7 @@ ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
 
    if( state != undefined )
    {
-      log.info( "Adding event handler for event %d to state %s", eventId, state.name );
+      log.debug( "Adding event handler for event %d to state %s", eventId, state.name );
       state.AddEventHandler( eventId, routine );
    }
 };
@@ -132,7 +132,7 @@ ActiveEntity.prototype.SetInitialState = function( initialStateName, parentName 
  ******************************************************************************/
 ActiveEntity.prototype.Start = function()
 {
-   log.info( "Start: transition to %s", this.name );
+   log.debug( "Start: transition to %s", this.name );
    this.currentState = this.topState;
    this.Transition( this.name );
 };
@@ -169,7 +169,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
    var destState     = this.topState.FindState( destStateName, true );
 
 
-   log.info( "Transition: %s -> %s; ", this.currentState.name, destStateName );
+   log.debug( "Transition: %s -> %s; ", this.currentState.name, destStateName );
 
    if( destState != undefined )
    {
@@ -184,8 +184,8 @@ ActiveEntity.prototype.Transition = function( destStateName )
       destState.GetAncestors( destAncestors );
       this.currentState.GetAncestors( srcAncestors );
       
-      log.info( destAncestors );
-      log.info( srcAncestors );
+      log.debug( destAncestors );
+      log.debug( srcAncestors );
 
       // Now, iterate from the bottom of the source ancestor list to find the 
       // Lowest common denominator of both states.
@@ -197,7 +197,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
          found = destAncestors.indexOf( lcAncestor );
       }
 
-      log.info( "Common Ancestor: %s", lcAncestor );
+      log.debug( "Common Ancestor: %s", lcAncestor );
 
       // Did we find a common ancestor?
       if( found != -1  )
@@ -223,7 +223,7 @@ ActiveEntity.prototype.Transition = function( destStateName )
    }
    else
    {
-      log.info( "Transition to undefined state in ActiveEntity: %s", this.name );
+      log.error( "Transition to undefined state in ActiveEntity: %s", this.name );
    }
 };
 
