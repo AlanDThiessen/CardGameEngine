@@ -6,6 +6,7 @@ var CardGame = require( "../../CardGame.js" );
 var transDef = require( "../../TransactionDefinition.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
 var GameStatus = require( "./SimpleWarStatus.js" ).SimpleWarStatus;
+var SimpleWarUI = require( "./SimpleWarUI.js" );
 var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
@@ -289,6 +290,10 @@ SimpleWarGame.prototype.ResetBattleList = function()
    }
 };
 
+SimpleWarGame.prototype.AddUI = function()
+{
+   this.UI = new SimpleWarUI(this, "0030");
+};
 
 SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
 {

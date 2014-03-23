@@ -4,7 +4,6 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
 var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
-var SimpleWarUI = require( "./games/SimpleWar/SimpleWarUI.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -75,7 +74,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    this.CreateDeck( deckSpec );
 
-   this.UI = new SimpleWarUI(this, "0030");
+   this.AddUI();
 };
 
 
@@ -209,6 +208,11 @@ CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
 CardGame.prototype.AddPlayer = function( id, name )
 {
    log.error( 'CGame  : Please override virtual function \'CardGame.AddPlayer()\'.' );
+};
+
+CardGame.prototype.AddUI = function()
+{
+   log.error( 'CGame  : Please override virtual function "CardGame.AddUI()".' );
 };
 
 
