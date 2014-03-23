@@ -20,7 +20,9 @@
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/index.html \
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/js \
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/css/index.css \
+/Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/css/simple-war.css \
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/img/logo.png \
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/js/index.js \
+/Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/js/Makefile \
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/assets/www/js/simpleWarApp.js \
 /Users/jgoulder/repos/cge/src/simple-war-app/platforms/android/ant-build/AndroidManifest.xml \

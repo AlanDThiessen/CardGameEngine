@@ -4,6 +4,7 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
 var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+var SimpleWarUI = require( "./games/SimpleWar/SimpleWarUI.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -73,6 +74,8 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    this.AddPlayers( gameSpec.players );
 
    this.CreateDeck( deckSpec );
+
+   this.UI = new SimpleWarUI(this, "0030");
 };
 
 
@@ -119,6 +122,8 @@ CardGame.prototype.StartGame = function()
    {
       this.players[cntr].Start();
    }
+
+   this.UI.Start();
 
    // Now, start the game
    //ActiveEntity.Start.call( this );
@@ -302,6 +307,8 @@ CardGame.prototype.SendEvent = function( eventId, data )
       // Send all events to the game engine
       this.HandleEvent( eventId, data );
    }
+   // Send all events to the UI
+   this.UI.HandleEvent( eventId, data);
 };
 
 

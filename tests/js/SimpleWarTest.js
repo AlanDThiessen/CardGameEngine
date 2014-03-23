@@ -29,7 +29,7 @@ var gameSpec =
       },
       { "id": "0030",
         "alias": "Jordan",
-        "type": "AI"
+        "type": "USER"
       }
    ],
  };
@@ -187,7 +187,6 @@ function main ()
 
    cardGame.StartGame();
 
-//Battle(); 
    log.info( "SWTest : ***** Player 0: Card Stack *****" );
    cardGame.players[0].rootContainer.containers[0].PrintCards();
    log.info( "SWTest : ***** Player 1: Card Stack *****" );

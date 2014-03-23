@@ -737,6 +737,7 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
 var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+var SimpleWarUI = require( "./games/SimpleWar/SimpleWarUI.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -806,6 +807,8 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
    this.AddPlayers( gameSpec.players );
 
    this.CreateDeck( deckSpec );
+
+   this.UI = new SimpleWarUI();
 };
 
 
@@ -852,6 +855,8 @@ CardGame.prototype.StartGame = function()
    {
       this.players[cntr].Start();
    }
+
+   this.UI.Start();
 
    // Now, start the game
    //ActiveEntity.Start.call( this );
@@ -1033,6 +1038,9 @@ CardGame.prototype.SendEvent = function( eventId, data )
  
    // Send all events to the game engine
    this.HandleEvent( eventId, data );
+
+   // Send all events to the UI
+   this.UI.HandleEvent( eventId, data);
 };
 
 
@@ -1087,7 +1095,7 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
 
 module.exports = CardGame;
 
-},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12}],7:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12,"./games/SimpleWar/SimpleWarUI.js":16}],7:[function(require,module,exports){
 
 var log = require('./Logger.js');
 
@@ -1334,7 +1342,7 @@ log.info = function (format) {
 
 log.warn = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.INFO);
+   args.unshift(log.WARN);
 
    if (log.mask & log.WARN) {
       log._out.apply(this, args);
@@ -1343,7 +1351,7 @@ log.warn = function (format) {
 
 log.error = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.INFO);
+   args.unshift(log.ERROR);
 
    if (log.mask & log.ERROR) {
       log._out.apply(this, args);
@@ -1367,11 +1375,11 @@ log._out = function (level, format) {
          break;
 
       case log.INFO:
-         console.log("INFO: " + str);
+         console.log(" INFO: " + str);
          break;
 
       case log.WARN:
-         console.warn("WARN: " + str);
+         console.warn(" WARN: " + str);
          break;
 
       case log.ERROR:
@@ -2228,6 +2236,42 @@ module.exports = SimpleWarPlayerAI;
 
 
 },{"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14}],16:[function(require,module,exports){
+var CGEActiveEntity = require ('../../CGEActiveEntity.js');
+
+var MAIN_STATE = "MAIN_STATE";
+
+function SimpleWarUI()
+{
+   CGEActiveEntity.call(this, "SimpleWarUI");
+
+   log.info("Creating SimpleWarUI");
+
+   this.AddState(MAIN_STATE);
+   this.SetInitialState(MAIN_STATE);
+};
+
+SimpleWarUI.prototype = new CGEActiveEntity();
+SimpleWarUI.prototype.constructor = SimpleWarUI;
+
+SimpleWarUI.prototype.HandleEvent = function (eventId, data)
+{
+   var textBox;
+
+// Call super how?
+//   CGEActiveEntity.HandleEvent.call(this, eventId, data);
+
+   log.warn("SimpleWarUI.HandleEvent: %s %s", eventId, data);
+
+   if (typeof window !== 'undefined')
+   {
+      textBox = document.getElementById('log');
+      textBox.innerHTML = "\nSimpleWarUI.HandleEvent: " + eventId + " " + data + textBox.innerHTML;
+   }
+}
+
+module.exports = SimpleWarUI;
+
+},{"../../CGEActiveEntity.js":2}],17:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
@@ -2257,7 +2301,7 @@ var gameSpec =
       },
       { "id": "0030",
         "alias": "Jordan",
-        "type": "AI"
+        "type": "USER"
       }
    ],
  };
@@ -2415,7 +2459,6 @@ function main ()
 
    cardGame.StartGame();
 
-//Battle(); 
    log.info( "***** Player 0: Card Stack *****" );
    cardGame.players[0].rootContainer.containers[0].PrintCards();
    log.info( "***** Player 1: Card Stack *****" );
@@ -2433,6 +2476,6 @@ else
    document.addEventListener('deviceready', main, false);
 }
 
-},{"../../src/js/Logger.js":8,"../../src/js/games/SimpleWar/SimpleWarGame.js":13,"readline":17}],17:[function(require,module,exports){
+},{"../../src/js/Logger.js":8,"../../src/js/games/SimpleWar/SimpleWarGame.js":13,"readline":18}],18:[function(require,module,exports){
 
-},{}]},{},[16])
+},{}]},{},[17])
