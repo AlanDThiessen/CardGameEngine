@@ -3,6 +3,7 @@ module.exports = SimpleWarPlayer;
 var SWGC     = require( "./SimpleWarDefs.js" );
 var Player   = require( "../../Player.js" );
 var transDef = require( "../../TransactionDefinition.js" );
+var PlayerStatus = require( "./SimpleWarStatus.js" ).SimpleWarPlayerStatus;
 var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
@@ -58,6 +59,7 @@ function SimpleWarPlayer( parent, id, alias )
    Player.call( this, parent, id, alias );
 
    this.inGame = true;
+   this.Status = new PlayerStatus;
 
    // Create the State Machine
    this.AddState( SWP_STATE_IN_GAME,   undefined         );
@@ -212,4 +214,9 @@ SimpleWarPlayer.prototype.Score = function()
 SimpleWarPlayer.prototype.IsInGame = function()
 {
    return this.inGame;
+};
+
+
+SimpleWarPlayer.prototype.UpdateStatus = function()
+{
 };

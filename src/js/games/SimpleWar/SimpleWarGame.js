@@ -5,6 +5,7 @@ var SimpleWarPlayerAI = require( "./SimpleWarPlayerAI.js" );
 var CardGame = require( "../../CardGame.js" );
 var transDef = require( "../../TransactionDefinition.js" );
 var SWGC     = require( "./SimpleWarDefs.js" );
+var GameStatus = require( "./SimpleWarStatus.js" ).SimpleWarStatus;
 var log      = require( "../../Logger.js" );
 
 var TransactionDefinition = transDef.TransactionDefinition;
@@ -38,6 +39,7 @@ function SimpleWarGame( id )
    // Call the parent class constructor
    CardGame.call( this, "Simple War" );
 
+   this.status			= new GameStatus();
    this.hasBattled   = [];
    this.atBattle     = [];
  
