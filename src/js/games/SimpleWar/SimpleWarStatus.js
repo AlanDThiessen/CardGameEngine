@@ -11,7 +11,7 @@ function SimpleWarPlayerStatus()
 
 function SimpleWarStatus()
 {
-   this.players = [];
+   this.players = {};
 }
 
 
