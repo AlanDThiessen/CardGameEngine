@@ -3,7 +3,7 @@ var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
 var log = require ("../../src/js/Logger.js");
 
-log.mask = 0xFE;
+log.mask = 0xFF;
 
 var gameSpec = 
 {

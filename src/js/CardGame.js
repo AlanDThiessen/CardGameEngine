@@ -4,6 +4,7 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
 var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+var EventEmitter = require('events').EventEmitter;
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -72,6 +73,8 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    log.info( "CGame  : Adding players" );
    this.AddPlayers( gameSpec.players );
+   
+   this.InitEvents();
 
    this.CreateDeck( deckSpec );
 
@@ -113,7 +116,8 @@ CardGame.prototype.AdvancePlayer = function()
 CardGame.prototype.InitEvents = function()
 {
    // TODO: Make events work
-   //document.addEventListener( this.id, ProcessEvents( this ) );
+   this.emitter = new EventEmitter();
+   this.emitter.addListener( this.id, function( that ) this.ProcessEvents );
 };
 
 
@@ -138,7 +142,7 @@ CardGame.prototype.StartGame = function()
    this.Start();
   
    // Enter the event loop
-   this.ProcessEvents();
+   //this.ProcessEvents();
 };
 
 
@@ -315,7 +319,7 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
    this.events.push( event );
  
    // TODO: Make events work
-   //document.dispatchEvent( this.id );
+   this.emitter.emit( this.id );
 };
 
 
@@ -323,8 +327,9 @@ CardGame.prototype.ProcessEvents = function()
 {
    var   done = false;
    
-   while( !done )
-   {
+   console.log( this );
+   //while( !done )
+   //{
       if( this.events.length > 0 )
       {
          var event;
@@ -352,9 +357,9 @@ CardGame.prototype.ProcessEvents = function()
       }
       else {
          //console.log( "Waiting for events..." );
-         debugger;
+         //debugger;
       }
-   }
+   //}
  
    log.info( "CGame  : Goodbye." );
 };
