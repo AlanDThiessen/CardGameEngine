@@ -246,6 +246,5 @@ SimpleWarPlayer.prototype.IsInGame = function()
 
 SimpleWarPlayer.prototype.UpdateStatus = function()
 {
-   debugger;
    this.parentGame.UpdatePlayerStatus( this.id, this.status );
 };

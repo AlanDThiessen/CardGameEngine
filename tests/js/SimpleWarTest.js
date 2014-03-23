@@ -201,5 +201,6 @@ if (typeof window === 'undefined')
 }
 else
 {
-   document.addEventListener('deviceready', main, false);
+//   document.addEventListener('deviceready', main, false);
+   window.addEventListener('load', main, false);
 }
