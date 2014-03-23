@@ -2036,25 +2036,6 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
                    cont1.NumCards(),
                    cont2.NumCards(),
                    cont3.NumCards() );
-<<<<<<< HEAD
-      }
-   
-      this.ResetBattleList();
-   }
-};
-
-
-SimpleWarGame.prototype.ResetBattleList = function()
-{
-   this.atBattle = [];
-
-   for( cntr = 0; cntr < this.NumPlayers(); cntr++ )
-   {
-      if( this.players[cntr].IsInGame() )
-      {
-         this.atBattle.push( cntr );
-=======
->>>>>>> new_branch
       }
    
       this.ResetBattleList();
@@ -2082,47 +2063,24 @@ SimpleWarGame.prototype.AddUI = function()
 
 SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
 {
-   this.status[id] = status;
-
-   this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
-};
-
-
-SimpleWarGame.prototype.GetPlayerStatus = function( id )
-{
-   return this.status[id];
-};
-
-
-SimpleWarGame.prototype.GetPlayerIds = function()
-{
-   var ids = [];
-   
-   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
-   {
-      ids.push( this.players[cntr].id );
-   }
-
-   return ids;
-};
-
 <<<<<<< HEAD
-SimpleWarGame.prototype.AddUI = function()
-{
-   this.UI = new SimpleWarUI(this, "0030");
-};
-
-SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
-{
    this.status.id = status;
    
+=======
+   this.status[id] = status;
+
+>>>>>>> new_branch
    this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
 };
 
 
 SimpleWarGame.prototype.GetPlayerStatus = function( id )
 {
+<<<<<<< HEAD
    return this.status.id;
+=======
+   return this.status[id];
+>>>>>>> new_branch
 };
 
 
@@ -2134,11 +2092,16 @@ SimpleWarGame.prototype.GetPlayerIds = function()
    {
       ids.push( this.players[cntr].id );
    }
+<<<<<<< HEAD
 
    return ids;
 };
 
 =======
+
+   return ids;
+};
+
 >>>>>>> new_branch
 },{"../../CardGame.js":6,"../../Logger.js":8,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14,"./SimpleWarPlayerAI.js":15,"./SimpleWarStatus.js":16,"./SimpleWarUI.js":17}],14:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
@@ -2472,11 +2435,7 @@ var SWGC = require('./SimpleWarDefs.js');
 
 var MAIN_STATE = "MAIN_STATE";
 
-<<<<<<< HEAD
-function SimpleWarUI(parentGame, id)
-=======
 function SimpleWarUI(parentGame)
->>>>>>> new_branch
 {
    CGEActiveEntity.call(this, "SimpleWarUI");
 
@@ -2485,40 +2444,15 @@ function SimpleWarUI(parentGame)
    this.AddState(MAIN_STATE);
    this.SetEnterRoutine(MAIN_STATE, this.MainEnter);
    this.SetInitialState(MAIN_STATE);
-<<<<<<< HEAD
-   this.parentGame = parentGame;
-   this.id = id;
-=======
 
    this.parentGame = parentGame;
    this.playerId = null;
->>>>>>> new_branch
 };
 
 SimpleWarUI.prototype = new CGEActiveEntity();
 SimpleWarUI.prototype.constructor = SimpleWarUI;
 
 SimpleWarUI.prototype.MainEnter = function ()
-<<<<<<< HEAD
-{
-   if (typeof window !== 'undefined')
-   {
-      var that = this;
-      var playerStack = document.getElementById('playerStack');
-      playerStack.addEventListener('touchend', function () {
-         that.parentGame.EventTransaction(that.id,   SWGC.SWP_TRANSACTION_BATTLE,
-                                          undefined,	undefined,
-                                          ["TOP:1"] );
-      });
-   }
-};
-
-SimpleWarUI.prototype.HandleEvent = function (eventId, data)
-{
-   var textBox;
-   var playerIds;
-   var status;
-=======
 {
    if (typeof window === 'undefined') return;
 
@@ -2531,24 +2465,18 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
                                           ["TOP:1"] );
       }
    });
->>>>>>> new_branch
 
    var   gameDiv,
          playerIds,
          playerStatus,
          playerStack;
 
-<<<<<<< HEAD
-/*
-   if (typeof window !== 'undefined')
-=======
    if (typeof window === 'undefined') return;
 
    gameDiv = document.getElementById('game');
 
    playerIds = this.parentGame.GetPlayerIds();
    for (var i = 0; i < playerIds.length; i++)
->>>>>>> new_branch
    {
       playerStatus = this.parentGame.GetPlayerStatus(playerIds[i]);
 
@@ -2573,19 +2501,20 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          this.playerId = playerStatus.id;
       }
    }
-<<<<<<< HEAD
-   */
-
-   playerIds = this.parentGame.GetPlayerIds();
-   for (var i = 0; i < playerIds.length; i++)
-   {
-      status = this.parentGame.GetPlayerStatus(playerIds[i]);
-      log.info("UI Status: %s, %s" + status.id, status.battleStackTop);
-=======
 };
 
 SimpleWarUI.prototype.HandleEvent = function (eventId, data)
 {
+<<<<<<< HEAD
+   var textBox;
+   var playerIds;
+   var status;
+
+   log.warn("SimpleWarUI.HandleEvent: %s %s", eventId, data);
+
+/*
+   if (typeof window !== 'undefined')
+=======
    var   playerStatus,
          playerStack,
          battleStack,
@@ -2595,6 +2524,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          yPos;
 
    if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
+>>>>>>> new_branch
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
       log.info('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
@@ -2674,8 +2604,18 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
             battleStack.style.backgroundPosition = xPos + ' ' + yPos;
          }
       }
->>>>>>> new_branch
    }
+<<<<<<< HEAD
+   */
+
+   playerIds = this.parentGame.GetPlayerIds();
+   for (var i = 0; i < playerIds.length; i++)
+   {
+      status = this.parentGame.GetPlayerStatus(playerIds[i]);
+      log.info("UI Status: %s, %s" + status.id, status.battleStackTop);
+   }
+=======
+>>>>>>> new_branch
 };
 
 module.exports = SimpleWarUI;
