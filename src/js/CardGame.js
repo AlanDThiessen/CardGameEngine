@@ -121,7 +121,6 @@ CardGame.prototype.InitEvents = function()
    this.emitter = new Events.EventEmitter();
    this.emitter.addListener( "EventQueue", function() {
       that.ProcessEvents();
-      //console.log( "Would call ProcessEvents here" );
       } );
 };
 
@@ -319,11 +318,8 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
 {
    var event = { eventId: inEventId, data: inData };
  
-   //console.log( "*** Push EVENT ***" );
-   //console.log( event );
    this.events.push( event );
  
-   // TODO: Make events work
    this.emitter.emit( "EventQueue" );
 };
 
@@ -331,17 +327,18 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
 CardGame.prototype.ProcessEvents = function()
 {
    var   done = false;
-
    var event;
-   //while( event = this.events.shift() )
-   //{
-      event = this.events.shift();
+   
+   event = this.events.shift();
+   
+   if( event != undefined )
+   {
       if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
-         this.ProcessEventTransaction( event.destId,
-                                       event.destTransName,
-                                       event.srcId,
-                                       event.srcTransName,
-                                       event.cardList );
+         this.ProcessEventTransaction( event.data.destId,
+                                       event.data.destTransName,
+                                       event.data.srcId,
+                                       event.data.srcTransName,
+                                       event.data.cardList );
       }
       else {
          this.DispatchEvent( event.eventId, event.data );
@@ -351,7 +348,7 @@ CardGame.prototype.ProcessEvents = function()
       {
          done = true;
       }
-   //}
+   }
 };
 
 
@@ -425,7 +422,7 @@ CardGame.prototype.ProcessEventTransaction = function( destId, destTransName, sr
          }
       }
    }
-   
+
    return success;
 };
 
@@ -438,7 +435,7 @@ CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrc
                  srcTransName      : inSrcTransName,
                  cardList         : inCardList
                };
-debugger;
+ 
    this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
 };
 

@@ -197,7 +197,7 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data )
    {
       if( data.gotoWar )
       {
-         this.parentGame.ProcessEventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
+         this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
                                            undefined,	undefined,
                                            ["TOP:3"] );
          this.Transition( SWP_STATE_READY );

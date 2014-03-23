@@ -187,12 +187,12 @@ function main ()
 
    cardGame.StartGame();
 
-   log.info( "SWTest : ***** Player 0: Card Stack *****" );
-   cardGame.players[0].rootContainer.containers[0].PrintCards();
-   log.info( "SWTest : ***** Player 1: Card Stack *****" );
-   cardGame.players[1].rootContainer.containers[0].PrintCards();
-   log.info( "SWTest : ***** Player 2: Card Stack *****" );
-   cardGame.players[2].rootContainer.containers[0].PrintCards();
+   //log.info( "SWTest : ***** Player 0: Card Stack *****" );
+   //cardGame.players[0].rootContainer.containers[0].PrintCards();
+   //log.info( "SWTest : ***** Player 1: Card Stack *****" );
+   //cardGame.players[1].rootContainer.containers[0].PrintCards();
+   //log.info( "SWTest : ***** Player 2: Card Stack *****" );
+   //cardGame.players[2].rootContainer.containers[0].PrintCards();
 }
 
 if (typeof window === 'undefined')
