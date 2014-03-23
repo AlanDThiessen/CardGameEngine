@@ -140,6 +140,7 @@ SimpleWarGame.prototype.ScoreEnter = function()
    {
       log.info( "SWGame : %s Wins!!!", this.players[ this.atBattle[0] ].name );
       this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
+      this.SendEvent( SWGC.CGE_EVENT_EXIT, undefined );
    }
    else
    {
@@ -160,11 +161,11 @@ SimpleWarGame.prototype.Deal = function()
    var player = 0;
    while( this.dealer.NumCards() > cardRemainder )
    {
-      this.EventTransaction( this.players[player].id,
-                             SWGC.SWP_TRANSACTION_DEAL,
-                             this.id,
-                             "CGE_DEAL",
-                             ["TOP:1"] );
+      this.ProcessEventTransaction( this.players[player].id,
+                                    SWGC.SWP_TRANSACTION_DEAL,
+                                    this.id,
+                                    "CGE_DEAL",
+                                    ["TOP:1"] );
 
       player++;
 
@@ -198,7 +199,7 @@ SimpleWarGame.prototype.ScoreBattle = function()
          topPlayers.push( this.atBattle[cntr] );
       }
    }
-   
+
    if( topPlayers.length == 1 )
    {
       log.info( "SWGame : Battle Winner: %s", this.players[ topPlayers[0] ].name );

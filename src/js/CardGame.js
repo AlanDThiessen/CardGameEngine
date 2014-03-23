@@ -38,6 +38,7 @@ function CardGame( name )
    this.gameName        = '';
    this.currPlayerIndex = -1;             // Index to current player
    this.currPlayer      = undefined;      // Reference to current player
+   this.events            = [];
 
    // TODO: Bug: generic card games can't have card limits
    this.table = this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
@@ -74,7 +75,7 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    this.CreateDeck( deckSpec );
 
-   this.AddUI();
+   //this.AddUI();
 };
 
 
@@ -109,6 +110,14 @@ CardGame.prototype.AdvancePlayer = function()
 };
 
 
+CardGame.prototype.InitEvents = function()
+{
+   // TODO: Make events work
+   //document.addEventListener( this.id, ProcessEvents( this ) );
+};
+
+
+
 /******************************************************************************
  *
  * CardGame.prototype.StartGame
@@ -122,11 +131,14 @@ CardGame.prototype.StartGame = function()
       this.players[cntr].Start();
    }
 
-   this.UI.Start();
+   //this.UI.Start();
 
    // Now, start the game
    //ActiveEntity.Start.call( this );
    this.Start();
+  
+   // Enter the event loop
+   this.ProcessEvents();
 };
 
 
@@ -294,7 +306,61 @@ CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
 };
 
 
-CardGame.prototype.SendEvent = function( eventId, data )
+CardGame.prototype.SendEvent = function( inEventId, inData )
+{
+   var event = { eventId: inEventId, data: inData };
+ 
+   console.log( "*** Push EVENT ***" );
+   console.log( event );
+   this.events.push( event );
+ 
+   // TODO: Make events work
+   //document.dispatchEvent( this.id );
+};
+
+
+CardGame.prototype.ProcessEvents = function()
+{
+   var   done = false;
+   
+   while( !done )
+   {
+      if( this.events.length > 0 )
+      {
+         var event;
+         while( event = this.events.shift() )
+         {
+            console.log( "*** Process EVENT ***" );
+            console.log( event );
+ 
+            if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
+               this.ProcessEventTransaction( event.destId,
+                                             event.destTransName,
+                                             event.srcId,
+                                             event.srcTransName,
+                                             event.cardList );
+            }
+            else {
+               this.DispatchEvent( event.eventId, event.data );
+            }
+
+            if( event.eventId == SWGC.CGE_EVENT_EXIT )
+            {
+               done = true;
+            }
+         }
+      }
+      else {
+         //console.log( "Waiting for events..." );
+         debugger;
+      }
+   }
+ 
+   log.info( "CGame  : Goodbye." );
+};
+
+
+CardGame.prototype.DispatchEvent = function( eventId, data )
 {
    if( eventId != SWGC.CGE_EVENT_STATUS_UPDATE )
    {
@@ -311,17 +377,19 @@ CardGame.prototype.SendEvent = function( eventId, data )
       // Send all events to the game engine
       this.HandleEvent( eventId, data );
    }
+ 
    // Send all events to the UI
-   this.UI.HandleEvent( eventId, data);
+   //this.UI.HandleEvent( eventId, data);
 };
 
 
-CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
+CardGame.prototype.ProcessEventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
 {
    var   destEntity = this.GetEntityById( destId );
    var   success = false;
 
 
+   log.info( "CGame  : Process Transaction Event" );
    if( destEntity != undefined )
    {
       if( srcId != undefined )
@@ -365,5 +433,19 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
    
    return success;
 };
+
+
+CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrcId, inSrcTransName, inCardList )
+{
+   var event = { destId            : inDestId,
+                 destTransName   : inDestTransName,
+                 srcId            : inSrcId,
+                 srcTransName      : inSrcTransName,
+                 cardList         : inCardList
+               };
+   
+   this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
+};
+
 
 module.exports = CardGame;

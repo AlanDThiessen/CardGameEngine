@@ -29,7 +29,7 @@ var gameSpec =
       },
       { "id": "0030",
         "alias": "Jordan",
-        "type": "USER"
+        "type": "AI"
       }
    ],
  };
