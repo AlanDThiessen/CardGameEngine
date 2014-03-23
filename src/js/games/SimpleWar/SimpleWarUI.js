@@ -36,7 +36,7 @@ SimpleWarUI.prototype.MainEnter = function ()
 SimpleWarUI.prototype.HandleEvent = function (eventId, data)
 {
    var textBox;
-   var playersIds;
+   var playerIds;
    var status;
 
    log.warn("SimpleWarUI.HandleEvent: %s %s", eventId, data);

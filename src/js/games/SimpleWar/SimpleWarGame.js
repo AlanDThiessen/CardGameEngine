@@ -317,4 +317,6 @@ SimpleWarGame.prototype.GetPlayerIds = function()
    {
       ids.push( this.players[cntr].id );
    }
+
+   return ids;
 };
