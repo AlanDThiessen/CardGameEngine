@@ -289,3 +289,25 @@ SimpleWarGame.prototype.ResetBattleList = function()
    }
 };
 
+
+SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
+{
+   this.status.id = status;
+};
+
+
+SimpleWarGame.prototype.GetPlayerStatus = function( id )
+{
+   return this.status.id;
+};
+
+
+SimpleWarGame.prototype.GetPlayerIds = function()
+{
+   var ids = [];
+   
+   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
+   {
+      ids.push( this.players[cntr].id );
+   }
+};

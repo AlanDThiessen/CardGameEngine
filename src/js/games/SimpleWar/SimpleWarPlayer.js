@@ -59,7 +59,10 @@ function SimpleWarPlayer( parent, id, alias )
    Player.call( this, parent, id, alias );
 
    this.inGame = true;
-   this.Status = new PlayerStatus;
+   this.status = new PlayerStatus;
+   
+   this.status.id = this.id;
+   this.status.alias = this.alias;
 
    // Create the State Machine
    this.AddState( SWP_STATE_IN_GAME,   undefined         );
@@ -122,7 +125,7 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 {
    var eventHandled = false;
 
-   if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
+   if( ( data.ownerId == this.id ) && ( data.transaction == SWGC.SWP_TRANSACTION_BATTLE ) )
    {
       this.Transition( SWP_STATE_WAIT );
       
@@ -219,4 +222,5 @@ SimpleWarPlayer.prototype.IsInGame = function()
 
 SimpleWarPlayer.prototype.UpdateStatus = function()
 {
+   this.parentGame.UpdatePlayerStatus( this.id, this.status );
 };
