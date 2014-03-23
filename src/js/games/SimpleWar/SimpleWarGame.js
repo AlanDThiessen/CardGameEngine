@@ -226,7 +226,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    // Tell all players to discard
    for( var cntr = 0; cntr < numPlayers; cntr++ )
    {
-      this.ProcessEventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD,
+      this.EventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD,
                                 undefined,             undefined,
                                 ["TOP:ALL"] );
    }
@@ -254,7 +254,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
  
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
-         this.ProcessEventTransaction( this.players[winnerIndex].id, SWGC.SWP_TRANSACTION_COLLECT,
+         this.EventTransaction( this.players[winnerIndex].id, SWGC.SWP_TRANSACTION_COLLECT,
                                    this.players[cntr].id,        SWGC.SWP_TRANSACTION_GIVEUP,
                                    ["TOP:ALL"] );
       }

@@ -115,9 +115,13 @@ CardGame.prototype.AdvancePlayer = function()
 
 CardGame.prototype.InitEvents = function()
 {
+   var that = this;
+ 
    // TODO: Make events work
    this.emitter = new EventEmitter();
-   this.emitter.addListener( this.id, function( that ) this.ProcessEvents );
+   this.emitter.addListener( this.id, function() {
+      that.ProcessEvents();
+      } );
 };
 
 
@@ -314,8 +318,8 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
 {
    var event = { eventId: inEventId, data: inData };
  
-   console.log( "*** Push EVENT ***" );
-   console.log( event );
+   //console.log( "*** Push EVENT ***" );
+   //console.log( event );
    this.events.push( event );
  
    // TODO: Make events work
@@ -326,42 +330,27 @@ CardGame.prototype.SendEvent = function( inEventId, inData )
 CardGame.prototype.ProcessEvents = function()
 {
    var   done = false;
-   
-   console.log( this );
-   //while( !done )
-   //{
-      if( this.events.length > 0 )
-      {
-         var event;
-         while( event = this.events.shift() )
-         {
-            console.log( "*** Process EVENT ***" );
-            console.log( event );
- 
-            if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
-               this.ProcessEventTransaction( event.destId,
-                                             event.destTransName,
-                                             event.srcId,
-                                             event.srcTransName,
-                                             event.cardList );
-            }
-            else {
-               this.DispatchEvent( event.eventId, event.data );
-            }
 
-            if( event.eventId == SWGC.CGE_EVENT_EXIT )
-            {
-               done = true;
-            }
-         }
+   var event;
+   //while( event = this.events.shift() )
+   //{
+      event = this.events.shift();
+      if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
+         this.EventTransaction( event.destId,
+                                       event.destTransName,
+                                       event.srcId,
+                                       event.srcTransName,
+                                       event.cardList );
       }
       else {
-         //console.log( "Waiting for events..." );
-         //debugger;
+         this.DispatchEvent( event.eventId, event.data );
+      }
+
+      if( event.eventId == SWGC.CGE_EVENT_EXIT )
+      {
+         done = true;
       }
    //}
- 
-   log.info( "CGame  : Goodbye." );
 };
 
 
@@ -394,7 +383,7 @@ CardGame.prototype.ProcessEventTransaction = function( destId, destTransName, sr
    var   success = false;
 
 
-   log.info( "CGame  : Process Transaction Event" );
+   //log.info( "CGame  : Process Transaction Event" );
    if( destEntity != undefined )
    {
       if( srcId != undefined )
