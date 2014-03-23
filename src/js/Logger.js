@@ -27,7 +27,7 @@ log.info = function (format) {
 
 log.warn = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.INFO);
+   args.unshift(log.WARN);
 
    if (log.mask & log.WARN) {
       log._out.apply(this, args);
@@ -36,7 +36,7 @@ log.warn = function (format) {
 
 log.error = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.INFO);
+   args.unshift(log.ERROR);
 
    if (log.mask & log.ERROR) {
       log._out.apply(this, args);
