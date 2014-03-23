@@ -58,6 +58,7 @@ function SimpleWarGame( id )
 
    this.AddEventHandler( SIMPLE_WAR_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
    this.AddEventHandler( SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL, this.Deal );
+   this.AddEventHandler( SIMPLE_WAR_STATE_SCORE, SWGC.CGE_EVENT_SCORE, this.EventScore );
    
    // Add the valid transactions to the states
    this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
@@ -134,6 +135,17 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 
 
 SimpleWarGame.prototype.ScoreEnter = function()
+{
+   var that = this;
+   var timeout = 1500;
+
+   setTimeout(function () {
+      that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
+   }, timeout);
+};
+
+
+SimpleWarGame.prototype.EventScore = function()
 {
    this.atBattle = this.ScoreBattle();
    this.DetermineBattleResult( this.atBattle );

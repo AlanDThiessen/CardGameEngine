@@ -84,7 +84,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
    if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
-      log.info('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
+      log.debug('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
 
       if (typeof window === 'undefined') return;
 
