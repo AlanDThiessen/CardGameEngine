@@ -24,7 +24,8 @@ SimpleWarUI.prototype.MainEnter = function ()
    if (typeof window !== 'undefined')
    {
       var that = this;
-      document.addEventListener('touchend', function () {
+      var playerStack = document.getElementById('playerStack');
+      playerStack.addEventListener('touchend', function () {
          that.parentGame.EventTransaction(that.id,   SWGC.SWP_TRANSACTION_BATTLE,
                                           undefined,	undefined,
                                           ["TOP:1"] );
@@ -40,12 +41,13 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
 //   CGEActiveEntity.HandleEvent.call(this, eventId, data);
 
    log.warn("SimpleWarUI.HandleEvent: %s %s", eventId, data);
-
+/*
    if (typeof window !== 'undefined')
    {
       textBox = document.getElementById('log');
       textBox.innerHTML = "\nSimpleWarUI.HandleEvent: " + eventId + " " + data + textBox.innerHTML;
    }
+   */
 };
 
 module.exports = SimpleWarUI;
