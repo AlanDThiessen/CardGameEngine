@@ -391,7 +391,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
                fromContainer.GetGroup( cardArray, cardList );
                toContainer.AddGroup( cardArray, transDef.location );
                success = true;
-            } 
+            }
          }
       }
    }
@@ -715,6 +715,7 @@ var CGEActiveEntity = require( "./CGEActiveEntity.js" );
 var Card = require( "./Card.js" );
 var transDef = require( "./TransactionDefinition.js" );
 var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+var Events = require('events');
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -749,7 +750,8 @@ function CardGame( name )
    this.gameName        = '';
    this.currPlayerIndex = -1;             // Index to current player
    this.currPlayer      = undefined;      // Reference to current player
-
+   this.events            = [];
+   
    // TODO: Bug: generic card games can't have card limits
    this.table = this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
    this.dealer = this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
@@ -782,6 +784,8 @@ CardGame.prototype.Init = function( gameSpec, deckSpec )
 
    log.info( "CGame  : Adding players" );
    this.AddPlayers( gameSpec.players );
+   
+   this.InitEvents();
 
    this.CreateDeck( deckSpec );
 
@@ -820,6 +824,19 @@ CardGame.prototype.AdvancePlayer = function()
 };
 
 
+CardGame.prototype.InitEvents = function()
+{
+   var that = this;
+ 
+   // TODO: Make events work
+   this.emitter = new Events.EventEmitter();
+   this.emitter.addListener( "EventQueue", function() {
+      that.ProcessEvents();
+      } );
+};
+
+
+
 /******************************************************************************
  *
  * CardGame.prototype.StartGame
@@ -836,7 +853,6 @@ CardGame.prototype.StartGame = function()
    this.UI.Start();
 
    // Now, start the game
-   //ActiveEntity.Start.call( this );
    this.Start();
 };
 
@@ -1005,7 +1021,39 @@ CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
 };
 
 
-CardGame.prototype.SendEvent = function( eventId, data )
+CardGame.prototype.SendEvent = function( inEventId, inData )
+{
+   var event = { eventId: inEventId, data: inData };
+ 
+   this.events.push( event );
+ 
+   this.emitter.emit( "EventQueue" );
+};
+
+
+CardGame.prototype.ProcessEvents = function()
+{
+   var event;
+   
+   event = this.events.shift();
+   
+   if( event != undefined )
+   {
+      if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
+         this.ProcessEventTransaction( event.data.destId,
+                                       event.data.destTransName,
+                                       event.data.srcId,
+                                       event.data.srcTransName,
+                                       event.data.cardList );
+      }
+      else {
+         this.DispatchEvent( event.eventId, event.data );
+      }
+   }
+};
+
+
+CardGame.prototype.DispatchEvent = function( eventId, data )
 {
    if( eventId != SWGC.CGE_EVENT_STATUS_UPDATE )
    {
@@ -1022,17 +1070,19 @@ CardGame.prototype.SendEvent = function( eventId, data )
       // Send all events to the game engine
       this.HandleEvent( eventId, data );
    }
+ 
    // Send all events to the UI
    this.UI.HandleEvent( eventId, data);
 };
 
 
-CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
+CardGame.prototype.ProcessEventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
 {
    var   destEntity = this.GetEntityById( destId );
    var   success = false;
 
 
+   //log.info( "CGame  : Process Transaction Event" );
    if( destEntity != undefined )
    {
       if( srcId != undefined )
@@ -1073,13 +1123,27 @@ CardGame.prototype.EventTransaction = function( destId, destTransName, srcId, sr
          }
       }
    }
-   
+
    return success;
 };
 
+
+CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrcId, inSrcTransName, inCardList )
+{
+   var event = { destId            : inDestId,
+                 destTransName   : inDestTransName,
+                 srcId            : inSrcId,
+                 srcTransName      : inSrcTransName,
+                 cardList         : inCardList
+               };
+ 
+   this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
+};
+
+
 module.exports = CardGame;
 
-},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12}],7:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12,"events":20}],7:[function(require,module,exports){
 
 var log = require('./Logger.js');
 
@@ -1754,11 +1818,15 @@ var SWG_CONSTANTS = {
     * SimpleWar Events
     ***************************************************************************/
    // TODO: This needs to go somewhere else
-   CGE_EVENT_TRANSACTION   :    1,
-   CGE_EVENT_STATUS_UPDATE :  100,
-   
-   SW_EVENT_DO_BATTLE      : 1000,
-   SW_EVENT_DO_WAR         : 1001,
+   CGE_EVENT_EXIT             :    0,
+   CGE_EVENT_DO_TRANSACTION   :    1,
+   CGE_EVENT_TRANSACTION      :    2,
+   CGE_EVENT_DEAL             :   10,
+   CGE_EVENT_SCORE            :   11,
+   CGE_EVENT_STATUS_UPDATE    :  100,
+
+   SW_EVENT_DO_BATTLE         : 1000,
+   SW_EVENT_DO_WAR            : 1001
 };
 
 module.exports = SWG_CONSTANTS;
@@ -1823,6 +1891,8 @@ function SimpleWarGame( id )
    this.SetEnterRoutine( SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter      );
 
    this.AddEventHandler( SIMPLE_WAR_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
+   this.AddEventHandler( SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL, this.Deal );
+   this.AddEventHandler( SIMPLE_WAR_STATE_SCORE, SWGC.CGE_EVENT_SCORE, this.EventScore );
    
    // Add the valid transactions to the states
    this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
@@ -1853,7 +1923,8 @@ SimpleWarGame.prototype.InProgressEnter = function()
    if( this.isHost )
    {
       this.dealer.Shuffle();
-      this.Deal();
+      this.SendEvent( SWGC.CGE_EVENT_DEAL );
+      //this.Deal();
    }
 
    // Advance to the first player
@@ -1899,6 +1970,19 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 
 SimpleWarGame.prototype.ScoreEnter = function()
 {
+   var that = this;
+   var timeout = 1500;
+   //var timeout = 15;
+
+   setTimeout(function () {
+      that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
+   }, timeout);
+};
+
+
+SimpleWarGame.prototype.EventScore = function()
+{
+   this.LogPlayerStatus();
    this.atBattle = this.ScoreBattle();
    this.DetermineBattleResult( this.atBattle );
 
@@ -1906,6 +1990,7 @@ SimpleWarGame.prototype.ScoreEnter = function()
    {
       log.info( "SWGame : %s Wins!!!", this.players[ this.atBattle[0] ].name );
       this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
+      this.SendEvent( SWGC.CGE_EVENT_EXIT, undefined );
    }
    else
    {
@@ -1924,13 +2009,15 @@ SimpleWarGame.prototype.Deal = function()
    log.debug( "SWGame : Card Remainder: %d", cardRemainder );
 
    var player = 0;
-   while( this.dealer.NumCards() > cardRemainder )
+   var numCards = this.dealer.NumCards() - cardRemainder;
+   
+   while( numCards )
    {
       this.EventTransaction( this.players[player].id,
-                             SWGC.SWP_TRANSACTION_DEAL,
-                             this.id,
-                             "CGE_DEAL",
-                             ["TOP:1"] );
+                                    SWGC.SWP_TRANSACTION_DEAL,
+                                    this.id,
+                                    "CGE_DEAL",
+                                    ["TOP:1"] );
 
       player++;
 
@@ -1938,6 +2025,8 @@ SimpleWarGame.prototype.Deal = function()
       {
          player = 0;
       }
+      
+      numCards--;
    }
 };
 
@@ -1946,7 +2035,6 @@ SimpleWarGame.prototype.ScoreBattle = function()
 {
    var   topPlayers = [];
    var   topScore = 0;
-
 
    for( var cntr = 0; cntr < this.atBattle.length; cntr++ )
    {
@@ -1964,7 +2052,7 @@ SimpleWarGame.prototype.ScoreBattle = function()
          topPlayers.push( this.atBattle[cntr] );
       }
    }
-   
+
    if( topPlayers.length == 1 )
    {
       log.info( "SWGame : Battle Winner: %s", this.players[ topPlayers[0] ].name );
@@ -1986,7 +2074,6 @@ SimpleWarGame.prototype.ScoreBattle = function()
 SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
 {
    var numPlayers = this.NumPlayers();
-
 
    // Tell all players to discard
    for( var cntr = 0; cntr < numPlayers; cntr++ )
@@ -2024,20 +2111,8 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
                                    ["TOP:ALL"] );
       }
 
-      log.info( "SWGame : Stack Counts:" );
-   
-      for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
-      {
-         var cont1 = this.players[cntr].rootContainer.GetContainerById( "Stack" );
-         var cont2 = this.players[cntr].rootContainer.GetContainerById( "Battle" );
-         var cont3 = this.players[cntr].rootContainer.GetContainerById( "Discard" );
-         log.info( "SWGame :   - %s : %d %d %d",
-                   this.players[cntr].name,
-                   cont1.NumCards(),
-                   cont2.NumCards(),
-                   cont3.NumCards() );
-      }
-   
+      this.LogPlayerStatus();
+      
       this.ResetBattleList();
    }
 };
@@ -2056,31 +2131,46 @@ SimpleWarGame.prototype.ResetBattleList = function()
    }
 };
 
-SimpleWarGame.prototype.AddUI = function()
-{
+SimpleWarGame.prototype.AddUI = function() {
    this.UI = new SimpleWarUI(this, "0030");
 };
 
-SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
-{
+SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status ) {
    this.status[id] = status;
 
    this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
 };
 
+SimpleWarGame.prototype.LogPlayerStatus = function( playerId ) {
+   var	playerIds = [];
+   
+   if( playerId != undefined ) {
+      playerId.push( playerId )
+   }
+   else {
+      playerIds = this.GetPlayerIds();
+   }
+   
+   for( var cntr = 0; cntr < playerIds.length; cntr++ )
+   {
+      log.info( "SWGame :   - %s : %d %d %s",
+                this.status[ playerIds[cntr] ].alias,
+                this.status[ playerIds[cntr] ].stackSize,
+                this.status[ playerIds[cntr] ].discardSize,
+                this.status[ playerIds[cntr] ].battleStackTop );
+   }
+};
+      
 
-SimpleWarGame.prototype.GetPlayerStatus = function( id )
-{
+SimpleWarGame.prototype.GetPlayerStatus = function( id ) {
    return this.status[id];
 };
 
 
-SimpleWarGame.prototype.GetPlayerIds = function()
-{
+SimpleWarGame.prototype.GetPlayerIds = function() {
    var ids = [];
    
-   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
-   {
+   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ ) {
       ids.push( this.players[cntr].id );
    }
 
@@ -2143,14 +2233,13 @@ AddTransactionDefinition( SWGC.SWP_TRANSACTION_GIVEUP,   SWP_CONTAINER_DISCARD, 
  * Constructor
  *
  ******************************************************************************/
-function SimpleWarPlayer( parent, id, alias )
-{
+function SimpleWarPlayer( parent, id, alias ) {
    // Call the parent class constructor
    Player.call( this, parent, id, alias );
 
    this.inGame = true;
    this.status = new PlayerStatus;
-   
+
    this.status.id = this.id;
    this.status.type = 'USER';
    this.status.alias = this.alias;
@@ -2168,6 +2257,7 @@ function SimpleWarPlayer( parent, id, alias )
    this.SetEnterRoutine( SWP_STATE_WAIT,      this.WaitEnter      );
    this.SetExitRoutine(  SWP_STATE_IN_GAME,   this.InProgressExit );
 
+   this.AddEventHandler( SWP_STATE_IN_GAME,SWGC.CGE_EVENT_TRANSACTION, this.InGameTransaction );            // Catch-all to update status after a transaction
    this.AddEventHandler( SWP_STATE_READY,  SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle );
    this.AddEventHandler( SWP_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
    this.AddEventHandler( SWP_STATE_WAIT,   SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction );
@@ -2176,7 +2266,7 @@ function SimpleWarPlayer( parent, id, alias )
    // TODO: Need definitions for Max cards in deck
    this.stack = this.AddContainer( "Stack",   undefined, 0, 52 );
    this.battle = this.AddContainer( "Battle",  undefined, 0,  1 );
-   this.AddContainer( "Discard", undefined, 0, 52 );
+   this.discard = this.AddContainer( "Discard", undefined, 0, 52 );
 
    // Add the valid transactions to the states
    this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_DICARD  );
@@ -2188,30 +2278,33 @@ function SimpleWarPlayer( parent, id, alias )
    this.AddValidTransaction( SWP_STATE_WAIT,      SWGC.SWP_TRANSACTION_FLOP    );
 };
 
-//Inherit from ActiveEntity
 SimpleWarPlayer.prototype = new Player();
-//Correct the constructor pointer
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
 
-SimpleWarPlayer.prototype.InGameEnter = function()
-{
+SimpleWarPlayer.prototype.InGameEnter = function() {
    this.UpdateStatus();
 };
 
 
-SimpleWarPlayer.prototype.InProgressExit = function()
-{
-   // NOTE: Game/UI won't receive notification of this transaction'
+SimpleWarPlayer.prototype.InGameTransaction = function( eventId, data ) {
+   // Update our status anytime we perform a transcation
+   if( data.ownerId == this.id ) {
+      this.UpdateStatus();
+   }
+}; 
+
+
+SimpleWarPlayer.prototype.InProgressExit = function() {
    // Discard our Battle stack
-   //this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
+   this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
    this.inGame = false;
+   this.UpdateStatus();
    log.info( "SwPlay : %s is Out", this.name );
 };
 
 
-SimpleWarPlayer.prototype.DoBattle = function()
-{
+SimpleWarPlayer.prototype.DoBattle = function() {
    this.score = 0;
    this.Transition( SWP_STATE_BATTLE );
 
@@ -2219,18 +2312,10 @@ SimpleWarPlayer.prototype.DoBattle = function()
 };
 
 
-SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
-{
+SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data ) {
    var eventHandled = false;
 
-   if( ( data.ownerId == this.id ) && ( data.transaction == SWGC.SWP_TRANSACTION_BATTLE ) )
-   {
-      this.status.stackSize = this.stack.NumCards();
-      if( this.battle.NumCards() > 0 )
-      {
-         this.status.battleStackTop = this.battle.cards[0].shortName;
-      }
-      
+   if( ( data.ownerId == this.id ) && ( data.transaction == SWGC.SWP_TRANSACTION_BATTLE ) ) {
       this.UpdateStatus();
 
       this.Transition( SWP_STATE_WAIT );
@@ -2242,30 +2327,24 @@ SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data )
 };
 
 
-SimpleWarPlayer.prototype.WaitEnter = function()
-{
+SimpleWarPlayer.prototype.WaitEnter = function() {
    this.Score();
 };
 
 
-SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
-{
+SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data ) {
    var eventHandled = false;
 
-
    if( ( data.transaction == SWGC.SWP_TRANSACTION_GIVEUP ) &&
-       ( data.ownerId == this.id ) )
-   {
+       ( data.ownerId == this.id ) ) {
+      
       // TODO: Fix bug where player will go out even if he just won the battle
-      if( this.stack.IsEmpty() )
-      {
+      if( this.stack.IsEmpty() ) {
          this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
+         this.UpdateStatus();
          this.Transition( SWP_STATE_OUT );
       }
-      else
-      {
-         this.status.stackSize = this.stack.NumCards();
-         this.status.battleStackTop = '';
+      else {
          this.UpdateStatus();
 
          this.Transition( SWP_STATE_READY );
@@ -2278,27 +2357,20 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data )
 };
 
 
-SimpleWarPlayer.prototype.DoWar = function( eventId, data )
-{
+SimpleWarPlayer.prototype.DoWar = function( eventId, data ) {
    var eventHandled = false;
 
-
-   if( data.ownerId == this.id )
-   {
-      if( data.gotoWar )
-      {
+   if( data.ownerId == this.id ) {
+      if( data.gotoWar ) {
          this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
-                                           undefined,	undefined,
+                                           undefined,   undefined,
                                            ["TOP:3"] );
          this.Transition( SWP_STATE_READY );
       }
-      else
-      {
+      else {
          this.score = 0;
       }
 
-      this.status.stackSize = this.stack.NumCards();
-      this.status.battleStackTop = '';
       this.UpdateStatus();
       
       eventHandled = true;
@@ -2313,13 +2385,11 @@ SimpleWarPlayer.prototype.Score = function()
    var   cont = this.rootContainer.GetContainerById( "Battle" );
    var   score = 0;
  
-   function CardScore( element )
-   {
+   function CardScore( element ) {
       score += parseInt( element.rank, 10 );
    }
    
-   if( cont != undefined )
-   {
+   if( cont != undefined ) {
       cont.cards.forEach( CardScore );
    }
 
@@ -2328,14 +2398,25 @@ SimpleWarPlayer.prototype.Score = function()
 };
 
 
-SimpleWarPlayer.prototype.IsInGame = function()
-{
+SimpleWarPlayer.prototype.IsInGame = function() {
    return this.inGame;
 };
 
 
-SimpleWarPlayer.prototype.UpdateStatus = function()
-{
+SimpleWarPlayer.prototype.UpdateStatus = function() {
+   // Indicate what our stack size is
+   this.status.stackSize   = this.stack.NumCards();
+   this.status.discardSize = this.discard.NumCards();
+
+   // If our battle stack has a card on it, then indicate what that card is
+   if( this.battle.NumCards() > 0 ) {
+      this.status.battleStackTop = this.battle.cards[0].shortName;
+   }
+   else {
+      this.status.battleStackTop = '';
+   }
+
+   // Now, notify the game engine of our updated status
    this.parentGame.UpdatePlayerStatus( this.id, this.status );
 };
 
@@ -2360,7 +2441,7 @@ function SimpleWarPlayerAI( parent, id, alias )
    SimpleWarPlayer.call( this, parent, id, alias );
 
    this.status.type = "AI";
-   this.status.alias = this.alias + "(AI)";
+   this.status.alias = this.alias + " (AI)";
    this.SetEnterRoutine( "Battle", this.BattleEnter );
 };
 
@@ -2373,7 +2454,8 @@ SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
 SimpleWarPlayerAI.prototype.BattleEnter = function()
 {
    var that = this;
-   var timeout = ((Math.random() * 5) + 1) * 500;
+   var timeout = ((Math.random() * 2) + 1) * 500;
+   //var timeout = 5;
 
    setTimeout(function () {
       that.parentGame.EventTransaction( that.id,   SWGC.SWP_TRANSACTION_BATTLE,
@@ -2391,11 +2473,12 @@ module.exports = SimpleWarPlayerAI;
 
 function SimpleWarPlayerStatus()
 {
-   this.id = '';
-   this.type = '';
-   this.alias = '';
-   this.stackSize = 0;
-   this.battleStackTop = '';
+   this.id              = '';
+   this.type            = '';
+   this.alias           = '';
+   this.stackSize       = 0;
+   this.discardSize     = 0;
+   this.battleStackTop  = '';
 }
 
 
@@ -2496,7 +2579,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
    if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
-      log.info('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
+      log.debug('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
 
       if (typeof window === 'undefined') return;
 
@@ -2768,12 +2851,12 @@ function main ()
 
    cardGame.StartGame();
 
-   log.info( "SWTest : ***** Player 0: Card Stack *****" );
-   cardGame.players[0].rootContainer.containers[0].PrintCards();
-   log.info( "SWTest : ***** Player 1: Card Stack *****" );
-   cardGame.players[1].rootContainer.containers[0].PrintCards();
-   log.info( "SWTest : ***** Player 2: Card Stack *****" );
-   cardGame.players[2].rootContainer.containers[0].PrintCards();
+   //log.info( "SWTest : ***** Player 0: Card Stack *****" );
+   //cardGame.players[0].rootContainer.containers[0].PrintCards();
+   //log.info( "SWTest : ***** Player 1: Card Stack *****" );
+   //cardGame.players[1].rootContainer.containers[0].PrintCards();
+   //log.info( "SWTest : ***** Player 2: Card Stack *****" );
+   //cardGame.players[2].rootContainer.containers[0].PrintCards();
 }
 
 if (typeof window === 'undefined')
@@ -2787,5 +2870,307 @@ else
 }
 
 },{"../../src/js/Logger.js":8,"../../src/js/games/SimpleWar/SimpleWarGame.js":13,"readline":19}],19:[function(require,module,exports){
+
+},{}],20:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
+};
+
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      } else {
+        throw TypeError('Uncaught, unspecified "error" event.');
+      }
+      return false;
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        len = arguments.length;
+        args = new Array(len - 1);
+        for (i = 1; i < len; i++)
+          args[i - 1] = arguments[i];
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    len = arguments.length;
+    args = new Array(len - 1);
+    for (i = 1; i < len; i++)
+      args[i - 1] = arguments[i];
+
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    var m;
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      console.trace();
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  var ret;
+  if (!emitter._events || !emitter._events[type])
+    ret = 0;
+  else if (isFunction(emitter._events[type]))
+    ret = 1;
+  else
+    ret = emitter._events[type].length;
+  return ret;
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
 
 },{}]},{},[18])
