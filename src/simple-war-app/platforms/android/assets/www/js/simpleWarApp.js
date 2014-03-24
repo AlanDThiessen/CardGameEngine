@@ -2551,7 +2551,7 @@ SimpleWarUI.prototype.MainEnter = function ()
 
       playerStack = document.createElement('div');
       playerStack.id = playerStatus.alias + '-stack';
-      playerStack.className = 'card-down';
+      playerStack.className = 'stack';
       gameDiv.appendChild(playerStack);
 
       battleStack = document.createElement('div');
@@ -2588,11 +2588,11 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
       {
          if (playerStatus.stackSize > 0)
          {
-            playerStack.style.backgroundImage = 'url("./img/cards.png")';
+            playerStack.className = 'stack';
          }
          else
          {
-            playerStack.style.backgroundImage = '';
+            playerStack.className = 'stack-empty';
          }
       }
 
@@ -2641,7 +2641,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
                break;
 
             default:
-               x = (parseInt(playerStatus.battleStackTop.charAt(1), 10) - 1) * 100;
+               x = (parseInt(playerStatus.battleStackTop.slice(1), 10) - 1) * 100;
                xPos = '-' + x + 'px';
                break;
          }
