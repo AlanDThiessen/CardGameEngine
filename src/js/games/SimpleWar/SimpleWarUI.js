@@ -146,7 +146,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
                break;
 
             default:
-               x = (parseInt(playerStatus.battleStackTop.charAt(1), 10) - 1) * 100;
+               x = (parseInt(playerStatus.battleStackTop.slice(1), 10) - 1) * 100;
                xPos = '-' + x + 'px';
                break;
          }
