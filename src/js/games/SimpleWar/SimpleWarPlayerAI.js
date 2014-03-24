@@ -18,7 +18,7 @@ function SimpleWarPlayerAI( parent, id, alias )
    SimpleWarPlayer.call( this, parent, id, alias );
 
    this.status.type = "AI";
-   this.status.alias = this.alias + "(AI)";
+   this.status.alias = this.alias + " (AI)";
    this.SetEnterRoutine( "Battle", this.BattleEnter );
 };
 

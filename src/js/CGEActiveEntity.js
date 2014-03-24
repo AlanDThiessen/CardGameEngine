@@ -158,7 +158,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
                fromContainer.GetGroup( cardArray, cardList );
                toContainer.AddGroup( cardArray, transDef.location );
                success = true;
-            } 
+            }
          }
       }
    }

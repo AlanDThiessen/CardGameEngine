@@ -138,6 +138,7 @@ SimpleWarGame.prototype.ScoreEnter = function()
 {
    var that = this;
    var timeout = 1500;
+   //var timeout = 15;
 
    setTimeout(function () {
       that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
@@ -147,6 +148,7 @@ SimpleWarGame.prototype.ScoreEnter = function()
 
 SimpleWarGame.prototype.EventScore = function()
 {
+   this.LogPlayerStatus();
    this.atBattle = this.ScoreBattle();
    this.DetermineBattleResult( this.atBattle );
 
@@ -200,7 +202,6 @@ SimpleWarGame.prototype.ScoreBattle = function()
    var   topPlayers = [];
    var   topScore = 0;
 
-
    for( var cntr = 0; cntr < this.atBattle.length; cntr++ )
    {
       var score = this.players[ this.atBattle[cntr] ].GetScore();
@@ -240,7 +241,6 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
 {
    var numPlayers = this.NumPlayers();
 
-
    // Tell all players to discard
    for( var cntr = 0; cntr < numPlayers; cntr++ )
    {
@@ -277,20 +277,8 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
                                    ["TOP:ALL"] );
       }
 
-      log.info( "SWGame : Stack Counts:" );
-   
-      for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
-      {
-         var cont1 = this.players[cntr].rootContainer.GetContainerById( "Stack" );
-         var cont2 = this.players[cntr].rootContainer.GetContainerById( "Battle" );
-         var cont3 = this.players[cntr].rootContainer.GetContainerById( "Discard" );
-         log.info( "SWGame :   - %s : %d %d %d",
-                   this.players[cntr].name,
-                   cont1.NumCards(),
-                   cont2.NumCards(),
-                   cont3.NumCards() );
-      }
-   
+      this.LogPlayerStatus();
+      
       this.ResetBattleList();
    }
 };
@@ -309,31 +297,46 @@ SimpleWarGame.prototype.ResetBattleList = function()
    }
 };
 
-SimpleWarGame.prototype.AddUI = function()
-{
+SimpleWarGame.prototype.AddUI = function() {
    this.UI = new SimpleWarUI(this, "0030");
 };
 
-SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status )
-{
+SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status ) {
    this.status[id] = status;
 
    this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
 };
 
+SimpleWarGame.prototype.LogPlayerStatus = function( playerId ) {
+   var	playerIds = [];
+   
+   if( playerId != undefined ) {
+      playerId.push( playerId )
+   }
+   else {
+      playerIds = this.GetPlayerIds();
+   }
+   
+   for( var cntr = 0; cntr < playerIds.length; cntr++ )
+   {
+      log.info( "SWGame :   - %s : %d %d %s",
+                this.status[ playerIds[cntr] ].alias,
+                this.status[ playerIds[cntr] ].stackSize,
+                this.status[ playerIds[cntr] ].discardSize,
+                this.status[ playerIds[cntr] ].battleStackTop );
+   }
+};
+      
 
-SimpleWarGame.prototype.GetPlayerStatus = function( id )
-{
+SimpleWarGame.prototype.GetPlayerStatus = function( id ) {
    return this.status[id];
 };
 
 
-SimpleWarGame.prototype.GetPlayerIds = function()
-{
+SimpleWarGame.prototype.GetPlayerIds = function() {
    var ids = [];
    
-   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ )
-   {
+   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ ) {
       ids.push( this.players[cntr].id );
    }
 
