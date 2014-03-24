@@ -19,7 +19,14 @@ body {
    margin-top: 1em;
 }
 
-.card-down {
+.stack-empty {
+   float: left;
+   margin: 1em;
+   width: 100px;
+   height: 140px;
+}
+
+.stack {
    float: left;
    margin: 1em;
    background-image: url('../img/cards.png');
