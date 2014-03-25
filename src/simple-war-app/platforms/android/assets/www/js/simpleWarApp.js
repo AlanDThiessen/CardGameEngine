@@ -1980,8 +1980,8 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 SimpleWarGame.prototype.ScoreEnter = function()
 {
    var that = this;
-   //var timeout = 1500;
-   var timeout = 15;
+   var timeout = 1500;
+   //var timeout = 15;
 
    setTimeout(function () {
       that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
@@ -2538,7 +2538,7 @@ SimpleWarUI.prototype.MainEnter = function ()
    if (typeof window === 'undefined') return;
 
    var that = this;
-   window.addEventListener('click', function () {
+   window.addEventListener('touchend', function () {
       if (that.playerId)
       {
          that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,

@@ -25,7 +25,7 @@ SimpleWarUI.prototype.MainEnter = function ()
    if (typeof window === 'undefined') return;
 
    var that = this;
-   window.addEventListener('click', function () {
+   window.addEventListener('touchend', function () {
       if (that.playerId)
       {
          that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,
