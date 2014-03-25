@@ -35,6 +35,7 @@ SimpleWarUI.prototype.MainEnter = function ()
    });
 
    var   gameDiv,
+         noteDiv,
          playerIds,
          playerStatus,
          playerStack,
@@ -75,6 +76,10 @@ SimpleWarUI.prototype.MainEnter = function ()
          this.playerId = playerStatus.id;
       }
    }
+
+   noteDiv = document.createElement('div');
+   noteDiv.id = 'note';
+   gameDiv.appendChild(noteDiv);
 };
 
 SimpleWarUI.prototype.HandleEvent = function (eventId, data)
@@ -83,11 +88,29 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          playerStack,
          battleStack,
          infoDiv,
+         noteDiv,
          x,
          xPos,
-         yPos;
+         yPos,
+         timer = null;
 
-   if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
+   if (eventId === SWGC.CGE_EVENT_NOTIFY)
+   {
+      if (typeof window === 'undefined') return;
+
+      noteDiv = document.getElementById('note');
+      if (noteDiv)
+      {
+         noteDiv.style.display = 'block';
+         noteDiv.innerHTML = data.msg;
+
+         clearTimeout(timer);
+         timer = setTimeout(function () {
+            noteDiv.style.display = 'none';   
+         }, 1000);
+      }
+   }
+   else if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
       log.debug('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
