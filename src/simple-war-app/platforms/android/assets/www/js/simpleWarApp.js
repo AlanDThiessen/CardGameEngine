@@ -2532,7 +2532,8 @@ SimpleWarUI.prototype.MainEnter = function ()
    var   gameDiv,
          playerIds,
          playerStatus,
-         playerStack;
+         playerStack,
+         discardStack;
 
    if (typeof window === 'undefined') return;
 
@@ -2558,6 +2559,11 @@ SimpleWarUI.prototype.MainEnter = function ()
       battleStack.id = playerStatus.alias + '-battle';
       battleStack.className = 'card-up';
       gameDiv.appendChild(battleStack);
+
+      discardStack = document.createElement('div');
+      discardStack.id = playerStatus.alias + '-discard';
+      discardStack.className = 'discard';
+      gameDiv.appendChild(discardStack);
 
       if (playerStatus.type !== 'AI')
       {
@@ -2654,6 +2660,23 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          {
             battleStack.style.backgroundImage = 'url("./img/cards.png")';
             battleStack.style.backgroundPosition = xPos + ' ' + yPos;
+         }
+      }
+
+      discardStack = document.getElementById(playerStatus.alias + '-discard');
+      if (discardStack)
+      {
+         while(discardStack.firstChild)
+         {
+            discardStack.removeChild(discardStack.firstChild);
+         }
+         for (var i = 0; i < playerStatus.discardSize; i++)
+         {
+            var discardCard = document.createElement('div');
+            discardCard.className = 'discard-card';
+            discardCard = discardStack.appendChild(discardCard);
+
+            discardCard.style.marginLeft = (i * 20) + 'px';
          }
       }
    }
