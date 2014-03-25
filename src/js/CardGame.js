@@ -344,7 +344,8 @@ CardGame.prototype.ProcessEvents = function()
 
 CardGame.prototype.DispatchEvent = function( eventId, data )
 {
-   if( eventId != SWGC.CGE_EVENT_STATUS_UPDATE )
+   if( ( eventId != SWGC.CGE_EVENT_STATUS_UPDATE ) &&
+       ( eventId != SWGC.CGE_EVENT_NOTIFY ) )
    {
       if( ( data != undefined ) && ( data.ownerId != undefined ) )
       {
@@ -427,6 +428,12 @@ CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrc
                };
  
    this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
+};
+
+
+CardGame.prototype.Notify = function( message ) {
+   log.info( "Notify : %s", message );
+   this.SendEvent( SWGC.CGE_EVENT_NOTIFY, { msg: message } );
 };
 
 

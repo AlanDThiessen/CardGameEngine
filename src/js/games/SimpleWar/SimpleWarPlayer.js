@@ -161,15 +161,13 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data ) {
       // TODO: Fix bug where player will go out even if he just won the battle
       if( this.stack.IsEmpty() ) {
          this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
-         this.UpdateStatus();
          this.Transition( SWP_STATE_OUT );
       }
       else {
-         this.UpdateStatus();
-
          this.Transition( SWP_STATE_READY );
       }
 
+      this.UpdateStatus();
       eventHandled = true;
    }
 
@@ -182,9 +180,7 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data ) {
 
    if( data.ownerId == this.id ) {
       if( data.gotoWar ) {
-         this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
-                                           undefined,   undefined,
-                                           ["TOP:3"] );
+         this.ExecuteTransaction( SWGC.SWP_TRANSACTION_FLOP, ["TOP:3"], undefined );
          this.Transition( SWP_STATE_READY );
       }
       else {
@@ -192,7 +188,7 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data ) {
       }
 
       this.UpdateStatus();
-      
+ 
       eventHandled = true;
    }
 

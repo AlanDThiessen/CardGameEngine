@@ -43,6 +43,7 @@ function SimpleWarGame( id )
    this.status			= new GameStatus();
    this.hasBattled   = [];
    this.atBattle     = [];
+   this.atWar        = false;
  
    // Create the State Machine
    this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
@@ -137,8 +138,8 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 SimpleWarGame.prototype.ScoreEnter = function()
 {
    var that = this;
-   var timeout = 1500;
-   //var timeout = 15;
+   //var timeout = 1500;
+   var timeout = 15;
 
    setTimeout(function () {
       that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
@@ -154,7 +155,8 @@ SimpleWarGame.prototype.EventScore = function()
 
    if( this.atBattle.length == 1 )
    {
-      log.info( "SWGame : %s Wins!!!", this.players[ this.atBattle[0] ].name );
+      var alias = this.players[ this.atBattle[0] ].alias;
+      this.Notify( alias + ' Wins the Game!' );
       this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
       this.SendEvent( SWGC.CGE_EVENT_EXIT, undefined );
    }
@@ -253,6 +255,9 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    if( topPlayers.length > 1 )
    {
       log.info( "SWGame : ************************* WAR!!! *************************");
+      this.Notify( "Going to War!" );
+      this.atWar = true;
+
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
          var doWar = false;
@@ -269,6 +274,15 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    else
    {
       var winnerIndex = topPlayers.pop();
+      
+      if( this.atWar ) {
+         this.Notify( this.players[winnerIndex].alias + ' Wins the War!' );
+      }
+      else {
+         this.Notify( this.players[winnerIndex].alias + ' Wins the Battle!' );
+      }
+ 
+      this.atWar = false;
  
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
