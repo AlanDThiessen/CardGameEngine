@@ -1055,7 +1055,8 @@ CardGame.prototype.ProcessEvents = function()
 
 CardGame.prototype.DispatchEvent = function( eventId, data )
 {
-   if( eventId != SWGC.CGE_EVENT_STATUS_UPDATE )
+   if( ( eventId != SWGC.CGE_EVENT_STATUS_UPDATE ) &&
+       ( eventId != SWGC.CGE_EVENT_NOTIFY ) )
    {
       if( ( data != undefined ) && ( data.ownerId != undefined ) )
       {
@@ -1138,6 +1139,12 @@ CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrc
                };
  
    this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
+};
+
+
+CardGame.prototype.Notify = function( message ) {
+   log.info( "Notify : %s", message );
+   this.SendEvent( SWGC.CGE_EVENT_NOTIFY, { msg: message } );
 };
 
 
@@ -1823,7 +1830,8 @@ var SWG_CONSTANTS = {
    CGE_EVENT_TRANSACTION      :    2,
    CGE_EVENT_DEAL             :   10,
    CGE_EVENT_SCORE            :   11,
-   CGE_EVENT_STATUS_UPDATE    :  100,
+   CGE_EVENT_NOTIFY           :  100,
+   CGE_EVENT_STATUS_UPDATE    :  101,
 
    SW_EVENT_DO_BATTLE         : 1000,
    SW_EVENT_DO_WAR            : 1001
@@ -1877,6 +1885,7 @@ function SimpleWarGame( id )
    this.status			= new GameStatus();
    this.hasBattled   = [];
    this.atBattle     = [];
+   this.atWar        = false;
  
    // Create the State Machine
    this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
@@ -1971,8 +1980,8 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
 SimpleWarGame.prototype.ScoreEnter = function()
 {
    var that = this;
-   var timeout = 1500;
-   //var timeout = 15;
+   //var timeout = 1500;
+   var timeout = 15;
 
    setTimeout(function () {
       that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
@@ -1988,7 +1997,8 @@ SimpleWarGame.prototype.EventScore = function()
 
    if( this.atBattle.length == 1 )
    {
-      log.info( "SWGame : %s Wins!!!", this.players[ this.atBattle[0] ].name );
+      var alias = this.players[ this.atBattle[0] ].alias;
+      this.Notify( alias + ' Wins the Game!' );
       this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
       this.SendEvent( SWGC.CGE_EVENT_EXIT, undefined );
    }
@@ -2087,6 +2097,9 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    if( topPlayers.length > 1 )
    {
       log.info( "SWGame : ************************* WAR!!! *************************");
+      this.Notify( "Going to War!" );
+      this.atWar = true;
+
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
          var doWar = false;
@@ -2103,6 +2116,15 @@ SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
    else
    {
       var winnerIndex = topPlayers.pop();
+      
+      if( this.atWar ) {
+         this.Notify( this.players[winnerIndex].alias + ' Wins the War!' );
+      }
+      else {
+         this.Notify( this.players[winnerIndex].alias + ' Wins the Battle!' );
+      }
+ 
+      this.atWar = false;
  
       for( var cntr = 0; cntr < numPlayers; cntr++ )
       {
@@ -2341,15 +2363,13 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data ) {
       // TODO: Fix bug where player will go out even if he just won the battle
       if( this.stack.IsEmpty() ) {
          this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
-         this.UpdateStatus();
          this.Transition( SWP_STATE_OUT );
       }
       else {
-         this.UpdateStatus();
-
          this.Transition( SWP_STATE_READY );
       }
 
+      this.UpdateStatus();
       eventHandled = true;
    }
 
@@ -2362,9 +2382,7 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data ) {
 
    if( data.ownerId == this.id ) {
       if( data.gotoWar ) {
-         this.parentGame.EventTransaction( this.id,   SWGC.SWP_TRANSACTION_FLOP,
-                                           undefined,   undefined,
-                                           ["TOP:3"] );
+         this.ExecuteTransaction( SWGC.SWP_TRANSACTION_FLOP, ["TOP:3"], undefined );
          this.Transition( SWP_STATE_READY );
       }
       else {
@@ -2372,7 +2390,7 @@ SimpleWarPlayer.prototype.DoWar = function( eventId, data ) {
       }
 
       this.UpdateStatus();
-      
+ 
       eventHandled = true;
    }
 
@@ -2530,6 +2548,7 @@ SimpleWarUI.prototype.MainEnter = function ()
    });
 
    var   gameDiv,
+         noteDiv,
          playerIds,
          playerStatus,
          playerStack,
@@ -2570,6 +2589,10 @@ SimpleWarUI.prototype.MainEnter = function ()
          this.playerId = playerStatus.id;
       }
    }
+
+   noteDiv = document.createElement('div');
+   noteDiv.id = 'note';
+   gameDiv.appendChild(noteDiv);
 };
 
 SimpleWarUI.prototype.HandleEvent = function (eventId, data)
@@ -2578,11 +2601,29 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          playerStack,
          battleStack,
          infoDiv,
+         noteDiv,
          x,
          xPos,
-         yPos;
+         yPos,
+         timer = null;
 
-   if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
+   if (eventId === SWGC.CGE_EVENT_NOTIFY)
+   {
+      if (typeof window === 'undefined') return;
+
+      noteDiv = document.getElementById('note');
+      if (noteDiv)
+      {
+         noteDiv.style.display = 'block';
+         noteDiv.innerHTML = data.msg;
+
+         clearTimeout(timer);
+         timer = setTimeout(function () {
+            noteDiv.style.display = 'none';   
+         }, 1000);
+      }
+   }
+   else if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
       log.debug('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
