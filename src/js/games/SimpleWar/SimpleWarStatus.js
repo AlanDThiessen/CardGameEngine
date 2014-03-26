@@ -8,6 +8,7 @@ function SimpleWarPlayerStatus()
    this.stackSize       = 0;
    this.discardSize     = 0;
    this.battleStackTop  = '';
+   this.discardList		= [];
 }
 
 

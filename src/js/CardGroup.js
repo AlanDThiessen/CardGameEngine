@@ -62,6 +62,22 @@ CardGroup.prototype.NumCards = function()
    return this.cards.length;
 };
 
+   
+/******************************************************************************
+ *
+ * CardGroup.prototype.GetList
+ *
+ ******************************************************************************/
+CardGroup.prototype.GetList = function() {
+   var cardList = [];
+   
+   for( var cntr = 0; cntr < this.cards.length; cntr++ ) {
+      cardList.push( this.cards[cntr].shortName );
+   }
+
+   return cardList;
+};
+
 
 /******************************************************************************
  *

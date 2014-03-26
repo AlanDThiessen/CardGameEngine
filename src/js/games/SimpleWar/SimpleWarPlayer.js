@@ -223,6 +223,15 @@ SimpleWarPlayer.prototype.UpdateStatus = function() {
    // Indicate what our stack size is
    this.status.stackSize   = this.stack.NumCards();
    this.status.discardSize = this.discard.NumCards();
+   this.status.discardList = this.discard.GetList();	// Get the list of cards
+
+   // Prune the list so only visible cards are shown
+   for( var cntr = 0; cntr < this.status.discardList.length; cntr++ ) {
+      // Only every 4th card should be visible, starting with the first one
+      if( cntr % 4 > 0 ) {
+         this.status.discardList[cntr] = "";
+      }
+   }
 
    // If our battle stack has a card on it, then indicate what that card is
    if( this.battle.NumCards() > 0 ) {
