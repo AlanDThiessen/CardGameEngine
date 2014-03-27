@@ -213,7 +213,7 @@ CardGroup.prototype.SortSuitRank = function( order )
 CardGroup.prototype.Shuffle = function()
 {
    var   numCards = this.cards.length;       // The number of cards in the group
-   var   numIter  = numCards * 3;            // The number of iterations to move cards
+   var   numIter  = numCards * 5;            // The number of iterations to move cards
    var   fromPos;                            // From position
    var   toPos;                              // To position
 
