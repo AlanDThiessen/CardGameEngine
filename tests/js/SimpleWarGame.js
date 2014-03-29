@@ -3,7 +3,7 @@ var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
 var log = require ("../../src/js/Logger.js");
 
-log.mask = 0xFE;
+log.mask = 0x08;
 
 var gameSpec = 
 {
@@ -29,7 +29,7 @@ var gameSpec =
       },
       { "id": "0030",
         "alias": "Jordan",
-        "type": "AI"
+        "type": "USER"
       }
    ],
  };
@@ -172,27 +172,13 @@ var deckSpec =
 };
 
 
-function Battle()
-{
-   cardGame.EventTransaction( '0010', 'SWP_Battle' );
-}
-
 function main ()
 {
    log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
    cardGame = new SimpleWarGame();
-
    cardGame.Init( gameSpec, deckSpec );
-
    cardGame.StartGame();
-
-   //log.info( "SWTest : ***** Player 0: Card Stack *****" );
-   //cardGame.players[0].rootContainer.containers[0].PrintCards();
-   //log.info( "SWTest : ***** Player 1: Card Stack *****" );
-   //cardGame.players[1].rootContainer.containers[0].PrintCards();
-   //log.info( "SWTest : ***** Player 2: Card Stack *****" );
-   //cardGame.players[2].rootContainer.containers[0].PrintCards();
 }
 
 if (typeof window === 'undefined')
@@ -201,6 +187,5 @@ if (typeof window === 'undefined')
 }
 else
 {
-//   document.addEventListener('deviceready', main, false);
    window.addEventListener('load', main, false);
 }

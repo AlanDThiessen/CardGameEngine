@@ -1,230 +1,190 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-
-/******************************************************************************
- *  NodeJS stuff
+/*******************************************************************************
+ * NodeJS stuff
  ******************************************************************************/
-var State   = require( "./State.js" );
-var log     = require("./Logger.js");
+var State = require("./State.js");
+var log = require("./Logger.js");
 
-var TOP_STATE  = "TOP";
+var TOP_STATE = "TOP";
 
-
-/******************************************************************************
- *  CLASS: ActiveEntity
+/*******************************************************************************
+ * CLASS: ActiveEntity
  ******************************************************************************/
 
-/******************************************************************************
- *
- * Class: ActiveEntity
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Class: ActiveEntity Constructor
+ * 
  ******************************************************************************/
-function ActiveEntity( name )
-{
-   this.name         = name;
-   this.initial      = undefined;
+function ActiveEntity(name) {
+   this.name = name;
+   this.initial = undefined;
    this.currentState = undefined;
-   this.topState     = new State( this, this.name );
+   this.topState = new State(this, this.name);
 }
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * ActiveEntity.prototype.AddState
  * 
- * This method creates a state, and adds it to the parent state.  If the parent
+ * This method creates a state, and adds it to the parent state. If the parent
  * state is not defined, then the state is added to the topState.
- *
+ * 
  ******************************************************************************/
-ActiveEntity.prototype.AddState = function( name, parentName )
-{
-   var   parent = undefined;
+ActiveEntity.prototype.AddState = function(name, parentName) {
+   var parent = undefined;
 
-
-   if( parentName != undefined )
-   {
-      parent = this.topState.FindState( parentName, true );
+   if (parentName != undefined) {
+      parent = this.topState.FindState(parentName, true);
    }
 
    // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
-   if( parent == undefined )
-   {
+   if (parent == undefined) {
       parent = this.topState;
    }
 
    // For now, assume they are valid
-   var state = new State( this, name, parent );
-   parent.AddState( state );
+   var state = new State(this, name, parent);
+   parent.AddState(state);
 
-   return( state );
+   return (state);
 };
 
+ActiveEntity.prototype.AddEventHandler = function(stateName, eventId, routine) {
+   var state = this.topState.FindState(stateName, true);
 
-ActiveEntity.prototype.AddEventHandler = function( stateName, eventId, routine )
-{
-   var   state = this.topState.FindState( stateName, true );
-
-   if( state != undefined )
-   {
-      log.debug( "Adding event handler for event %d to state %s", eventId, state.name );
-      state.AddEventHandler( eventId, routine );
+   if (state != undefined) {
+      log.debug("Adding event handler for event %d to state %s", eventId, state.name);
+      state.AddEventHandler(eventId, routine);
    }
 };
 
+ActiveEntity.prototype.SetEnterRoutine = function(stateName, routine) {
+   var state = this.topState.FindState(stateName, true);
 
-ActiveEntity.prototype.SetEnterRoutine = function( stateName, routine )
-{
-   var   state = this.topState.FindState( stateName, true );
-
-   if( state != undefined )
-   {
-      state.SetEnterRoutine( routine );
+   if (state != undefined) {
+      state.SetEnterRoutine(routine);
    }
 };
 
+ActiveEntity.prototype.SetExitRoutine = function(stateName, routine) {
+   var state = this.topState.FindState(stateName, true);
 
-ActiveEntity.prototype.SetExitRoutine = function( stateName, routine )
-{
-   var   state = this.topState.FindState( stateName, true );
-
-   if( state != undefined )
-   {
-      state.SetExitRoutine( routine );
+   if (state != undefined) {
+      state.SetExitRoutine(routine);
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * ActiveEntity.prototype.SetInitialState
  * 
  * This method sets the initial state of the Active Entity (i.e. the initial
  * substate of the topState)
- *
+ * 
  ******************************************************************************/
-ActiveEntity.prototype.SetInitialState = function( initialStateName, parentName )
-{
+ActiveEntity.prototype.SetInitialState = function(initialStateName, parentName) {
    var state;
 
-
-   if( parentName != undefined )
-   {
-      state = this.topState.FindState( parentName, true );
-   }
-   else
-   {
+   if (parentName != undefined) {
+      state = this.topState.FindState(parentName, true);
+   } else {
       state = this.topState;
    }
 
-   state.SetInitialState( initialStateName );
+   state.SetInitialState(initialStateName);
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * ActiveEntity.prototype.Start
  * 
- * This method starts the state machine.  i.e. It performs the initial
- * transition to the topState.  Note: If the topState does not have an initial
- * substate defined, then the state machine is never really started.
- *
+ * This method starts the state machine. i.e. It performs the initial transition
+ * to the topState. Note: If the topState does not have an initial substate
+ * defined, then the state machine is never really started.
+ * 
  ******************************************************************************/
-ActiveEntity.prototype.Start = function()
-{
-   log.debug( "Start: transition to %s", this.name );
+ActiveEntity.prototype.Start = function() {
+   log.debug("Start: transition to %s", this.name);
    this.currentState = this.topState;
-   this.Transition( this.name );
+   this.Transition(this.name);
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * ActiveEntity.prototype.HandleEvent
- *
+ * 
  ******************************************************************************/
-ActiveEntity.prototype.HandleEvent = function( eventId, data )
-{
-   if( this.currentState != undefined )
-   {
-      this.currentState.HandleEvent( eventId, data );
+ActiveEntity.prototype.HandleEvent = function(eventId, data) {
+   if (this.currentState != undefined) {
+      this.currentState.HandleEvent(eventId, data);
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * ActiveEntity.prototype.Transition
  * 
  * This method performs a recursive transition from the current state to the
- * specified destination state.  
- *
+ * specified destination state.
+ * 
  ******************************************************************************/
-ActiveEntity.prototype.Transition = function( destStateName )
-{
+ActiveEntity.prototype.Transition = function(destStateName) {
    var destAncestors = Array();
-   var srcAncestors  = Array();
-   var found         = undefined;
-   var lcAncestor    = this.name;   // The Lowest Common Ancestor
-   var destState     = this.topState.FindState( destStateName, true );
+   var srcAncestors = Array();
+   var found = undefined;
+   var lcAncestor = this.name; // The Lowest Common Ancestor
+   var destState = this.topState.FindState(destStateName, true);
 
+   log.debug("Transition: %s -> %s; ", this.currentState.name, destStateName);
 
-   log.debug( "Transition: %s -> %s; ", this.currentState.name, destStateName );
-
-   if( destState != undefined )
-   {
+   if (destState != undefined) {
       // If we are coming from outside the destination state, then we need to
       // change the destination state to the initial substate.
-      while( ( !destState.inState ) && ( destState.initial != undefined ) )
-      {
+      while ((!destState.inState) && (destState.initial != undefined)) {
          destState = destState.initial;
       }
 
-      // First, get the ancestors of the source and destination states. 
-      destState.GetAncestors( destAncestors );
-      this.currentState.GetAncestors( srcAncestors );
-      
-      log.debug( destAncestors );
-      log.debug( srcAncestors );
+      // First, get the ancestors of the source and destination states.
+      destState.GetAncestors(destAncestors);
+      this.currentState.GetAncestors(srcAncestors);
 
-      // Now, iterate from the bottom of the source ancestor list to find the 
+      log.debug(destAncestors);
+      log.debug(srcAncestors);
+
+      // Now, iterate from the bottom of the source ancestor list to find the
       // Lowest common denominator of both states.
       // The first one popped off the list should be current state.
       found = -1;
-      while( ( found == -1 ) && srcAncestors.length )
-      {
+      while ((found == -1) && srcAncestors.length) {
          lcAncestor = srcAncestors.pop();
-         found = destAncestors.indexOf( lcAncestor );
+         found = destAncestors.indexOf(lcAncestor);
       }
 
-      log.debug( "Common Ancestor: %s", lcAncestor );
+      log.debug("Common Ancestor: %s", lcAncestor);
 
       // Did we find a common ancestor?
-      if( found != -1  )
-      {
+      if (found != -1) {
          // Exit the current state, all the way up to the common ancestor
-         this.currentState.ExitState( lcAncestor );
+         this.currentState.ExitState(lcAncestor);
 
          // TODO: If/when we add transition actions, we need to perform it
-         //       between states
+         // between states
 
          // Update our current state variable
          this.currentState = destState;
 
-         // Now, Enter the destination state, all the way from the common ancestor
-         destState.EnterState( lcAncestor );
-      }
-      else
-      {
+         // Now, Enter the destination state, all the way from the common
+         // ancestor
+         destState.EnterState(lcAncestor);
+      } else {
          // We should never get here because every state should have the
          // topState as it's ancestor
-         log.error( "Could not find common ancestor state" );
+         log.error("Could not find common ancestor state");
       }
-   }
-   else
-   {
-      log.error( "Transition to undefined state in ActiveEntity: %s", this.name );
+   } else {
+      log.error("Transition to undefined state in ActiveEntity: %s", this.name);
    }
 };
 
@@ -232,12 +192,10 @@ module.exports = ActiveEntity;
 
 },{"./Logger.js":8,"./State.js":10}],2:[function(require,module,exports){
 
-module.exports = CGEActiveEntity;
-
-var CGEState      = require( "./CGEState.js" );
-var ActiveEntity  = require( "./ActiveEntity.js" );
-var CardContainer = require( "./CardContainer.js" );
-var TransDef = require( "./TransactionDefinition.js" );
+var CGEState = require("./CGEState.js");
+var ActiveEntity = require("./ActiveEntity.js");
+var CardContainer = require("./CardContainer.js");
+var TransDef = require("./TransactionDefinition.js");
 
 var TransactionDefinition = TransDef.TransactionDefinition;
 var AddTransactionDefinition = TransDef.AddTransactionDefinition;
@@ -246,150 +204,165 @@ var TRANSACTION_TYPE_INBOUND = TransDef.TRANSACTION_TYPE_INBOUND;
 var TRANSACTION_TYPE_OUTBOUND = TransDef.TRANSACTION_TYPE_OUTBOUND;
 
 // TODO: Yeah, this doesn't belong here.
-var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+var SWGC = require("./games/SimpleWar/SimpleWarDefs.js");
 
-
-/******************************************************************************
- *  CLASS: CGEActiveEntity
+/*******************************************************************************
+ * CLASS: CGEActiveEntity
  ******************************************************************************/
 
-/******************************************************************************
- *
- * Class: CGEActiveEntity
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Class: CGEActiveEntity Constructor
+ * 
  ******************************************************************************/
-function CGEActiveEntity( owner, name, parent )
-{
-   ActiveEntity.call( this, owner, name, parent );
+function CGEActiveEntity(owner, name, parent) {
+   ActiveEntity.call(this, owner, name, parent);
 
-   this.rootContainer   = new CardContainer( name );
+   this.rootContainer = new CardContainer(name);
 };
 
-
-//Inherit from ActiveEntity
 CGEActiveEntity.prototype = new ActiveEntity();
-//Correct the constructor pointer
 CGEActiveEntity.prototype.constructor = CGEActiveEntity;
 
-
-CGEActiveEntity.prototype.AddContainer = function( name, parent, minCards, maxCards )
-{
+/*******************************************************************************
+ * 
+ * CGEActiveEntity.prototype.AddContainer
+ * 
+ * This method adds a container with the specified name, minimum number of cards,
+ * and maximum number of cards to the container specified by 'parent'.  If
+ * parent is undefined, then it adds it to the root container.
+ * 
+ ******************************************************************************/
+CGEActiveEntity.prototype.AddContainer = function(name, parent, minCards, maxCards) {
    var parentContainer;
-   var container = new CardContainer( name, minCards, maxCards );
+   var container = new CardContainer(name, minCards, maxCards);
 
-
-   if( parent != undefined )
-   {
-      parentContainer = this.rootContainer.GetContainerById( parent );
-   }
-   else
-   {
+   if (parent != undefined) {
+      parentContainer = this.rootContainer.GetContainerById(parent);
+   } else {
       parentContainer = this.rootContainer;
    }
 
-   parentContainer.AddContainer( container );
+   parentContainer.AddContainer(container);
 
    return container;
 };
 
+/*******************************************************************************
+ * 
+ * CGEActiveEntity.prototype.AddState
+ * 
+ * This method adds a CGEState substate to the state with the specified parent
+ * name.  If the parentName is undefined, then the state is added as a top state
+ * 
+ ******************************************************************************/
+CGEActiveEntity.prototype.AddState = function(name, parentName) {
+   var parent = undefined;
 
-CGEActiveEntity.prototype.AddState = function( name, parentName )
-{
-   var   parent = undefined;
-
-
-   if( parentName != undefined )
-   {
-      parent = this.topState.FindState( parentName, true );
+   if (parentName != undefined) {
+      parent = this.topState.FindState(parentName, true);
    }
 
    // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
-   if( parent == undefined )
-   {
+   if (parent == undefined) {
       parent = this.topState;
    }
 
    // For now, assume they are valid
-   var state = new CGEState( this, name, parent );
-   parent.AddState( state );
+   var state = new CGEState(this, name, parent);
+   parent.AddState(state);
 
-   return( state );
+   return (state);
 };
 
-
-CGEActiveEntity.prototype.AddValidTransaction = function( stateName, transDefName )
-{
+/*******************************************************************************
+ * 
+ * CGEActiveEntity.prototype.AddValidTransaction
+ * 
+ * This method adds the specified transaction defintion to the specified state.
+ * If the state is undefined, then the transaction definition is not added
+ * 
+ ******************************************************************************/
+CGEActiveEntity.prototype.AddValidTransaction = function(stateName, transDefName) {
    var state = undefined;
 
-
-   if( stateName != undefined )
-   {
-      state = this.topState.FindState( stateName, true );
+   if (stateName != undefined) {
+      state = this.topState.FindState(stateName, true);
    }
 
-   if( state != undefined )
-   {
-      state.AddValidTransaction( transDefName );
+   if (state != undefined) {
+      state.AddValidTransaction(transDefName);
    }
 };
 
-
-CGEActiveEntity.prototype.IsTransactionValid = function( transDefName )
-{
+/*******************************************************************************
+ * 
+ * CGEActiveEntity.prototype.IsTransactionValid
+ * 
+ * This method checks to see if the specified transaction definition is in the
+ * list of valid transactions for the current state.
+ * 
+ * Note: This is recursive.  If it is valid in a state, then it is valid in all
+ * of that state's substates as well.
+ * 
+ ******************************************************************************/
+CGEActiveEntity.prototype.IsTransactionValid = function(transDefName) {
    var isValid = false;
-   
-   if( this.currentState != undefined )
-   {
-      isValid = this.currentState.IsTransactionValid( transDefName );
+
+   if (this.currentState != undefined) {
+      isValid = this.currentState.IsTransactionValid(transDefName);
    }
-   
+
    return isValid;
 };
 
-
-CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, cards )
-{
+/*******************************************************************************
+ * 
+ * CGEActiveEntity.prototype.ExecuteTransaction
+ * 
+ * This method executes the specified transaction given the name, the list of
+ * cards to transfer, and the array of cards.
+ * 
+ ******************************************************************************/
+CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, cards) {
    var success = false;
 
+   // First, make sure the transaction is valid in this state or any parent states
+   if (this.IsTransactionValid(transName)) {
+      var transDef = GetTransactionDefinition(transName);
 
-   if( this.IsTransactionValid( transName ) )
-   {
-      var transDef = GetTransactionDefinition( transName );
- 
-      if( transDef != undefined )
-      {
-         if( transDef.fromContainerName == TRANSACTION_TYPE_INBOUND )
-         {
-            var toContainer = this.rootContainer.GetContainerById( transDef.toContainerName );
-            
-            if( toContainer != undefined )
-            {
-               toContainer.AddGroup( cards, transDef.location );
+      if (transDef != undefined) {
+         if (transDef.fromContainerName == TRANSACTION_TYPE_INBOUND) {
+            // The Transaction is inbound, meaning take cards from the provided
+            // cards array parameter and send them to the container specified
+            // by the transaction.
+            var toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
+
+            if (toContainer != undefined) {
+               toContainer.AddGroup(cards, transDef.location);
                success = true;
             }
-         }
-         else if( transDef.toContainerName == TRANSACTION_TYPE_OUTBOUND )
-         {
-            var fromContainer = this.rootContainer.GetContainerById( transDef.fromContainerName );
-            
-            if( fromContainer != undefined )
-            {
-               fromContainer.GetGroup( cards, cardList );
+         } else if (transDef.toContainerName == TRANSACTION_TYPE_OUTBOUND) {
+            // The Transaction is outbound, meaning take cards from the
+            // container specified by the transaction and place them in the 
+            // cards array parameter
+            var fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
+
+            if (fromContainer != undefined) {
+               fromContainer.GetGroup(cards, cardList);
                success = true;
             }
-         }
-         else
-         {
-            var toContainer = this.rootContainer.GetContainerById( transDef.toContainerName );
-            var fromContainer = this.rootContainer.GetContainerById( transDef.fromContainerName );
+         } else {
+            // If the transaction is neither inbound or outbound, then it is
+            // between two containers within this active entity.
+            var toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
+            var fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
             var cardArray = Array();
-           
-            if( ( toContainer != undefined ) && ( fromContainer != undefined ) )
-            {
-               fromContainer.GetGroup( cardArray, cardList );
-               toContainer.AddGroup( cardArray, transDef.location );
+
+            if ((toContainer != undefined) && (fromContainer != undefined)) {
+               fromContainer.GetGroup(cardArray, cardList);
+               toContainer.AddGroup(cardArray, transDef.location);
                success = true;
             }
          }
@@ -399,104 +372,105 @@ CGEActiveEntity.prototype.ExecuteTransaction = function( transName, cardList, ca
    return success;
 };
 
+module.exports = CGEActiveEntity;
 
 },{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12}],3:[function(require,module,exports){
+var State = require("./State.js");
 
-module.exports = CGEState;
-
-var State = require( "./State.js" );
-
-/******************************************************************************
- *  CLASS: CGEState
+/*******************************************************************************
+ * CLASS: CGEState
  ******************************************************************************/
 
-/******************************************************************************
- *
- * Class: CGEState
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Class: CGEState Constructor
+ * 
  ******************************************************************************/
-function CGEState( owner, name, parent )
-{
-   State.call( this, owner, name, parent );
+function CGEState(owner, name, parent) {
+   State.call(this, owner, name, parent);
 
    // Array of definition names that are valid for this state
    this.validTransactions = Array();
 };
 
-
-//Inherit from State
 CGEState.prototype = new State();
-//Correct the constructor pointer
 CGEState.prototype.constructor = CGEState;
 
-
-CGEState.prototype.AddValidTransaction = function( transDefName )
-{
-   this.validTransactions.push( transDefName );
+/*******************************************************************************
+ * 
+ * CGEState.prototype.AddValidTransaction
+ * 
+ * This method adds the name of the specified transaction definition to the
+ * list of transactions that are valid in this state.
+ * 
+ ******************************************************************************/
+CGEState.prototype.AddValidTransaction = function(transDefName) {
+   this.validTransactions.push(transDefName);
 };
 
-
-CGEState.prototype.IsTransactionValid = function( transDefName )
-{
+/*******************************************************************************
+ * 
+ * CGEState.prototype.IsTransactionValid
+ * 
+ * This method checks the list of transaction definition names for this state
+ * to see if the specified transDefName is valid.
+ * 
+ * Note: This method is recursive.  Parent states are checked as well.
+ * 
+ ******************************************************************************/
+CGEState.prototype.IsTransactionValid = function(transDefName) {
    var isValid = false;
 
-   if( this.validTransactions.indexOf( transDefName ) != -1 )
-   {
+   if (this.validTransactions.indexOf(transDefName) != -1) {
       isValid = true;
-   }
-   else if( ( this.parent != undefined ) && ( this.parent.IsTransactionValid != undefined ) )
-   {
-      isValid = this.parent.IsTransactionValid( transDefName );
+   } else if (    (this.parent != undefined)
+               && (this.parent.IsTransactionValid != undefined)) {
+      isValid = this.parent.IsTransactionValid(transDefName);
    }
 
    return isValid;
 };
 
+module.exports = CGEState;
+
 },{"./State.js":10}],4:[function(require,module,exports){
 var log = require('./Logger.js');
 
-/******************************************************************************
- *
- * Card Class
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Card Class Constructor
+ * 
  ******************************************************************************/
-function Card( suit, name, shortName, rank, color, count )
-{
-   this.id        = shortName + '-' + rank + '-' + count;
-   this.suit      = suit;
-   this.name      = name;
+function Card(suit, name, shortName, rank, color, count) {
+   this.id = shortName + '-' + rank + '-' + count;
+   this.suit = suit;
+   this.name = name;
    this.shortName = shortName;
-   this.rank      = rank;
-   this.color     = color;
+   this.rank = rank;
+   this.color = color;
 }
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * Card.prototype.Print
- *
+ * 
  ******************************************************************************/
-Card.prototype.Print = function()
-{
-   log.info( "CGCard :    " + this.id + ' : ' + this.shortName + ' : ' + this.name );
+Card.prototype.Print = function() {
+   log.info("CGCard :    " + this.id + ' : ' + this.shortName + ' : ' + this.name);
 };
 
 module.exports = Card;
 
 },{"./Logger.js":8}],5:[function(require,module,exports){
-
-var Card = require( "./Card.js" );
-var CardGroup = require( "./CardGroup.js" );
+var Card = require("./Card.js");
+var CardGroup = require("./CardGroup.js");
 
 /*******************************************************************************
  * 
  * CardContainer Class Constructor
  * 
  ******************************************************************************/
-function CardContainer( id, minCards, maxCards )
-{
+function CardContainer(id, minCards, maxCards) {
    this.id = id;
    this.containers = Array();
    this.minCards = 0;
@@ -505,47 +479,36 @@ function CardContainer( id, minCards, maxCards )
    CardGroup.call(this);
 }
 
-// Inherit from CardContainer
 CardContainer.prototype = new CardGroup();
-// Correct the constructor pointer
 CardContainer.prototype.constructor = CardContainer;
-
 
 /*******************************************************************************
  * 
  * CardContainer.prototype.AddGroup
  * 
  ******************************************************************************/
-CardContainer.prototype.AddGroup = function( group, location )
-{
-   if (this.AcceptGroup( group ) == true)
-   {
+CardContainer.prototype.AddGroup = function(group, location) {
+   if (this.AcceptGroup(group) == true) {
       var index;
 
-      if( location == "TOP" )
-      {
+      if (location == "TOP") {
          index = 0;
-      }
-      else
-      {
+      } else {
          index = -1;
       }
 
-		while( group.length )
-	   {
-         this.cards.splice( this.cards.length, 0, group.shift() );
-	   }
+      while (group.length) {
+         this.cards.splice(this.cards.length, 0, group.shift());
+      }
    }
 };
-
 
 /*******************************************************************************
  * 
  * CardContainer.prototype.AddContainer
  * 
  ******************************************************************************/
-CardContainer.prototype.AddContainer = function( container )
-{
+CardContainer.prototype.AddContainer = function(container) {
    this.containers.push(container);
 };
 
@@ -554,101 +517,78 @@ CardContainer.prototype.AddContainer = function( container )
  * CardContainer.prototype.CanGetGroup
  * 
  ******************************************************************************/
-CardContainer.prototype.CanGetGroup = function( cardList )
-{
+CardContainer.prototype.CanGetGroup = function(cardList) {
    // ADT TODO: Finish this method
    // Verify cardList is an array first...
-   if (Object.prototype.toString.call(cardList) === '[object Array]')
-   {
+   if (Object.prototype.toString.call(cardList) === '[object Array]') {
 
    }
 
    return true;
 };
-
 
 /*******************************************************************************
  * 
  * CardContainer.prototype.GetGroup
  * 
  ******************************************************************************/
-CardContainer.prototype.GetGroup = function( cardArray, cardList )
-{
-   if( this.CanGetGroup( cardList ) == true )
-   {
-      for( var cntr = 0; cntr < cardList.length; cntr++ )
-      {
+CardContainer.prototype.GetGroup = function(cardArray, cardList) {
+   if (this.CanGetGroup(cardList) == true) {
+      for ( var cntr = 0; cntr < cardList.length; cntr++) {
          var numCards = 0;
-         var action = cardList[cntr].split( ':', 2 );
- 
-         if( ( action[0] == "TOP" ) || ( action[0] == "BOTTOM" ) )
-         {
-            if( action[1] == "ALL" )
-            {
+         var action = cardList[cntr].split(':', 2);
+
+         if ((action[0] == "TOP") || (action[0] == "BOTTOM")) {
+            if (action[1] == "ALL") {
                numCards = this.cards.length;
-            }
-            else
-            {
-               numCards = parseInt( action[1], 10 );
-               
-               if( isNaN( numCards ) )
-               {
+            } else {
+               numCards = parseInt(action[1], 10);
+
+               if (isNaN(numCards)) {
                   numCards = 0;
                }
-               
-               if( numCards > this.cards.length )
-               {
-                  log.warn( "CGCntnr: '%s' Out of Cards", this.id );
+
+               if (numCards > this.cards.length) {
+                  log.warn("CGCntnr: '%s' Out of Cards", this.id);
                   numCards = this.cards.length;
                }
             }
 
-            while( numCards-- )
-            {
-               cardArray.push( this.GetCard( action[0] ) );
+            while (numCards--) {
+               cardArray.push(this.GetCard(action[0]));
             }
          }
       }
    }
 };
 
-
 /*******************************************************************************
  * 
  * CardContainer.prototype.AcceptGroup
  * 
  ******************************************************************************/
-CardContainer.prototype.AcceptGroup = function( group )
-{
+CardContainer.prototype.AcceptGroup = function(group) {
    return true;
 };
-
 
 /*******************************************************************************
  * 
  * CardContainer.prototype.GetContainerById
  * 
  ******************************************************************************/
-CardContainer.prototype.GetContainerById = function( id )
-{
+CardContainer.prototype.GetContainerById = function(id) {
    var cntr;
    var returnVal = undefined;
 
-
-   if (id == this.id)
-   {
+   if (id == this.id) {
       returnVal = this;
-   }
-   else
-   {
+   } else {
       cntr = 0;
 
-      for( cntr = 0; cntr < this.containers.length; cntr++ )
-      {
+      for (cntr = 0; cntr < this.containers.length; cntr++) {
          returnVal = this.containers[cntr].GetContainerById(id);
-         
-         if( returnVal != undefined )
-         {
+
+         if (returnVal != undefined) {
             break;
          }
       }
@@ -657,51 +597,39 @@ CardContainer.prototype.GetContainerById = function( id )
    return returnVal;
 };
 
-
 /*******************************************************************************
  * 
  * CardContainer.prototype.IsEmpty
  * 
  ******************************************************************************/
-CardContainer.prototype.IsEmpty = function()
-{
+CardContainer.prototype.IsEmpty = function() {
    var isEmpty = true;
 
    // First check if we are empty.
-   if (this.cards.length == 0)
-   {
+   if (this.cards.length == 0) {
       // If we are empty, then check our children containers
-      for (var cntr = 0; cntr < this.containers.length; cntr++)
-      {
-         if (!this.containers[cntr].IsEmpty())
-         {
+      for ( var cntr = 0; cntr < this.containers.length; cntr++) {
+         if (!this.containers[cntr].IsEmpty()) {
             isEmpty = false;
             break;
          }
       }
-   }
-   else
-   {
+   } else {
       isEmpty = false;
    }
 
    return isEmpty;
 };
 
-
 /*******************************************************************************
  * 
  * CardContainer.prototype.IsFull
  * 
  ******************************************************************************/
-CardContainer.prototype.IsFull = function( id )
-{
-   if (this.cards.length >= this.maxCards)
-   {
+CardContainer.prototype.IsFull = function(id) {
+   if (this.cards.length >= this.maxCards) {
       return true;
-   }
-   else
-   {
+   } else {
       return false;
    }
 };
@@ -709,12 +637,11 @@ CardContainer.prototype.IsFull = function( id )
 module.exports = CardContainer;
 
 },{"./Card.js":4,"./CardGroup.js":7}],6:[function(require,module,exports){
-
-var ActiveEntity = require( "./ActiveEntity.js" );
-var CGEActiveEntity = require( "./CGEActiveEntity.js" );
-var Card = require( "./Card.js" );
-var transDef = require( "./TransactionDefinition.js" );
-var SWGC     = require( "./games/SimpleWar/SimpleWarDefs.js" );
+var ActiveEntity = require("./ActiveEntity.js");
+var CGEActiveEntity = require("./CGEActiveEntity.js");
+var Card = require("./Card.js");
+var transDef = require("./TransactionDefinition.js");
+var SWGC = require("./games/SimpleWar/SimpleWarDefs.js");
 var Events = require('events');
 
 var TransactionDefinition = transDef.TransactionDefinition;
@@ -727,126 +654,216 @@ var CGE_TABLE = "Table";
 
 var log = require("./Logger.js");
 
-//Outgoing Transactions
-AddTransactionDefinition( "CGE_DEAL", CGE_DEALER,    TRANSACTION_TYPE_OUTBOUND,  1, 1, "TOP" );
+// Outgoing Transactions
+AddTransactionDefinition("CGE_DEAL", CGE_DEALER, TRANSACTION_TYPE_OUTBOUND, 1, 1, "TOP");
 
-
-/******************************************************************************
- *
- * CardGame Class
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * CardGame Class Constructor
+ * 
  ******************************************************************************/
-function CardGame( name )
-{
-   this.id              = undefined;
-   this.name            = 'CardGame:'+ name;
+function CardGame(name) {
+   this.id = undefined;
+   this.name = 'CardGame:' + name;
 
    // Call the parent class constructor
-   CGEActiveEntity.call( this, this.name );
+   CGEActiveEntity.call(this, this.name);
 
-   this.isHost          = false;
-   this.players         = Array();
-   this.gameName        = '';
-   this.currPlayerIndex = -1;             // Index to current player
-   this.currPlayer      = undefined;      // Reference to current player
-   this.events            = [];
-   
+   this.isHost = false;
+   this.players = Array();
+   this.gameName = '';
+   this.currPlayerIndex = -1; // Index to current player
+   this.currPlayer = undefined; // Reference to current player
+   this.events = [];
+
    // TODO: Bug: generic card games can't have card limits
-   this.table = this.AddContainer( CGE_TABLE,   undefined, 0, 52 );
-   this.dealer = this.AddContainer( CGE_DEALER,  undefined, 0, 52 );
+   this.table = this.AddContainer(CGE_TABLE, undefined, 0, 52);
+   this.dealer = this.AddContainer(CGE_DEALER, undefined, 0, 52);
 }
 
-//Inherit from CGEActiveEntity
 CardGame.prototype = new CGEActiveEntity();
-//Correct the constructor pointer
 CardGame.prototype.constructor = CardGame;
 
 
-/******************************************************************************
- *
- * CardGame.prototype.Init
- *
+/*******************************************************************************
+ * Virtual Functions - Must be overridden by derived card game
  ******************************************************************************/
-CardGame.prototype.Init = function( gameSpec, deckSpec )
-{
-   log.info( 'CGame  : Initializing game of ' + gameSpec.name );
-   log.info( gameSpec );
+   
+/*******************************************************************************
+ * 
+ * CardGame.prototype.AddPlayer
+ * 
+ ******************************************************************************/
+CardGame.prototype.AddPlayer = function(id, name) {
+   log.error('CGame  : Please override virtual function \'CardGame.AddPlayer()\'.');
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.AddUI
+ * 
+ ******************************************************************************/
+CardGame.prototype.AddUI = function() {
+   log.error('CGame  : Please override virtual function "CardGame.AddUI()".');
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.Deal
+ * 
+ ******************************************************************************/
+CardGame.prototype.Deal = function() {
+   log.info('CGame  : Please override virtual function \'CardGame.Deal()\'.');
+};
+
+/*******************************************************************************
+ * Internal Methods
+ ******************************************************************************/
+ 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.Init
+ * 
+ ******************************************************************************/
+CardGame.prototype.Init = function(gameSpec, deckSpec) {
+   log.info('CGame  : Initializing game of ' + gameSpec.name);
+   log.info(gameSpec);
 
    this.gameName = gameSpec.server.name;
-   this.id       = gameSpec.server.id;
+   this.id = gameSpec.server.id;
 
    // Setup game parameters
-   if( gameSpec.server.isPrimary == 'true' )
-   {
+   if (gameSpec.server.isPrimary == 'true') {
       this.isHost = true;
    }
 
-   log.info( "CGame  : Adding players" );
-   this.AddPlayers( gameSpec.players );
-   
+   log.info("CGame  : Adding players");
+   this.AddPlayers(gameSpec.players);
+
    this.InitEvents();
-
-   this.CreateDeck( deckSpec );
-
+   this.CreateDeck(deckSpec);
    this.AddUI();
 };
 
-
-/******************************************************************************
- *
- * CardGame.prototype.AddPlayers
- *
+/*******************************************************************************
+ * 
+ * CardGame.prototype.InitEvents
+ * 
  ******************************************************************************/
-CardGame.prototype.AddPlayers = function( players )
-{
-   for( var cntr = 0; cntr < players.length; cntr++ )
-   {
-      this.AddPlayer( players[cntr].id, players[cntr].alias, players[cntr].type );
+CardGame.prototype.InitEvents = function() {
+   var that = this;
+
+   // TODO: Make events work
+   this.emitter = new Events.EventEmitter();
+   this.emitter.addListener("EventQueue", function() {
+      that.ProcessEvents();
+   });
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.CreateDeck
+ * 
+ * This method goes through the deck specification JSON data and creates the
+ * actual card objects represented by the data.
+ * 
+ ******************************************************************************/
+CardGame.prototype.CreateDeck = function(deckSpec) {
+   var suitCntr;
+   var valueCntr;
+   var qty;
+
+   // Create the suited cards first
+   for (suitCntr = 0; suitCntr < deckSpec.suited.suits.suit.length; suitCntr++) {
+      for (valueCntr = 0; valueCntr < deckSpec.suited.values.value.length; valueCntr++) {
+         for (qty = 0; qty < deckSpec.suited.values.value[valueCntr].quantity; qty++) {
+            this.dealer.AddCard(this.CreateSuitedCard(
+                  deckSpec.suited.suits.suit[suitCntr],
+                  deckSpec.suited.values.value[valueCntr], qty));
+         }
+      }
+   }
+
+   // Now Create the non-suited cards
+   for (valueCntr = 0; valueCntr < deckSpec.nonsuited.values.value.length; valueCntr++) {
+      for (qty = 0; qty < deckSpec.nonsuited.values.value[valueCntr].quantity; qty++) {
+         this.dealer.AddCard(this.CreateNonSuitedCard(
+               deckSpec.nonsuited.values.value[valueCntr], qty));
+      }
    }
 };
 
-
-CardGame.prototype.NumPlayers = function()
-{
-   return this.players.length;
+/*******************************************************************************
+ * 
+ * CardGame.prototype.CreateSuitedCard
+ * 
+ * This method creates and returns a new Card object with the given suit, value,
+ * and count
+ * 
+ ******************************************************************************/
+CardGame.prototype.CreateSuitedCard = function(suit, value, count) {
+   return new Card(suit.name,
+		             suit.name + ' ' + value.name,
+		             suit.shortname + value.shortname,
+		             value.rank,
+		             suit.color,
+		             count);
 };
 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.CreateNonSuitedCard
+ * 
+ * this method creates and returns a new Card object given the count
+ * 
+ ******************************************************************************/
+CardGame.prototype.CreateNonSuitedCard = function(nonSuited, count) {
+   return new Card(nonSuited.name,
+                   nonSuited.name,
+                   nonSuited.shortname,
+                   nonSuited.rank,
+                   nonSuited.color,
+                   count);
+};
 
-CardGame.prototype.AdvancePlayer = function()
-{
-   if( ++this.currPlayerIndex > this.NumPlayers() )
-   {
+/*******************************************************************************
+ * 
+ * CardGame.prototype.AddPlayers
+ * 
+ * This method goes through the Game JSON data that is passed in and creates
+ * the players for this game.
+ * 
+ ******************************************************************************/
+CardGame.prototype.AddPlayers = function(players) {
+   for ( var cntr = 0; cntr < players.length; cntr++) {
+      this.AddPlayer(players[cntr].id, players[cntr].alias, players[cntr].type);
+   }
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.AdvancePlayer
+ * 
+ * This method advances the current player index and the reference to the
+ * current player.
+ * 
+ ******************************************************************************/
+CardGame.prototype.AdvancePlayer = function() {
+   if (++this.currPlayerIndex > this.NumPlayers()) {
       this.currPlayerIndex = 0;
-   };
-   
+   }
+
    this.currPlayer = this.players[this.currPlayerIndex];
 };
 
-
-CardGame.prototype.InitEvents = function()
-{
-   var that = this;
- 
-   // TODO: Make events work
-   this.emitter = new Events.EventEmitter();
-   this.emitter.addListener( "EventQueue", function() {
-      that.ProcessEvents();
-      } );
-};
-
-
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGame.prototype.StartGame
- *
+ * 
  ******************************************************************************/
-CardGame.prototype.StartGame = function()
-{
+CardGame.prototype.StartGame = function() {
    // First, Start all the players
-   for( var cntr = 0; cntr < this.players.length; cntr++ )
-   {
+   for ( var cntr = 0; cntr < this.players.length; cntr++) {
       this.players[cntr].Start();
    }
 
@@ -856,271 +873,183 @@ CardGame.prototype.StartGame = function()
    this.Start();
 };
 
-
-/******************************************************************************
- *
- * CardGame.prototype.CreateDeck
- *
- ******************************************************************************/
-CardGame.prototype.CreateDeck = function( deckSpec )
-{
-   var suitCntr;
-   var valueCntr;
-   var qty;
-
-
-   // Create the suited cards first
-   for( suitCntr = 0; suitCntr < deckSpec.suited.suits.suit.length; suitCntr++ )
-   {
-      for( valueCntr = 0; valueCntr < deckSpec.suited.values.value.length; valueCntr++ )
-      {
-         for( qty = 0; qty < deckSpec.suited.values.value[valueCntr].quantity; qty++ )
-         {
-            this.dealer.AddCard( this.CreateSuitedCard( deckSpec.suited.suits.suit[suitCntr],
-                                                        deckSpec.suited.values.value[valueCntr],
-                                                        qty ) );
-         }
-      }
-   }
-
-   // Now Create the non-suited cards
-   for( valueCntr = 0; valueCntr < deckSpec.nonsuited.values.value.length; valueCntr++ )
-   {
-      for( qty = 0; qty < deckSpec.nonsuited.values.value[valueCntr].quantity; qty++ )
-      {
-         this.dealer.AddCard( this.CreateNonSuitedCard( deckSpec.nonsuited.values.value[valueCntr],
-                                                        qty ) );
-      }
-   }
-};
-
-
-/******************************************************************************
- *
- * CardGame.prototype.CreateSuitedCard
+/*******************************************************************************
+ * 
+ * CardGame.prototype.GetEntityById
+ * 
+ * This method searches the game and the players for the given id and returns
+ * a reference to the object.  If none is found, it returns undefined.
  * 
  ******************************************************************************/
-CardGame.prototype.CreateSuitedCard = function( suit, value, count )
-{
-   return new Card( suit.name,
-                    suit.name + ' '+ value.name,
-                    suit.shortname + value.shortname,
-                    value.rank,
-                    suit.color,
-                    count );
-};
-
-
-/******************************************************************************
- *
- * CardGame.prototype.CreateNonSuitedCard
- *
- ******************************************************************************/
-CardGame.prototype.CreateNonSuitedCard = function( nonSuited, count )
-{
-   return new Card( nonSuited.name,
-                    nonSuited.name,
-                    nonSuited.shortname,
-                    nonSuited.rank,
-                    nonSuited.color,
-                    count );
-};
-
-
-/******************************************************************************
- *
- * CardGame.prototype.AddPlayer
- *
- ******************************************************************************/
-CardGame.prototype.AddPlayer = function( id, name )
-{
-   log.error( 'CGame  : Please override virtual function \'CardGame.AddPlayer()\'.' );
-};
-
-CardGame.prototype.AddUI = function()
-{
-   log.error( 'CGame  : Please override virtual function "CardGame.AddUI()".' );
-};
-
-
-CardGame.prototype.GetEntityById = function( id )
-{
+CardGame.prototype.GetEntityById = function(id) {
    var cntr = 0;
    var entity = undefined;
 
-
-   if( this.id == id )
-   {
+   if (this.id == id) {
       entity = this;
-   }
-   else
-   {
-      while( cntr < this.players.length )
-      {
-         if( this.players[cntr].id == id )
-         {
+   } else {
+      while (cntr < this.players.length) {
+         if (this.players[cntr].id == id) {
             entity = this.players[cntr];
             break;
          }
-         
+
          cntr++;
       }
    }
-   
+
    return entity;
 };
 
-
-/******************************************************************************
- *
- * CardGame.prototype.Deal
- *
- ******************************************************************************/
-CardGame.prototype.Deal = function()
-{
-   log.info( 'CGame  : Please override virtual function \'CardGame.Deal()\'.' );
-};
-
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGame.prototype.GetContainerById
- *
+ * 
+ * This method searches the Containers of the game for the container with the
+ * specified id and returns a reference to that object.  If none is found, then 
+ * it returns undefined.
+ * 
  ******************************************************************************/
-CardGame.prototype.GetContainerById = function( id )
-{
-   var   cntr;
-   var   returnVal = undefined;
-
+CardGame.prototype.GetContainerById = function(id) {
+   var cntr;
+   var returnVal = undefined;
 
    // Check to see if the dealer has this container
-   returnVal = this.rootContainer.GetContainerById( id );
+   returnVal = this.rootContainer.GetContainerById(id);
 
    // Otherwise, check all the players
-   if( returnVal == undefined )
-   {
+   if (returnVal == undefined) {
       cntr = 0;
 
-      do
-      {
-         returnVal = this.players[cntr].GetContainerById( id );
-      }
-      while( ( cntr < this.players.length ) && ( returnVal == undefined ) )
+      do {
+         returnVal = this.players[cntr].GetContainerById(id);
+      } while ((cntr < this.players.length) && (returnVal == undefined))
    }
 
    return returnVal;
 };
 
-
-CardGame.prototype.AllPlayersHandleEvent = function( eventId, data )
-{
-   for( var cntr = 0; cntr < this.players.length; cntr++ )
-   {
-      this.players[cntr].HandleEvent( eventId, data );
+/*******************************************************************************
+ * 
+ * CardGame.prototype.AllPlayersHandleEvent
+ * 
+ * This method sends the given eventId with the specified data to all of the
+ * player objects in the game.
+ * 
+ ******************************************************************************/
+CardGame.prototype.AllPlayersHandleEvent = function(eventId, data) {
+   for ( var cntr = 0; cntr < this.players.length; cntr++) {
+      this.players[cntr].HandleEvent(eventId, data);
    }
 };
 
-
-CardGame.prototype.SendEvent = function( inEventId, inData )
-{
-   var event = { eventId: inEventId, data: inData };
- 
-   this.events.push( event );
- 
-   this.emitter.emit( "EventQueue" );
-};
-
-
-CardGame.prototype.ProcessEvents = function()
-{
+/*******************************************************************************
+ * 
+ * CardGame.prototype.ProcessEvents
+ * 
+ * This internal method is called when the Javascript event is received.  It
+ * pulls a game event from the event queue and sends it to the appropriate
+ * places.
+ * 
+ ******************************************************************************/
+CardGame.prototype.ProcessEvents = function() {
    var event;
-   
+
    event = this.events.shift();
-   
-   if( event != undefined )
-   {
-      if( event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION ) {
-         this.ProcessEventTransaction( event.data.destId,
-                                       event.data.destTransName,
-                                       event.data.srcId,
-                                       event.data.srcTransName,
-                                       event.data.cardList );
-      }
-      else {
-         this.DispatchEvent( event.eventId, event.data );
+
+   if (event != undefined) {
+      if (event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION) {
+         this.ProcessEventTransaction(event.data.destId,
+                                      event.data.destTransName,
+                                      event.data.srcId,
+                                      event.data.srcTransName,
+                                      event.data.cardList);
+      } else {
+         this.DispatchEvent(event.eventId, event.data);
       }
    }
 };
 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.DispatchEvent
+ * 
+ * This method sends the specified event to the owner of the event (if specified)
+ * or to all players.  Then it sends it to the game engine, and finally the UI.
+ * 
+ * Note:  The following events are sent to the UI only:
+ *           - CGE_EVENT_STATUS_UPDATE
+ *           - CGE_EVENT_NOTIFY
+ * 
+ ******************************************************************************/
+CardGame.prototype.DispatchEvent = function(eventId, data) {
+   if (    (eventId != SWGC.CGE_EVENT_STATUS_UPDATE)
+        && (eventId != SWGC.CGE_EVENT_NOTIFY)) {
+      if ((data != undefined) && (data.ownerId != undefined)) {
+         var entity = this.GetEntityById(data.ownerId);
+         entity.HandleEvent(eventId, data);
+      } else {
+         this.AllPlayersHandleEvent(eventId, data);
+      }
 
-CardGame.prototype.DispatchEvent = function( eventId, data )
-{
-   if( ( eventId != SWGC.CGE_EVENT_STATUS_UPDATE ) &&
-       ( eventId != SWGC.CGE_EVENT_NOTIFY ) )
-   {
-      if( ( data != undefined ) && ( data.ownerId != undefined ) )
-      {
-         var entity = this.GetEntityById( data.ownerId );
-         entity.HandleEvent( eventId, data );
-      }
-      else
-      {
-         this.AllPlayersHandleEvent( eventId, data );
-      }
-   
       // Send all events to the game engine
-      this.HandleEvent( eventId, data );
+      this.HandleEvent(eventId, data);
    }
- 
+
    // Send all events to the UI
-   this.UI.HandleEvent( eventId, data);
+   this.UI.HandleEvent(eventId, data);
 };
 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.ProcessEventTransaction
+ * 
+ * This method processes the Transaction event received via the EventTransaction
+ * method.
+ * 
+ ******************************************************************************/
+CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
+      srcId, srcTransName, cardList) {
+   var destEntity = this.GetEntityById(destId);
+   var success = false;
 
-CardGame.prototype.ProcessEventTransaction = function( destId, destTransName, srcId, srcTransName, cardList )
-{
-   var   destEntity = this.GetEntityById( destId );
-   var   success = false;
+   // log.info( "CGame : Process Transaction Event" );
+   if (destEntity != undefined) {
+      if (srcId != undefined) {
+         var srcEntity = this.GetEntityById(srcId);
 
+         if (srcEntity != undefined) {
+            var cardArray = Array();
 
-   //log.info( "CGame  : Process Transaction Event" );
-   if( destEntity != undefined )
-   {
-      if( srcId != undefined )
-      {
-         var srcEntity = this.GetEntityById( srcId );
- 
-         if( srcEntity != undefined )
-         {
-            var   cardArray = Array();
+            if (srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {
+               this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+                  ownerId : srcId,
+                  transaction : srcTransName
+               });
+               success = destEntity.ExecuteTransaction(destTransName, cardList,
+                     cardArray);
 
-            if( srcEntity.ExecuteTransaction( srcTransName, cardList, cardArray ) )
-            {
-               this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : srcId, transaction: srcTransName } );
-               success = destEntity.ExecuteTransaction( destTransName, cardList, cardArray );
-
-               if( success )
-               {
-                  this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : destId, transaction: destTransName } );
+               if (success) {
+                  this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+                     ownerId : destId,
+                     transaction : destTransName
+                  });
                }
+            } else {
+               log.error("CGame  : EventTransaction: src transaction failed");
             }
-            else
-            {
-               log.error( "CGame  : EventTransaction: src transaction failed" );
-            }
+         } else {
+            log.error("CGame  : EventTransaction: srcId Not found!");
          }
-         else
-         {
-            log.error( "CGame  : EventTransaction: srcId Not found!" );
-         }
-      }
-      else
-      {
-         success = destEntity.ExecuteTransaction( destTransName, cardList, undefined );
+      } else {
+         success = destEntity.ExecuteTransaction(destTransName, cardList,
+               undefined);
 
-         if( success )
-         {
-            this.SendEvent( SWGC.CGE_EVENT_TRANSACTION, { ownerId : destId, transaction: destTransName } );
+         if (success) {
+            this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+               ownerId : destId,
+               transaction : destTransName
+            });
          }
       }
    }
@@ -1128,245 +1057,306 @@ CardGame.prototype.ProcessEventTransaction = function( destId, destTransName, sr
    return success;
 };
 
-
-CardGame.prototype.EventTransaction = function( inDestId, inDestTransName, inSrcId, inSrcTransName, inCardList )
-{
-   var event = { destId            : inDestId,
-                 destTransName   : inDestTransName,
-                 srcId            : inSrcId,
-                 srcTransName      : inSrcTransName,
-                 cardList         : inCardList
-               };
+/*******************************************************************************
+ * Interface Methods
+ ******************************************************************************/
  
-   this.SendEvent( SWGC.CGE_EVENT_DO_TRANSACTION, event );
+/*******************************************************************************
+ * 
+ * CardGame.prototype.SendEvent
+ * 
+ * This method sends an event with the given id and data to the game engine.
+ * The event is placed in a queue, and a Javascript event is signaled.
+ * 
+ ******************************************************************************/
+CardGame.prototype.SendEvent = function(inEventId, inData) {
+   var event = {
+      eventId : inEventId,
+      data : inData
+   };
+
+   this.events.push(event);
+   this.emitter.emit("EventQueue");
 };
 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.EventTransaction
+ * 
+ * This method builds and sends an event which signals the CardGame to perform
+ * the specified transaction.
+ * 
+ * Parmaeters:
+ *    inDestId - The id of the destination entity (game or player), where the
+ *               cards will end up.
+ *    inDestTransName - The name of the transaction to perform on the
+ *                      destination entity.
+ * 
+ * Optional Parameters:
+ *    inSrcId - The id of the source entity (game or player), where the cards
+ *              will originiate.  If left blank, it indicates the transaction
+ *              is internal to the destination entity only.
+ *    inSrcTransName - The name of the transaction to perform on the source
+ *                     entity.
+ *    inCardList - A list of cards to perform in the transaction.  This is an
+ *                 array of short card names (i.e. "D4" for Four of Diamonds).
+ *                 
+ *                 Special Values:
+ *                 "TOP:x" - Indicates take the cards from the Top, where x is
+ *                           the number of cards, or "ALL"
+ *                 "BOTTOM:x" - Indicates take the cards from the bottom, where
+ *                              x is the number of cards, or "ALL"
+ * 
+ ******************************************************************************/
+CardGame.prototype.EventTransaction = function(inDestId,
+                                               inDestTransName,
+                                               inSrcId,
+                                               inSrcTransName,
+                                               inCardList) {
+   var event = {
+      destId : inDestId,
+      destTransName : inDestTransName,
+      srcId : inSrcId,
+      srcTransName : inSrcTransName,
+      cardList : inCardList
+   };
 
-CardGame.prototype.Notify = function( message ) {
-   log.info( "Notify : %s", message );
-   this.SendEvent( SWGC.CGE_EVENT_NOTIFY, { msg: message } );
+   this.SendEvent(SWGC.CGE_EVENT_DO_TRANSACTION, event);
 };
 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.Notify
+ * 
+ * This method sends a Notify Event with the given message
+ * Note: This event is only sent to the UI.
+ * 
+ ******************************************************************************/
+CardGame.prototype.Notify = function(message) {
+   log.info("Notify : %s", message);
+   this.SendEvent(SWGC.CGE_EVENT_NOTIFY, {
+      msg : message
+   });
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.NumPlayers
+ * 
+ * this method returns the number of players in the game.
+ * 
+ ******************************************************************************/
+CardGame.prototype.NumPlayers = function() {
+   return this.players.length;
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.GetPlayerIds
+ * 
+ * This method returns a list of the ids of all the players in the game
+ * 
+ ******************************************************************************/
+CardGame.prototype.GetPlayerIds = function() {
+   var ids = [];
+
+   for ( var cntr = 0; cntr < this.NumPlayers(); cntr++) {
+      ids.push(this.players[cntr].id);
+   }
+
+   return ids;
+};
 
 module.exports = CardGame;
 
 },{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12,"events":20}],7:[function(require,module,exports){
-
 var log = require('./Logger.js');
 
-/******************************************************************************
- *
- * CardGroup Class
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * CardGroup Class Constructor
+ * 
  ******************************************************************************/
-function CardGroup()
-{
+function CardGroup() {
    this.cards = Array();
 }
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.AddCard
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.AddCard = function( card )
-{
-   this.cards.push( card );
+CardGroup.prototype.AddCard = function(card) {
+   this.cards.push(card);
 };
 
-
-CardGroup.prototype.Empty = function()
-{
+CardGroup.prototype.Empty = function() {
    this.cards = Array();
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.GetCard
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.GetCard = function( cardId )
-{
+CardGroup.prototype.GetCard = function(cardId) {
    var card = undefined;
 
-   if( cardId == "TOP" )
-   {
+   if (cardId == "TOP") {
       card = this.cards.shift();
-   }
-   else if( cardId == "BOTTOM" )
-   {
+   } else if (cardId == "BOTTOM") {
       card = this.cards.pop();
    }
 
    return card;
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.NumCards
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.NumCards = function()
-{
+CardGroup.prototype.NumCards = function() {
    return this.cards.length;
 };
 
-
-/******************************************************************************
- *
- * CardGroup.prototype.PrintCards
- *
+/*******************************************************************************
+ * 
+ * CardGroup.prototype.GetList
+ * 
  ******************************************************************************/
-CardGroup.prototype.PrintCards = function()
-{
-   var i;
-   
-   log.info( "CGroup : ****************************************" );
-   log.info( "CGroup :    '" + this.id + "' holds " + this.cards.length + ' cards ' );
+CardGroup.prototype.GetList = function() {
+   var cardList = [];
 
-   for( i = 0; i < this.cards.length; i++ )
-   {
+   for ( var cntr = 0; cntr < this.cards.length; cntr++) {
+      cardList.push(this.cards[cntr].shortName);
+   }
+
+   return cardList;
+};
+
+/*******************************************************************************
+ * 
+ * CardGroup.prototype.PrintCards
+ * 
+ ******************************************************************************/
+CardGroup.prototype.PrintCards = function() {
+   var i;
+
+   log.info("CGroup : ****************************************");
+   log.info("CGroup :    '" + this.id + "' holds " + this.cards.length + ' cards ');
+
+   for (i = 0; i < this.cards.length; i++) {
       this.cards[i].Print();
    }
 
-   log.info( "CGroup : ****************************************" );
+   log.info("CGroup : ****************************************");
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.SortRank
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.SortRank = function( order )
-{
-   if( !defined( order ) )
-   {
+CardGroup.prototype.SortRank = function(order) {
+   if (!defined(order)) {
       order = 'ascending';
    }
-   
-   if( order.toLowerCase() == 'ascending' )
-   {
-      this.cards.sort( function(a, b){ return a.rank - b.rank; } );
-   }
-   else
-   {
-      this.cards.sort( function(a, b){ return b.rank - a.rank; } );
+
+   if (order.toLowerCase() == 'ascending') {
+      this.cards.sort(function(a, b) {
+         return a.rank - b.rank;
+      });
+   } else {
+      this.cards.sort(function(a, b) {
+         return b.rank - a.rank;
+      });
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.SortSuit
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.SortSuit = function( order )
-{
-   if( !defined( order ) )
-   {
+CardGroup.prototype.SortSuit = function(order) {
+   if (!defined(order)) {
       order = 'ascending';
    }
-   
-   if( order.toLowerCase() == 'ascending' )
-   {
-      this.cards.sort(  function(a, b)
-                        {
-                           if( a.suit < b.suit )
-                              return -1;
-                           else if( a.suit > b.suit )
-                              return 1;
-                           else
-                              return 0;
-                        }
-                     );
-   }
-   else
-   {
-      this.cards.sort(  function(a, b)
-                        {
-                           if( b.suit < a.suit )
-                              return -1;
-                           else if( b.suit > a.suit )
-                              return 1;
-                           else
-                              return 0;
-                        }
-                     );
+
+   if (order.toLowerCase() == 'ascending') {
+      this.cards.sort(function(a, b) {
+         if (a.suit < b.suit)
+            return -1;
+         else if (a.suit > b.suit)
+            return 1;
+         else
+            return 0;
+      });
+   } else {
+      this.cards.sort(function(a, b) {
+         if (b.suit < a.suit)
+            return -1;
+         else if (b.suit > a.suit)
+            return 1;
+         else
+            return 0;
+      });
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.SortSuitRank
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.SortSuitRank = function( order )
-{
-   if( !defined( order ) )
-   {
+CardGroup.prototype.SortSuitRank = function(order) {
+   if (!defined(order)) {
       order = 'ascending';
    }
-   
-   if( order.toLowerCase() == 'ascending' )
-   {
-      this.cards.sort(  function(a, b)
-                        {
-                           if( a.suit < b.suit )
-                              return -1;
-                           else if( a.suit > b.suit )
-                              return 1;
-                           else
-                              return a.rank - b.rank;
-                        }
-                     );
-   }
-   else
-   {
-      this.cards.sort(  function(a, b)
-                        {
-                           if( b.suit < a.suit )
-                              return -1;
-                           else if( b.suit > a.suit )
-                              return 1;
-                           else
-                              return b.rank - a.rank;
-                        }
-                     );
+
+   if (order.toLowerCase() == 'ascending') {
+      this.cards.sort(function(a, b) {
+         if (a.suit < b.suit)
+            return -1;
+         else if (a.suit > b.suit)
+            return 1;
+         else
+            return a.rank - b.rank;
+      });
+   } else {
+      this.cards.sort(function(a, b) {
+         if (b.suit < a.suit)
+            return -1;
+         else if (b.suit > a.suit)
+            return 1;
+         else
+            return b.rank - a.rank;
+      });
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * CardGroup.prototype.Shuffle
- *
+ * 
  ******************************************************************************/
-CardGroup.prototype.Shuffle = function()
-{
-   var   numCards = this.cards.length;       // The number of cards in the group
-   var   numIter  = numCards * 3;            // The number of iterations to move cards
-   var   fromPos;                            // From position
-   var   toPos;                              // To position
+CardGroup.prototype.Shuffle = function() {
+   var numCards = this.cards.length;   // The number of cards in the group
+   var numIter = numCards * 5;         // The number of iterations to move cards
+   var fromPos;                        // From position
+   var toPos;                          // To position
 
+   while (numIter > 0) {
+      fromPos = Math.floor(Math.random() * numCards);
+      toPos = Math.floor(Math.random() * numCards);
 
-   while( numIter > 0 )
-   {
-      fromPos  = Math.floor( Math.random() * numCards );
-      toPos    = Math.floor( Math.random() * numCards );
-      
       // Move a card from the from position to the to position
-      this.cards.splice( toPos, 0, this.cards.splice( fromPos, 1 )[0] );
+      this.cards.splice(toPos, 0, this.cards.splice(fromPos, 1)[0]);
 
       numIter--;
    }
 };
-
 
 module.exports = CardGroup;
 
@@ -1449,291 +1439,249 @@ log._out = function (level, format) {
 module.exports = log;
 
 },{}],9:[function(require,module,exports){
-var CGEActiveEntity = require( "./CGEActiveEntity.js" );
+var CGEActiveEntity = require("./CGEActiveEntity.js");
 var log = require("./Logger.js");
 
-/******************************************************************************
- *
- * Player Class
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Player Class Constructor
+ * 
  ******************************************************************************/
-function Player( parent, id, alias )
-{
+function Player(parent, id, alias) {
    // Call the parent class constructor
-   CGEActiveEntity.call( this, "Player:" + alias );
+   CGEActiveEntity.call(this, "Player:" + alias);
 
-   log.info( "CGPlay : New Player: %s", alias );
+   log.info("CGPlay : New Player: %s", alias);
 
-   this.parentGame      = parent;
-   this.id              = id;
-   this.alias           = alias;
-   this.score           = 0;
+   this.parentGame = parent;
+   this.id = id;
+   this.alias = alias;
+   this.score = 0;
 }
 
-// Inherit from CGEActiveEntity
 Player.prototype = new CGEActiveEntity();
-// Correct the constructor pointer
 Player.prototype.constructor = Player;
 
-
-Player.prototype.GetScore = function()
-{
+/*******************************************************************************
+ * 
+ * Player.prototype.GetScore
+ * 
+ * This method returns the score of the current player.
+ * 
+ ******************************************************************************/
+Player.prototype.GetScore = function() {
    return this.score;
 };
 
 module.exports = Player;
 
 },{"./CGEActiveEntity.js":2,"./Logger.js":8}],10:[function(require,module,exports){
-
-/******************************************************************************
- *  NodeJS stuff
+/*******************************************************************************
+ * NodeJS stuff
  ******************************************************************************/
 var log = require('./Logger.js');
 
-/******************************************************************************
- *  CLASS: State
+/*******************************************************************************
+ * CLASS: State
  ******************************************************************************/
 
-/******************************************************************************
- *
- * Class: State
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Class: State Constructor
+ * 
  ******************************************************************************/
-function State( owner, name, parent )
-{
-   this.name         = name;
-   this.owner        = owner;
-   this.parent       = parent;
-   this.inState      = false;
-   this.initial      = undefined;
-   this.enter        = undefined;
-   this.exit         = undefined;
-   this.states       = Array();
-   this.handlers     = {};
+function State(owner, name, parent) {
+   this.name = name;
+   this.owner = owner;
+   this.parent = parent;
+   this.inState = false;
+   this.initial = undefined;
+   this.enter = undefined;
+   this.exit = undefined;
+   this.states = Array();
+   this.handlers = {};
 
    // Logging/Debug
    var ancestorList = Array();
    this.GetAncestors(ancestorList);
-   log.debug( "Created New State: %s", ancestorList.join(':') );
+   log.debug("Created New State: %s", ancestorList.join(':'));
 }
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.AddState
- *
+ * 
  ******************************************************************************/
-State.prototype.AddState = function( state )
-{
-   this.states.push( state );
+State.prototype.AddState = function(state) {
+   this.states.push(state);
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.AddEventHandler
- *
+ * 
  ******************************************************************************/
-State.prototype.AddEventHandler = function( eventId, routine )
-{
+State.prototype.AddEventHandler = function(eventId, routine) {
    // TODO: Need to verify routine is a real function
    this.handlers[eventId] = routine;
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.SetInitialState
- *
+ * 
  ******************************************************************************/
-State.prototype.SetInitialState = function( stateName )
-{
-   var state = this.FindState( stateName, true );
+State.prototype.SetInitialState = function(stateName) {
+   var state = this.FindState(stateName, true);
 
-   if( state != undefined )
-   {
-      log.debug( "State %s: Initial State set to %s", this.name, state.name );
+   if (state != undefined) {
+      log.debug("State %s: Initial State set to %s", this.name, state.name);
       this.initial = state;
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.SetEnterRoutine
- *
+ * 
  ******************************************************************************/
-State.prototype.SetEnterRoutine = function( routine )
-{
+State.prototype.SetEnterRoutine = function(routine) {
    // TODO: Need to verify this is a valid routine
    this.enter = routine;
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.SetExitRoutine
- *
+ * 
  ******************************************************************************/
-State.prototype.SetExitRoutine = function( routine )
-{
+State.prototype.SetExitRoutine = function(routine) {
    // TODO: Need to verify this is a valid routine
    this.exit = routine;
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.EnterState
  * 
  * This method performs recursive entrance to this state, starting with the
  * common ancestor (the common ancestor is not entered).
- *
+ * 
  ******************************************************************************/
-State.prototype.EnterState = function( commonAncestor )
-{
+State.prototype.EnterState = function(commonAncestor) {
    // If we are the common ancestor, then our state doesn't get entered
-   if( commonAncestor != this.name )
-   {
+   if (commonAncestor != this.name) {
       // First, enter our parent state
-      if( this.parent != undefined )
-      {
-         this.parent.EnterState( commonAncestor );
+      if (this.parent != undefined) {
+         this.parent.EnterState(commonAncestor);
       }
 
       this.inState = true;
-      
-      log.debug( "Enter State: %s", this.name );
 
-      if( this.enter != undefined )
-      {
-         this.enter.call( this.owner );
+      log.debug("Enter State: %s", this.name);
+
+      if (this.enter != undefined) {
+         this.enter.call(this.owner);
       }
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.ExitState
  * 
  * This method performs recursive exit from this state, all the way up to the
  * common ancestor (the common ancestor is not exited).
- *
+ * 
  ******************************************************************************/
-State.prototype.ExitState = function( commonAncestor )
-{
+State.prototype.ExitState = function(commonAncestor) {
    // If we are the common ancestor, then our state doesn't get exited.
-   if( commonAncestor != this.name )
-   {
-      log.debug( "Exit State: %s", this.name );
-      
+   if (commonAncestor != this.name) {
+      log.debug("Exit State: %s", this.name);
+
       this.inState = false;
 
-      if( this.exit != undefined )
-      {
-         this.exit.call( this.owner );
+      if (this.exit != undefined) {
+         this.exit.call(this.owner);
       }
 
       // Now, attempt to exit our parent state
-      if( this.parent != undefined )
-      {
-         this.parent.ExitState( commonAncestor );
+      if (this.parent != undefined) {
+         this.parent.ExitState(commonAncestor);
       }
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.HandleEvent
- *
+ * 
  ******************************************************************************/
-State.prototype.HandleEvent = function( eventId, data )
-{
-   var   eventHandled = false;
-   
-  
-   if( this.handlers.hasOwnProperty( eventId ) )
-   {
-      eventHandled = this.handlers[eventId].call( this.owner, eventId, data );
+State.prototype.HandleEvent = function(eventId, data) {
+   var eventHandled = false;
+
+   if (this.handlers.hasOwnProperty(eventId)) {
+      eventHandled = this.handlers[eventId].call(this.owner, eventId, data);
    }
 
    // We didn't handle the event, so pass it to our parent state
-   if( ( eventHandled == false ) && ( this.parent != undefined ) )
-   {
-      this.parent.HandleEvent( eventId, data );
+   if ((eventHandled == false) && (this.parent != undefined)) {
+      this.parent.HandleEvent(eventId, data);
    }
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.GetAncestors
  * 
  * This method builds a top -> down list of ancestors to this state
- *
+ * 
  ******************************************************************************/
-State.prototype.GetAncestors = function( ancestorList )
-{
+State.prototype.GetAncestors = function(ancestorList) {
    // TODO: Verify ancestorList is an array
 
    // First, get our parent state
-   if( this.parent != undefined )
-   {
-      this.parent.GetAncestors( ancestorList );
+   if (this.parent != undefined) {
+      this.parent.GetAncestors(ancestorList);
    }
 
    // Finally, put our name on the list
-   ancestorList.push( this.name );
+   ancestorList.push(this.name);
 };
 
-
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * State.prototype.FindState
- *
+ * 
  ******************************************************************************/
-State.prototype.FindState = function( name, goDeep )
-{
+State.prototype.FindState = function(name, goDeep) {
    var stateFound = undefined;
 
-
-   if( goDeep == undefined )
-   {
+   if (goDeep == undefined) {
       goDeep = false;
    }
 
-   if( name == this.name )
-   {
+   if (name == this.name) {
       stateFound = this;
-   }
-   else
-   {
-      for( var cntr = 0; cntr < this.states.length; cntr++ )
-      {
-         if( this.states[cntr].name == name )
-         {
+   } else {
+      for ( var cntr = 0; cntr < this.states.length; cntr++) {
+         if (this.states[cntr].name == name) {
             stateFound = this.states[cntr];
             break;
          }
       }
-      
-      if( goDeep && ( stateFound == undefined ) )
-      {
+
+      if (goDeep && (stateFound == undefined)) {
          cntr = 0;
-         
-         while( !stateFound && ( cntr < this.states.length ) )
-         {
-            stateFound = this.states[cntr].FindState( name, true );
+
+         while (!stateFound && (cntr < this.states.length)) {
+            stateFound = this.states[cntr].FindState(name, true);
             cntr++;
          }
       }
    }
 
-   return( stateFound );
+   return (stateFound);
 };
 
 module.exports = State;
@@ -1840,24 +1788,23 @@ var SWG_CONSTANTS = {
 module.exports = SWG_CONSTANTS;
 
 },{}],13:[function(require,module,exports){
-
 module.exports = SimpleWarGame;
-var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
-var SimpleWarPlayerAI = require( "./SimpleWarPlayerAI.js" );
-var CardGame = require( "../../CardGame.js" );
-var transDef = require( "../../TransactionDefinition.js" );
-var SWGC     = require( "./SimpleWarDefs.js" );
-var GameStatus = require( "./SimpleWarStatus.js" ).SimpleWarStatus;
-var SimpleWarUI = require( "./SimpleWarUI.js" );
-var log      = require( "../../Logger.js" );
+
+var SimpleWarPlayer = require("./SimpleWarPlayer.js");
+var SimpleWarPlayerAI = require("./SimpleWarPlayerAI.js");
+var CardGame = require("../../CardGame.js");
+var transDef = require("../../TransactionDefinition.js");
+var SWGC = require("./SimpleWarDefs.js");
+var GameStatus = require("./SimpleWarStatus.js").SimpleWarStatus;
+var SimpleWarUI = require("./SimpleWarUI.js");
+var log = require("../../Logger.js");
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
 var TRANSACTION_TYPE_INBOUND = transDef.TRANSACTION_TYPE_INBOUND;
 var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 
-
-/******************************************************************************
+/*******************************************************************************
  * States
  ******************************************************************************/
 var SIMPLE_WAR_STATE_IN_PROGRESS = "InProgress";
@@ -1865,108 +1812,119 @@ var SIMPLE_WAR_STATE_GAME_OVER   = "GameOver";
 var SIMPLE_WAR_STATE_BATTLE      = "Battle";
 var SIMPLE_WAR_STATE_SCORE       = "Score";
 
-
-/******************************************************************************
+                                           
+/*******************************************************************************
  * CLASS Definition: Simple War Game
  ******************************************************************************/
 
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * Class: SimpleWarGame
- * Inherits From: Game
- * Constructor
- *
+ * Inherits From: CardGame
+ * 
  ******************************************************************************/
-function SimpleWarGame( id )
-{
+function SimpleWarGame(id) {
    // Call the parent class constructor
-   CardGame.call( this, "Simple War" );
+   CardGame.call(this, "Simple War");
 
-   this.status			= new GameStatus();
-   this.hasBattled   = [];
-   this.atBattle     = [];
-   this.atWar        = false;
- 
+   this.status = new GameStatus();
+   this.hasBattled = [];
+   this.atBattle = [];
+   this.atWar = false;
+
    // Create the State Machine
-   this.AddState( SIMPLE_WAR_STATE_IN_PROGRESS, undefined                     );
-   this.AddState( SIMPLE_WAR_STATE_GAME_OVER,   undefined                     );
-   this.AddState( SIMPLE_WAR_STATE_BATTLE,      SIMPLE_WAR_STATE_IN_PROGRESS  );
-   this.AddState( SIMPLE_WAR_STATE_SCORE,       SIMPLE_WAR_STATE_IN_PROGRESS  );
+   this.AddState(SIMPLE_WAR_STATE_IN_PROGRESS, undefined);
+   this.AddState(SIMPLE_WAR_STATE_GAME_OVER,   undefined);
+   this.AddState(SIMPLE_WAR_STATE_BATTLE,      SIMPLE_WAR_STATE_IN_PROGRESS);
+   this.AddState(SIMPLE_WAR_STATE_SCORE,       SIMPLE_WAR_STATE_IN_PROGRESS);
 
-   this.SetInitialState( SIMPLE_WAR_STATE_BATTLE );
- 
-   this.SetEnterRoutine( SIMPLE_WAR_STATE_IN_PROGRESS, this.InProgressEnter );
-   this.SetEnterRoutine( SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter     );
-   this.SetEnterRoutine( SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter      );
+   this.SetInitialState(SIMPLE_WAR_STATE_BATTLE);
 
-   this.AddEventHandler( SIMPLE_WAR_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
-   this.AddEventHandler( SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL, this.Deal );
-   this.AddEventHandler( SIMPLE_WAR_STATE_SCORE, SWGC.CGE_EVENT_SCORE, this.EventScore );
-   
+   this.SetEnterRoutine(SIMPLE_WAR_STATE_IN_PROGRESS, this.InProgressEnter);
+   this.SetEnterRoutine(SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter);
+   this.SetEnterRoutine(SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter);
+
+   this.AddEventHandler(SIMPLE_WAR_STATE_BATTLE,      SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction);
+   this.AddEventHandler(SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL,        this.Deal);
+   this.AddEventHandler(SIMPLE_WAR_STATE_SCORE,       SWGC.CGE_EVENT_SCORE,       this.EventScore);
+
    // Add the valid transactions to the states
-   this.AddValidTransaction( SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL" );
+   this.AddValidTransaction(SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL");
 };
 
-
-//Inherit from ActiveEntity
 SimpleWarGame.prototype = new CardGame();
-//Correct the constructor pointer
 SimpleWarGame.prototype.constructor = SimpleWarGame;
 
-
-SimpleWarGame.prototype.AddPlayer = function( id, alias, type )
-{
-   if( type == "AI" )
-   {
-      this.players.push( new SimpleWarPlayerAI( this, id, alias ) );
-   }
-   else
-   {
-      this.players.push( new SimpleWarPlayer( this, id, alias ) );
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.AddPlayer
+ * 
+ * This method creates either a SimpleWarPlayer or a SimpleWarPlayer AI based on 
+ * the type of the player passed in, and adds the player to the game.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.AddPlayer = function(id, alias, type) {
+   if (type == "AI") {
+      this.players.push(new SimpleWarPlayerAI(this, id, alias));
+   } else {
+      this.players.push(new SimpleWarPlayer(this, id, alias));
    }
 };
 
-
-SimpleWarGame.prototype.InProgressEnter = function()
-{
-   if( this.isHost )
-   {
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.InProgressEnter
+ * 
+ * This method performs the action upon entrance to the In Progress state.
+ * It shuffles the cards and sends the event to deal.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.InProgressEnter = function() {
+   if (this.isHost) {
       this.dealer.Shuffle();
-      this.SendEvent( SWGC.CGE_EVENT_DEAL );
-      //this.Deal();
+      this.SendEvent(SWGC.CGE_EVENT_DEAL);
    }
 
    // Advance to the first player
-   this.AdvancePlayer();
+   this.AdvancePlayer();		// Current player is not really used in this game.
    this.ResetBattleList();
 };
 
-
-SimpleWarGame.prototype.BattleEnter = function()
-{
-   log.info( "SWGame : ************************* BATTLE *************************");
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.BattleEnter
+ * 
+ * This method performs the action upon entrance to the Battle state.  It sends
+ * a Do Battle event to all players.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.BattleEnter = function() {
+   log.info("SWGame : ************************* BATTLE *************************");
    this.hasBattled = [];
-   this.SendEvent( SWGC.SW_EVENT_DO_BATTLE, undefined );
+   this.SendEvent(SWGC.SW_EVENT_DO_BATTLE, undefined);
 };
 
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.BattleTransaction
+ * 
+ * This method handles the Battle transaction in the Battle state.  If every
+ * player has performed the transaction, then the state transitions to the
+ * Score state.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.BattleTransaction = function(eventId, data) {
+   var eventHandled = false;
 
-SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
-{
-   var	eventHandled = false;
+   if (    (data             != undefined)
+        && (data.ownerId     != undefined)
+        && (data.transaction != undefined) ) {
+      if (data.transaction == SWGC.SWP_TRANSACTION_BATTLE) {
+         this.hasBattled.push(data.ownerId);
 
-
-   if( ( data             != undefined ) &&
-       ( data.ownerId     != undefined ) &&
-       ( data.transaction != undefined ) )
-   {
-      if( data.transaction == SWGC.SWP_TRANSACTION_BATTLE )
-      {
-         this.hasBattled.push( data.ownerId );
- 
          // If all players have done battle, then let's do score!
-         if( this.hasBattled.length >= this.atBattle.length )
-         {
-            this.Transition( SIMPLE_WAR_STATE_SCORE );
+         if (this.hasBattled.length >= this.atBattle.length) {
+            this.Transition(SIMPLE_WAR_STATE_SCORE);
          }
 
          eventHandled = true;
@@ -1976,288 +1934,324 @@ SimpleWarGame.prototype.BattleTransaction = function( eventId, data )
    return eventHandled;
 };
 
-
-SimpleWarGame.prototype.ScoreEnter = function()
-{
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.ScoreEnter
+ * 
+ * This method performs the action upon entrance to the Score state.
+ * It delays for a period before sending the score event.  This delay is so the
+ * user has time to observe the cards.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.ScoreEnter = function() {
    var that = this;
-   var timeout = 1500;
-   //var timeout = 15;
+   //var timeout = 2000;
+   var timeout = 5;
 
-   setTimeout(function () {
-      that.SendEvent( SWGC.CGE_EVENT_SCORE, undefined );
+   setTimeout(function() {
+      that.SendEvent(SWGC.CGE_EVENT_SCORE, undefined);
    }, timeout);
 };
 
-
-SimpleWarGame.prototype.EventScore = function()
-{
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.EventScore
+ * 
+ * This method handles the Score event.  It Scores the battle, determines the
+ * result.  It transitions to the Game Over state if only one player is left.
+ * Otherwise, it transitions back to the battle state.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.EventScore = function() {
    this.LogPlayerStatus();
    this.atBattle = this.ScoreBattle();
-   this.DetermineBattleResult( this.atBattle );
+   this.DetermineBattleResult(this.atBattle);
 
-   if( this.atBattle.length == 1 )
-   {
-      var alias = this.players[ this.atBattle[0] ].alias;
-      this.Notify( alias + ' Wins the Game!' );
-      this.Transition( SIMPLE_WAR_STATE_GAME_OVER );
-      this.SendEvent( SWGC.CGE_EVENT_EXIT, undefined );
-   }
-   else
-   {
-      this.Transition( SIMPLE_WAR_STATE_BATTLE );
+   if (this.atBattle.length == 1) {
+      var alias = this.players[this.atBattle[0]].alias;
+      this.Notify(alias + ' Wins the Game!');
+      this.Transition(SIMPLE_WAR_STATE_GAME_OVER);
+      this.SendEvent(SWGC.CGE_EVENT_EXIT, undefined);
+   } else {
+      this.Transition(SIMPLE_WAR_STATE_BATTLE);
    }
 };
 
-
-SimpleWarGame.prototype.Deal = function()
-{
-   log.info( "SWGame : Deal" );
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.Deal
+ * 
+ * This method schedules the transactions to deal the cards from the dealer
+ * to each individual player.  Note: Each player is dealt an even number of
+ * cards.  The remainder of the cards is left in the dealer container.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.Deal = function() {
+   log.info("SWGame : Deal");
 
    // Ensure players get an even number of cards
    var cardRemainder = this.dealer.NumCards() % this.NumPlayers();
 
-   log.debug( "SWGame : Card Remainder: %d", cardRemainder );
+   log.debug("SWGame : Card Remainder: %d", cardRemainder);
 
    var player = 0;
    var numCards = this.dealer.NumCards() - cardRemainder;
-   
-   while( numCards )
-   {
-      this.EventTransaction( this.players[player].id,
-                                    SWGC.SWP_TRANSACTION_DEAL,
-                                    this.id,
-                                    "CGE_DEAL",
-                                    ["TOP:1"] );
+
+   while (numCards) {
+      this.EventTransaction(this.players[player].id,
+                            SWGC.SWP_TRANSACTION_DEAL,
+                            this.id,
+                            "CGE_DEAL",
+                            [ "TOP:1" ]);
 
       player++;
 
-      if( player >= this.players.length )
-      {
+      if (player >= this.players.length) {
          player = 0;
       }
-      
+
       numCards--;
    }
 };
 
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.ScoreBattle
+ * 
+ * This method builds a list of indices to the array of players with the
+ * highest score.  If there is a winner, then there is only one on the list.
+ * If it is tied, there could be up to the number of players on the list
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.ScoreBattle = function() {
+   var topPlayers = [];
+   var topScore = 0;
 
-SimpleWarGame.prototype.ScoreBattle = function()
-{
-   var   topPlayers = [];
-   var   topScore = 0;
+   for ( var cntr = 0; cntr < this.atBattle.length; cntr++) {
+      var score = this.players[this.atBattle[cntr]].GetScore();
 
-   for( var cntr = 0; cntr < this.atBattle.length; cntr++ )
-   {
-      var score = this.players[ this.atBattle[cntr] ].GetScore();
- 
-      if( score > topScore )
-      {
+      if (score > topScore) {
          topPlayers = [];
-         topPlayers.push( this.atBattle[cntr] );
+         topPlayers.push(this.atBattle[cntr]);
          topScore = score;
-      }
-      else if( score == topScore )
-      {
-         //  There's a tie situation here!
-         topPlayers.push( this.atBattle[cntr] );
+      } else if (score == topScore) {
+         // There's a tie situation here!
+         topPlayers.push(this.atBattle[cntr]);
       }
    }
 
-   if( topPlayers.length == 1 )
-   {
-      log.info( "SWGame : Battle Winner: %s", this.players[ topPlayers[0] ].name );
-   }
-   else
-   {
-      log.info( "SWGame : Tie between:" );
-      
-      for( var cntr = 0; cntr < topPlayers.length; cntr++ )
-      {
-         log.info( "SWGame :   - %s", this.players[ topPlayers[cntr] ].name );
+   if (topPlayers.length == 1) {
+      log.info("SWGame : Battle Winner: %s", this.players[topPlayers[0]].name);
+   } else {
+      log.info("SWGame : Tie between:");
+
+      for ( var cntr = 0; cntr < topPlayers.length; cntr++) {
+         log.info("SWGame :   - %s", this.players[topPlayers[cntr]].name);
       }
    }
 
    return topPlayers;
 };
 
-
-SimpleWarGame.prototype.DetermineBattleResult = function( topPlayers )
-{
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.DetermineBattleResult
+ * 
+ * This method determines whether the battle has been won or if the game needs
+ * to go to war.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
    var numPlayers = this.NumPlayers();
 
    // Tell all players to discard
-   for( var cntr = 0; cntr < numPlayers; cntr++ )
-   {
-      this.EventTransaction( this.players[cntr].id, SWGC.SWP_TRANSACTION_DICARD,
-                                undefined,             undefined,
-                                ["TOP:ALL"] );
+   for ( var cntr = 0; cntr < numPlayers; cntr++) {
+      this.EventTransaction(this.players[cntr].id,
+                            SWGC.SWP_TRANSACTION_DICARD,
+                            undefined,
+                            undefined,
+                            [ "TOP:ALL" ]);
    }
 
    // If there is a tie, we need to go to War!
-   if( topPlayers.length > 1 )
-   {
-      log.info( "SWGame : ************************* WAR!!! *************************");
-      this.Notify( "Going to War!" );
+   if (topPlayers.length > 1) {
+      log.info("SWGame : ************************* WAR!!! *************************");
+      this.Notify("Going to War!");
       this.atWar = true;
 
-      for( var cntr = 0; cntr < numPlayers; cntr++ )
-      {
+      for ( var cntr = 0; cntr < numPlayers; cntr++) {
          var doWar = false;
- 
-         // If the current player index is in the list of winners, then signal war
-         if( topPlayers.indexOf( cntr ) != -1 )
-         {
+
+         // If the current player index is in the list of winners, then signal
+         // war
+         if (topPlayers.indexOf(cntr) != -1) {
             doWar = true;
          }
 
-         this.SendEvent( SWGC.SW_EVENT_DO_WAR, { ownerId: this.players[cntr].id, gotoWar: doWar } );
+         this.SendEvent(SWGC.SW_EVENT_DO_WAR, {
+            ownerId : this.players[cntr].id,
+            gotoWar : doWar
+         });
       }
-   }
-   else
-   {
+   } else {
       var winnerIndex = topPlayers.pop();
-      
-      if( this.atWar ) {
-         this.Notify( this.players[winnerIndex].alias + ' Wins the War!' );
+
+      if (this.atWar) {
+         this.Notify(this.players[winnerIndex].alias + ' Wins the War!');
+      } else {
+         this.Notify(this.players[winnerIndex].alias + ' Wins the Battle!');
       }
-      else {
-         this.Notify( this.players[winnerIndex].alias + ' Wins the Battle!' );
-      }
- 
+
       this.atWar = false;
- 
-      for( var cntr = 0; cntr < numPlayers; cntr++ )
-      {
-         this.EventTransaction( this.players[winnerIndex].id, SWGC.SWP_TRANSACTION_COLLECT,
-                                   this.players[cntr].id,        SWGC.SWP_TRANSACTION_GIVEUP,
-                                   ["TOP:ALL"] );
+
+      for ( var cntr = 0; cntr < numPlayers; cntr++) {
+         this.EventTransaction(this.players[winnerIndex].id,
+                               SWGC.SWP_TRANSACTION_COLLECT,
+                               this.players[cntr].id,
+                               SWGC.SWP_TRANSACTION_GIVEUP,
+                               [ "TOP:ALL" ]);
       }
 
       this.LogPlayerStatus();
-      
       this.ResetBattleList();
    }
 };
 
-
-SimpleWarGame.prototype.ResetBattleList = function()
-{
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.ResetBattleList
+ * 
+ * This method builds a list of all the players still in the game who are
+ * eligible to do battle.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.ResetBattleList = function() {
    this.atBattle = [];
 
-   for( cntr = 0; cntr < this.NumPlayers(); cntr++ )
-   {
-      if( this.players[cntr].IsInGame() )
-      {
-         this.atBattle.push( cntr );
+   for (cntr = 0; cntr < this.NumPlayers(); cntr++) {
+      if (this.players[cntr].IsInGame()) {
+         this.atBattle.push(cntr);
       }
    }
 };
 
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.AddUI
+ * 
+ * This method creates and adds the User Interface to the game
+ * 
+ ******************************************************************************/
 SimpleWarGame.prototype.AddUI = function() {
    this.UI = new SimpleWarUI(this, "0030");
 };
 
-SimpleWarGame.prototype.UpdatePlayerStatus = function( id, status ) {
-   this.status[id] = status;
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.UpdatePlayerStatus
+ * 
+ * This method adds the specified player status to the hash of statuses.
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.UpdatePlayerStatus = function(playerId, status) {
+   this.status[playerId] = status;
 
-   this.SendEvent( SWGC.CGE_EVENT_STATUS_UPDATE, { ownerId : id } );
+   this.SendEvent(SWGC.CGE_EVENT_STATUS_UPDATE, {
+      ownerId : playerId
+   });
 };
 
-SimpleWarGame.prototype.LogPlayerStatus = function( playerId ) {
-   var	playerIds = [];
-   
-   if( playerId != undefined ) {
-      playerId.push( playerId )
-   }
-   else {
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.LogPlayerStatus
+ * 
+ * This method logs the status data from a player's structure
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
+   var playerIds = [];
+
+   if (playerId != undefined) {
+      playerId.push(playerId)
+   } else {
       playerIds = this.GetPlayerIds();
    }
-   
-   for( var cntr = 0; cntr < playerIds.length; cntr++ )
-   {
-      log.info( "SWGame :   - %s : %d %d %s",
-                this.status[ playerIds[cntr] ].alias,
-                this.status[ playerIds[cntr] ].stackSize,
-                this.status[ playerIds[cntr] ].discardSize,
-                this.status[ playerIds[cntr] ].battleStackTop );
+
+   for ( var cntr = 0; cntr < playerIds.length; cntr++) {
+      log.info("SWGame :   - %s : %d %d %s",
+               this.status[playerIds[cntr]].alias,
+               this.status[playerIds[cntr]].stackSize,
+               this.status[playerIds[cntr]].discardSize,
+               this.status[playerIds[cntr]].battleStackTop);
    }
 };
-      
 
-SimpleWarGame.prototype.GetPlayerStatus = function( id ) {
-   return this.status[id];
-};
-
-
-SimpleWarGame.prototype.GetPlayerIds = function() {
-   var ids = [];
-   
-   for( var cntr = 0; cntr < this.NumPlayers(); cntr++ ) {
-      ids.push( this.players[cntr].id );
-   }
-
-   return ids;
+/*******************************************************************************
+ * 
+ * Simplewar.prototype.GetPlayerStatus
+ * 
+ * This method returns the status structure of the requested player
+ * 
+ ******************************************************************************/
+SimpleWarGame.prototype.GetPlayerStatus = function(playerId) {
+   return this.status[playerId];
 };
 
 },{"../../CardGame.js":6,"../../Logger.js":8,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14,"./SimpleWarPlayerAI.js":15,"./SimpleWarStatus.js":16,"./SimpleWarUI.js":17}],14:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
-var SWGC     = require( "./SimpleWarDefs.js" );
-var Player   = require( "../../Player.js" );
-var transDef = require( "../../TransactionDefinition.js" );
-var PlayerStatus = require( "./SimpleWarStatus.js" ).SimpleWarPlayerStatus;
-var log      = require( "../../Logger.js" );
+var SWGC = require("./SimpleWarDefs.js");
+var Player = require("../../Player.js");
+var transDef = require("../../TransactionDefinition.js");
+var PlayerStatus = require("./SimpleWarStatus.js").SimpleWarPlayerStatus;
+var log = require("../../Logger.js");
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
 var TRANSACTION_TYPE_INBOUND = transDef.TRANSACTION_TYPE_INBOUND;
 var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 
-
-/******************************************************************************
+/*******************************************************************************
  * States
  ******************************************************************************/
-var SWP_STATE_IN_GAME         = "InGame";    // Top:InGame
-var SWP_STATE_OUT             = "Out";       // Top:Out
-var SWP_STATE_READY           = "Ready";     // Top:InGame:Ready
-var SWP_STATE_BATTLE          = "Battle";    // Top:InGame:Battle
-var SWP_STATE_WAIT            = "Wait";      // Top:InGame:Wait
+var SWP_STATE_IN_GAME = "InGame";         // Top:InGame
+var SWP_STATE_OUT = "Out";                // Top:Out
+var SWP_STATE_READY = "Ready";            // Top:InGame:Ready
+var SWP_STATE_BATTLE = "Battle";          // Top:InGame:Battle
+var SWP_STATE_WAIT = "Wait";              // Top:InGame:Wait
 
-/******************************************************************************
+/*******************************************************************************
  * Containers
  ******************************************************************************/
-var SWP_CONTAINER_STACK       = "Stack";     // The main stack of cards
-var SWP_CONTAINER_BATTLE      = "Battle";    // The location to flip the top card
-var SWP_CONTAINER_DISCARD     = "Discard";   // Where all turned cards go before end of turn
-
+var SWP_CONTAINER_STACK = "Stack";        // The main stack of cards
+var SWP_CONTAINER_BATTLE = "Battle";      // The location to flip the top card
+var SWP_CONTAINER_DISCARD = "Discard";    // Where all turned cards go before end of turn
 
 // Internal Transactions
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_BATTLE,   SWP_CONTAINER_STACK,      SWP_CONTAINER_BATTLE,       1, 1, "TOP"     );
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_DICARD,   SWP_CONTAINER_BATTLE,     SWP_CONTAINER_DISCARD,      1, 1, "TOP"     );
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_FLOP,     SWP_CONTAINER_STACK,      SWP_CONTAINER_DISCARD,      3, 3, "TOP"     );
+AddTransactionDefinition(SWGC.SWP_TRANSACTION_BATTLE,  SWP_CONTAINER_STACK,      SWP_CONTAINER_BATTLE,      1, 1, "TOP");
+AddTransactionDefinition(SWGC.SWP_TRANSACTION_DICARD,  SWP_CONTAINER_BATTLE,     SWP_CONTAINER_DISCARD,     1, 1, "TOP");
+AddTransactionDefinition(SWGC.SWP_TRANSACTION_FLOP,    SWP_CONTAINER_STACK,      SWP_CONTAINER_DISCARD,     3, 3, "TOP");
 
 // Incoming Transactions
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_DEAL,     TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_STACK,        1, 52, "TOP"    );
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_COLLECT,  TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_STACK,        1, 52, "BOTTOM" );
+AddTransactionDefinition(SWGC.SWP_TRANSACTION_DEAL,    TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_STACK,       1, 52, "TOP");
+AddTransactionDefinition(SWGC.SWP_TRANSACTION_COLLECT, TRANSACTION_TYPE_INBOUND, SWP_CONTAINER_STACK,       1, 52, "BOTTOM");
 
 // Outgoing Transactions
-AddTransactionDefinition( SWGC.SWP_TRANSACTION_GIVEUP,   SWP_CONTAINER_DISCARD,    TRANSACTION_TYPE_OUTBOUND,  1, 52, "TOP"    );
+AddTransactionDefinition(SWGC.SWP_TRANSACTION_GIVEUP,  SWP_CONTAINER_DISCARD,    TRANSACTION_TYPE_OUTBOUND, 1, 52, "TOP");
 
-
-/******************************************************************************
+   
+/*******************************************************************************
  * CLASS Definition: Simple War Player
  ******************************************************************************/
 
-/******************************************************************************
- *
- * Class: SimpleWarPlayer
- * Inherits From: Player
- * Constructor
- *
+/*******************************************************************************
+ * 
+ * Class: SimpleWarPlayer Inherits From: Player Constructor
+ * 
  ******************************************************************************/
-function SimpleWarPlayer( parent, id, alias ) {
+function SimpleWarPlayer(parent, id, alias) {
    // Call the parent class constructor
-   Player.call( this, parent, id, alias );
+   Player.call(this, parent, id, alias);
 
    this.inGame = true;
    this.status = new PlayerStatus;
@@ -2267,106 +2261,150 @@ function SimpleWarPlayer( parent, id, alias ) {
    this.status.alias = this.alias;
 
    // Create the State Machine
-   this.AddState( SWP_STATE_IN_GAME,   undefined         );
-   this.AddState( SWP_STATE_OUT,       undefined         );
-   this.AddState( SWP_STATE_READY,     SWP_STATE_IN_GAME );
-   this.AddState( SWP_STATE_BATTLE,    SWP_STATE_IN_GAME );
-   this.AddState( SWP_STATE_WAIT,      SWP_STATE_IN_GAME );
+   this.AddState(SWP_STATE_IN_GAME, undefined);
+   this.AddState(SWP_STATE_OUT,     undefined);
+   this.AddState(SWP_STATE_READY,   SWP_STATE_IN_GAME);
+   this.AddState(SWP_STATE_BATTLE,  SWP_STATE_IN_GAME);
+   this.AddState(SWP_STATE_WAIT,    SWP_STATE_IN_GAME);
 
-   this.SetInitialState( SWP_STATE_READY );
+   this.SetInitialState(SWP_STATE_READY);
 
-   this.SetEnterRoutine( SWP_STATE_IN_GAME,   this.InGameEnter    );
-   this.SetEnterRoutine( SWP_STATE_WAIT,      this.WaitEnter      );
-   this.SetExitRoutine(  SWP_STATE_IN_GAME,   this.InProgressExit );
+   this.SetEnterRoutine(SWP_STATE_IN_GAME, this.InGameEnter);
+   this.SetEnterRoutine(SWP_STATE_WAIT,    this.WaitEnter);
+   this.SetExitRoutine( SWP_STATE_IN_GAME, this.InProgressExit);
 
-   this.AddEventHandler( SWP_STATE_IN_GAME,SWGC.CGE_EVENT_TRANSACTION, this.InGameTransaction );            // Catch-all to update status after a transaction
-   this.AddEventHandler( SWP_STATE_READY,  SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle );
-   this.AddEventHandler( SWP_STATE_BATTLE, SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction );
-   this.AddEventHandler( SWP_STATE_WAIT,   SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction );
-   this.AddEventHandler( SWP_STATE_WAIT,   SWGC.SW_EVENT_DO_WAR,       this.DoWar );
+   this.AddEventHandler(SWP_STATE_IN_GAME, SWGC.CGE_EVENT_TRANSACTION, this.InGameTransaction); // Catch-all to update status after a // transaction
+   this.AddEventHandler(SWP_STATE_READY,   SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle);
+   this.AddEventHandler(SWP_STATE_BATTLE,  SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction);
+   this.AddEventHandler(SWP_STATE_WAIT,    SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction);
+   this.AddEventHandler(SWP_STATE_WAIT,    SWGC.SW_EVENT_DO_WAR,       this.DoWar);
 
    // TODO: Need definitions for Max cards in deck
-   this.stack = this.AddContainer( "Stack",   undefined, 0, 52 );
-   this.battle = this.AddContainer( "Battle",  undefined, 0,  1 );
-   this.discard = this.AddContainer( "Discard", undefined, 0, 52 );
+   this.stack = this.AddContainer("Stack", undefined, 0, 52);
+   this.battle = this.AddContainer("Battle", undefined, 0, 1);
+   this.discard = this.AddContainer("Discard", undefined, 0, 52);
 
    // Add the valid transactions to the states
-   this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_DICARD  );
-   this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_COLLECT );
-   this.AddValidTransaction( SWP_STATE_IN_GAME,   SWGC.SWP_TRANSACTION_GIVEUP  );
-   this.AddValidTransaction( SWP_STATE_OUT,       SWGC.SWP_TRANSACTION_GIVEUP  );
-   this.AddValidTransaction( SWP_STATE_READY,     SWGC.SWP_TRANSACTION_DEAL    );
-   this.AddValidTransaction( SWP_STATE_BATTLE,    SWGC.SWP_TRANSACTION_BATTLE  );
-   this.AddValidTransaction( SWP_STATE_WAIT,      SWGC.SWP_TRANSACTION_FLOP    );
+   this.AddValidTransaction(SWP_STATE_IN_GAME, SWGC.SWP_TRANSACTION_DICARD);
+   this.AddValidTransaction(SWP_STATE_IN_GAME, SWGC.SWP_TRANSACTION_COLLECT);
+   this.AddValidTransaction(SWP_STATE_IN_GAME, SWGC.SWP_TRANSACTION_GIVEUP);
+   this.AddValidTransaction(SWP_STATE_OUT,     SWGC.SWP_TRANSACTION_GIVEUP);
+   this.AddValidTransaction(SWP_STATE_READY,   SWGC.SWP_TRANSACTION_DEAL);
+   this.AddValidTransaction(SWP_STATE_BATTLE,  SWGC.SWP_TRANSACTION_BATTLE);
+   this.AddValidTransaction(SWP_STATE_WAIT,    SWGC.SWP_TRANSACTION_FLOP);
 };
 
 SimpleWarPlayer.prototype = new Player();
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
 
-
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.InGameEnter
+ * 
+ * This method performs the action upon entrance to the In Game state.
+ * 
+ ******************************************************************************/
 SimpleWarPlayer.prototype.InGameEnter = function() {
    this.UpdateStatus();
 };
 
-
-SimpleWarPlayer.prototype.InGameTransaction = function( eventId, data ) {
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.InGameTransaction
+ * 
+ * This method handles the Transaction event for the In Game state.
+ * 
+ ******************************************************************************/
+SimpleWarPlayer.prototype.InGameTransaction = function(eventId, data) {
    // Update our status anytime we perform a transcation
-   if( data.ownerId == this.id ) {
+   if (data.ownerId == this.id) {
       this.UpdateStatus();
    }
-}; 
-
-
-SimpleWarPlayer.prototype.InProgressExit = function() {
-   // Discard our Battle stack
-   this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
-   this.inGame = false;
-   this.UpdateStatus();
-   log.info( "SwPlay : %s is Out", this.name );
+   
+   return true;	// Event was handled
 };
 
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.InProgressExit
+ * 
+ * This method performs the action taken upon exit from the In Progress state.
+ * 
+ ******************************************************************************/
+SimpleWarPlayer.prototype.InProgressExit = function() {
+   // Discard our Battle stack
+   this.ExecuteTransaction(SWGC.SWP_TRANSACTION_DISCARD, [ "TOP:ALL" ], undefined);
+   this.inGame = false;
+   this.UpdateStatus();
+   log.info("SwPlay : %s is Out", this.name);
+};
 
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.DoBattle
+ * 
+ * This method handles the Do Battle event in the Ready state.  It transitions
+ * to the Battle state.
+ * 
+ ******************************************************************************/
 SimpleWarPlayer.prototype.DoBattle = function() {
    this.score = 0;
-   this.Transition( SWP_STATE_BATTLE );
+   this.Transition(SWP_STATE_BATTLE);
 
    return true;
 };
 
-
-SimpleWarPlayer.prototype.BattleTransaction = function( eventId, data ) {
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.BattleTransaction
+ * 
+ * This method handles the Transaction in the Battle state.  The event
+ * is only handled if it is for this player, and it is a Battle transaction.
+ * 
+ ******************************************************************************/
+SimpleWarPlayer.prototype.BattleTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if( ( data.ownerId == this.id ) && ( data.transaction == SWGC.SWP_TRANSACTION_BATTLE ) ) {
+   if (    (data.ownerId == this.id)
+        && (data.transaction == SWGC.SWP_TRANSACTION_BATTLE)) {
       this.UpdateStatus();
-
-      this.Transition( SWP_STATE_WAIT );
-      
+      this.Transition(SWP_STATE_WAIT);
       eventHandled = true;
    }
 
    return eventHandled;
 };
 
-
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.WaitEnter
+ * 
+ * This method performs the action taken upon entrance to the Wait state.
+ * 
+ ******************************************************************************/
 SimpleWarPlayer.prototype.WaitEnter = function() {
    this.Score();
 };
 
-
-SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data ) {
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.WaitTransaction
+ * 
+ * This method handles the Transaction event in the Wait state.
+ * 
+ ******************************************************************************/
+SimpleWarPlayer.prototype.WaitTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if( ( data.transaction == SWGC.SWP_TRANSACTION_GIVEUP ) &&
-       ( data.ownerId == this.id ) ) {
-      
+   if (    (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP)
+        && (data.ownerId == this.id)) {
+
       // TODO: Fix bug where player will go out even if he just won the battle
-      if( this.stack.IsEmpty() ) {
-         this.ExecuteTransaction( SWGC.SWP_TRANSACTION_DISCARD, ["TOP:ALL"], undefined );
-         this.Transition( SWP_STATE_OUT );
-      }
-      else {
-         this.Transition( SWP_STATE_READY );
+      if (this.stack.IsEmpty()) {
+         this.ExecuteTransaction(SWGC.SWP_TRANSACTION_DISCARD, [ "TOP:ALL" ], undefined);
+         this.Transition(SWP_STATE_OUT);
+      } else {
+         this.Transition(SWP_STATE_READY);
       }
 
       this.UpdateStatus();
@@ -2376,115 +2414,149 @@ SimpleWarPlayer.prototype.WaitTransaction = function( eventId, data ) {
    return eventHandled;
 };
 
-
-SimpleWarPlayer.prototype.DoWar = function( eventId, data ) {
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.DoWar
+ * 
+ * This method handles the Do War event in the Wait state.
+ * 
+ ******************************************************************************/
+SimpleWarPlayer.prototype.DoWar = function(eventId, data) {
    var eventHandled = false;
 
-   if( data.ownerId == this.id ) {
-      if( data.gotoWar ) {
-         this.ExecuteTransaction( SWGC.SWP_TRANSACTION_FLOP, ["TOP:3"], undefined );
-         this.Transition( SWP_STATE_READY );
-      }
-      else {
+   if (data.ownerId == this.id) {
+      if (data.gotoWar) {
+         this.ExecuteTransaction(SWGC.SWP_TRANSACTION_FLOP, [ "TOP:3" ], undefined);
+         this.Transition(SWP_STATE_READY);
+      } else {
          this.score = 0;
       }
 
       this.UpdateStatus();
- 
       eventHandled = true;
    }
 
    return eventHandled;
 };
 
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.Score
+ * 
+ * This method calculates the score for this player based on the rank of the 
+ * card on the Battle stack
+ * 
+ ******************************************************************************/
+SimpleWarPlayer.prototype.Score = function() {
+   var score = 0;
 
-SimpleWarPlayer.prototype.Score = function()
-{
-   var   cont = this.rootContainer.GetContainerById( "Battle" );
-   var   score = 0;
- 
-   function CardScore( element ) {
-      score += parseInt( element.rank, 10 );
-   }
-   
-   if( cont != undefined ) {
-      cont.cards.forEach( CardScore );
+   function CardScore(element) {
+      score += parseInt(element.rank, 10);
    }
 
-   log.info( "SWPlay : %s: Score: = %d", this.name, score );
+   this.battle.cards.forEach(CardScore);
+
+   log.info("SWPlay : %s: Score: = %d", this.name, score);
    this.score = score;
 };
 
-
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.IsInGame
+ * 
+ * This method returns true if the player is still in the game (i.e. Not out of
+ * cards)
+ * 
+ ******************************************************************************/
 SimpleWarPlayer.prototype.IsInGame = function() {
    return this.inGame;
 };
 
-
+/*******************************************************************************
+ * 
+ * SimpleWarPlayer.prototype.UpdateStatus
+ * 
+ * This method updates the status of the this player for feedback to the UI.
+ * 
+ ******************************************************************************/
 SimpleWarPlayer.prototype.UpdateStatus = function() {
    // Indicate what our stack size is
-   this.status.stackSize   = this.stack.NumCards();
+   this.status.stackSize = this.stack.NumCards();
    this.status.discardSize = this.discard.NumCards();
+   this.status.discardList = this.discard.GetList(); // Get the list of cards
+
+   // Prune the list so only visible cards are shown
+   for ( var cntr = 0; cntr < this.status.discardList.length; cntr++) {
+      // Only every 4th card should be visible, starting with the first one
+      if (cntr % 4 > 0) {
+         this.status.discardList[cntr] = "";
+      }
+   }
 
    // If our battle stack has a card on it, then indicate what that card is
-   if( this.battle.NumCards() > 0 ) {
+   if (this.battle.NumCards() > 0) {
       this.status.battleStackTop = this.battle.cards[0].shortName;
-   }
-   else {
+   } else {
       this.status.battleStackTop = '';
    }
 
    // Now, notify the game engine of our updated status
-   this.parentGame.UpdatePlayerStatus( this.id, this.status );
+   this.parentGame.UpdatePlayerStatus(this.id, this.status);
 };
 
 },{"../../Logger.js":8,"../../Player.js":9,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarStatus.js":16}],15:[function(require,module,exports){
-var SimpleWarPlayer = require( "./SimpleWarPlayer.js" );
-var SWGC     = require( "./SimpleWarDefs.js" );
+var SimpleWarPlayer = require("./SimpleWarPlayer.js");
+var SWGC = require("./SimpleWarDefs.js");
 
-/******************************************************************************
+/*******************************************************************************
  * CLASS Definition: Simple War Player AI
  ******************************************************************************/
 
-/******************************************************************************
- *
+/*******************************************************************************
+ * 
  * Class: SimpleWarPlayerAI
- * Inherits From: Player
- * Constructor
+ * Inherits From: SimpleWarPlayer
  *
+ * This class implements the "Artificial Intelligence" player for the Simple
+ * War card game.
+ * 
  ******************************************************************************/
-function SimpleWarPlayerAI( parent, id, alias )
-{
+function SimpleWarPlayerAI(parent, id, alias) {
    // Call the parent class constructor
-   SimpleWarPlayer.call( this, parent, id, alias );
+   SimpleWarPlayer.call(this, parent, id, alias);
 
    this.status.type = "AI";
    this.status.alias = this.alias + " (AI)";
-   this.SetEnterRoutine( "Battle", this.BattleEnter );
+   this.SetEnterRoutine("Battle", this.BattleEnter);
 };
 
-//Inherit from ActiveEntity
 SimpleWarPlayerAI.prototype = new SimpleWarPlayer();
-//Correct the constructor pointer
 SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
 
-
-SimpleWarPlayerAI.prototype.BattleEnter = function()
-{
+/*******************************************************************************
+ * 
+ * SimpleWarPlayerAI.prototype.BattleEnter
+ * 
+ * This method performs the action upon entrance to the Battle state.  It waits
+ * a time period, and then sends in a Battle transaction for the player this
+ * class represents.
+ * 
+ ******************************************************************************/
+SimpleWarPlayerAI.prototype.BattleEnter = function() {
    var that = this;
-   var timeout = ((Math.random() * 2) + 1) * 500;
-   //var timeout = 5;
+   //var timeout = ((Math.random() * 2) + 1) * 500;
+   var timeout = 5;
 
-   setTimeout(function () {
-      that.parentGame.EventTransaction( that.id,   SWGC.SWP_TRANSACTION_BATTLE,
-                                        undefined,	undefined,
-                                        ["TOP:1"] );
+   setTimeout(function() {
+      that.parentGame.EventTransaction(that.id,
+                                       SWGC.SWP_TRANSACTION_BATTLE,
+                                       undefined,
+                                       undefined,
+                                       [ "TOP:1" ]);
    }, timeout);
 };
 
-
 module.exports = SimpleWarPlayerAI;
-
 
 },{"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14}],16:[function(require,module,exports){
 
@@ -2497,6 +2569,7 @@ function SimpleWarPlayerStatus()
    this.stackSize       = 0;
    this.discardSize     = 0;
    this.battleStackTop  = '';
+   this.discardList		= [];
 }
 
 
@@ -2731,7 +2804,7 @@ var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
 var log = require ("../../src/js/Logger.js");
 
-log.mask = 0xFE;
+log.mask = 0x08;
 
 var gameSpec = 
 {
@@ -2900,27 +2973,13 @@ var deckSpec =
 };
 
 
-function Battle()
-{
-   cardGame.EventTransaction( '0010', 'SWP_Battle' );
-}
-
 function main ()
 {
    log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
    cardGame = new SimpleWarGame();
-
    cardGame.Init( gameSpec, deckSpec );
-
    cardGame.StartGame();
-
-   //log.info( "SWTest : ***** Player 0: Card Stack *****" );
-   //cardGame.players[0].rootContainer.containers[0].PrintCards();
-   //log.info( "SWTest : ***** Player 1: Card Stack *****" );
-   //cardGame.players[1].rootContainer.containers[0].PrintCards();
-   //log.info( "SWTest : ***** Player 2: Card Stack *****" );
-   //cardGame.players[2].rootContainer.containers[0].PrintCards();
 }
 
 if (typeof window === 'undefined')
@@ -2929,7 +2988,6 @@ if (typeof window === 'undefined')
 }
 else
 {
-//   document.addEventListener('deviceready', main, false);
    window.addEventListener('load', main, false);
 }
 
