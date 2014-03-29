@@ -4,6 +4,7 @@ var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SimpleWarPlayerAI = require("./SimpleWarPlayerAI.js");
 var CardGame = require("../../CardGame.js");
 var transDef = require("../../TransactionDefinition.js");
+var CGE = require("../../CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
 var GameStatus = require("./SimpleWarStatus.js").SimpleWarStatus;
 var SimpleWarUI = require("./SimpleWarUI.js");
@@ -54,9 +55,9 @@ function SimpleWarGame(id) {
    this.SetEnterRoutine(SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter);
    this.SetEnterRoutine(SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter);
 
-   this.AddEventHandler(SIMPLE_WAR_STATE_BATTLE,      SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction);
-   this.AddEventHandler(SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL,        this.Deal);
-   this.AddEventHandler(SIMPLE_WAR_STATE_SCORE,       SWGC.CGE_EVENT_SCORE,       this.EventScore);
+   this.AddEventHandler(SIMPLE_WAR_STATE_BATTLE,      CGE.CGE_EVENT_TRANSACTION, this.BattleTransaction);
+   this.AddEventHandler(SIMPLE_WAR_STATE_IN_PROGRESS, CGE.CGE_EVENT_DEAL,        this.Deal);
+   this.AddEventHandler(SIMPLE_WAR_STATE_SCORE,       CGE.CGE_EVENT_SCORE,       this.EventScore);
 
    // Add the valid transactions to the states
    this.AddValidTransaction(SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL");
@@ -92,7 +93,7 @@ SimpleWarGame.prototype.AddPlayer = function(id, alias, type) {
 SimpleWarGame.prototype.InProgressEnter = function() {
    if (this.isHost) {
       this.dealer.Shuffle();
-      this.SendEvent(SWGC.CGE_EVENT_DEAL);
+      this.SendEvent(CGE.CGE_EVENT_DEAL);
    }
 
    // Advance to the first player
@@ -158,7 +159,7 @@ SimpleWarGame.prototype.ScoreEnter = function() {
    var timeout = 2000;
 
    setTimeout(function() {
-      that.SendEvent(SWGC.CGE_EVENT_SCORE, undefined);
+      that.SendEvent(CGE.CGE_EVENT_SCORE, undefined);
    }, timeout);
 };
 
@@ -180,7 +181,7 @@ SimpleWarGame.prototype.EventScore = function() {
       var alias = this.players[this.atBattle[0]].alias;
       this.Notify(alias + ' Wins the Game!');
       this.Transition(SIMPLE_WAR_STATE_GAME_OVER);
-      this.SendEvent(SWGC.CGE_EVENT_EXIT, undefined);
+      this.SendEvent(CGE.CGE_EVENT_EXIT, undefined);
    } else {
       this.Transition(SIMPLE_WAR_STATE_BATTLE);
    }
@@ -365,7 +366,7 @@ SimpleWarGame.prototype.AddUI = function() {
 SimpleWarGame.prototype.UpdatePlayerStatus = function(playerId, status) {
    this.status[playerId] = status;
 
-   this.SendEvent(SWGC.CGE_EVENT_STATUS_UPDATE, {
+   this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {
       ownerId : playerId
    });
 };

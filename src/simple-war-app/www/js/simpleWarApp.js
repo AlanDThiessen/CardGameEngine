@@ -190,7 +190,7 @@ ActiveEntity.prototype.Transition = function(destStateName) {
 
 module.exports = ActiveEntity;
 
-},{"./Logger.js":8,"./State.js":10}],2:[function(require,module,exports){
+},{"./Logger.js":9,"./State.js":11}],2:[function(require,module,exports){
 
 var CGEState = require("./CGEState.js");
 var ActiveEntity = require("./ActiveEntity.js");
@@ -202,9 +202,6 @@ var AddTransactionDefinition = TransDef.AddTransactionDefinition;
 var GetTransactionDefinition = TransDef.GetTransactionDefinition;
 var TRANSACTION_TYPE_INBOUND = TransDef.TRANSACTION_TYPE_INBOUND;
 var TRANSACTION_TYPE_OUTBOUND = TransDef.TRANSACTION_TYPE_OUTBOUND;
-
-// TODO: Yeah, this doesn't belong here.
-var SWGC = require("./games/SimpleWar/SimpleWarDefs.js");
 
 /*******************************************************************************
  * CLASS: CGEActiveEntity
@@ -374,7 +371,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, car
 
 module.exports = CGEActiveEntity;
 
-},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12}],3:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":12}],3:[function(require,module,exports){
 var State = require("./State.js");
 
 /*******************************************************************************
@@ -433,7 +430,7 @@ CGEState.prototype.IsTransactionValid = function(transDefName) {
 
 module.exports = CGEState;
 
-},{"./State.js":10}],4:[function(require,module,exports){
+},{"./State.js":11}],4:[function(require,module,exports){
 var log = require('./Logger.js');
 
 /*******************************************************************************
@@ -461,7 +458,7 @@ Card.prototype.Print = function() {
 
 module.exports = Card;
 
-},{"./Logger.js":8}],5:[function(require,module,exports){
+},{"./Logger.js":9}],5:[function(require,module,exports){
 var Card = require("./Card.js");
 var CardGroup = require("./CardGroup.js");
 
@@ -636,12 +633,12 @@ CardContainer.prototype.IsFull = function(id) {
 
 module.exports = CardContainer;
 
-},{"./Card.js":4,"./CardGroup.js":7}],6:[function(require,module,exports){
+},{"./Card.js":4,"./CardGroup.js":8}],6:[function(require,module,exports){
 var ActiveEntity = require("./ActiveEntity.js");
 var CGEActiveEntity = require("./CGEActiveEntity.js");
 var Card = require("./Card.js");
 var transDef = require("./TransactionDefinition.js");
-var SWGC = require("./games/SimpleWar/SimpleWarDefs.js");
+var CGE = require("./CardGameDefs.js");
 var Events = require('events');
 
 var TransactionDefinition = transDef.TransactionDefinition;
@@ -958,7 +955,7 @@ CardGame.prototype.ProcessEvents = function() {
    event = this.events.shift();
 
    if (event != undefined) {
-      if (event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION) {
+      if (event.eventId == CGE.CGE_EVENT_DO_TRANSACTION) {
          this.ProcessEventTransaction(event.data.destId,
                                       event.data.destTransName,
                                       event.data.srcId,
@@ -983,8 +980,8 @@ CardGame.prototype.ProcessEvents = function() {
  * 
  ******************************************************************************/
 CardGame.prototype.DispatchEvent = function(eventId, data) {
-   if (    (eventId != SWGC.CGE_EVENT_STATUS_UPDATE)
-        && (eventId != SWGC.CGE_EVENT_NOTIFY)) {
+   if (    (eventId != CGE.CGE_EVENT_STATUS_UPDATE)
+        && (eventId != CGE.CGE_EVENT_NOTIFY)) {
       if ((data != undefined) && (data.ownerId != undefined)) {
          var entity = this.GetEntityById(data.ownerId);
          entity.HandleEvent(eventId, data);
@@ -1022,7 +1019,7 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
             var cardArray = Array();
 
             if (srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {
-               this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+               this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
                   ownerId : srcId,
                   transaction : srcTransName
                });
@@ -1030,7 +1027,7 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
                      cardArray);
 
                if (success) {
-                  this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+                  this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
                      ownerId : destId,
                      transaction : destTransName
                   });
@@ -1046,7 +1043,7 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
                undefined);
 
          if (success) {
-            this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+            this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
                ownerId : destId,
                transaction : destTransName
             });
@@ -1121,7 +1118,7 @@ CardGame.prototype.EventTransaction = function(inDestId,
       cardList : inCardList
    };
 
-   this.SendEvent(SWGC.CGE_EVENT_DO_TRANSACTION, event);
+   this.SendEvent(CGE.CGE_EVENT_DO_TRANSACTION, event);
 };
 
 /*******************************************************************************
@@ -1134,7 +1131,7 @@ CardGame.prototype.EventTransaction = function(inDestId,
  ******************************************************************************/
 CardGame.prototype.Notify = function(message) {
    log.info("Notify : %s", message);
-   this.SendEvent(SWGC.CGE_EVENT_NOTIFY, {
+   this.SendEvent(CGE.CGE_EVENT_NOTIFY, {
       msg : message
    });
 };
@@ -1169,7 +1166,27 @@ CardGame.prototype.GetPlayerIds = function() {
 
 module.exports = CardGame;
 
-},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./Logger.js":8,"./TransactionDefinition.js":11,"./games/SimpleWar/SimpleWarDefs.js":12,"events":20}],7:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Logger.js":9,"./TransactionDefinition.js":12,"events":21}],7:[function(require,module,exports){
+
+
+var CGE_CONSTANTS = {
+
+   /***************************************************************************
+    * SimpleWar Events
+    ***************************************************************************/
+   CGE_EVENT_EXIT             :    0,
+   CGE_EVENT_DO_TRANSACTION   :    1,
+   CGE_EVENT_TRANSACTION      :    2,
+   CGE_EVENT_DEAL             :   10,
+   CGE_EVENT_SCORE            :   11,
+   CGE_EVENT_NOTIFY           :  100,
+   CGE_EVENT_STATUS_UPDATE    :  101
+
+};
+
+module.exports = CGE_CONSTANTS;
+
+},{}],8:[function(require,module,exports){
 var log = require('./Logger.js');
 
 /*******************************************************************************
@@ -1360,7 +1377,7 @@ CardGroup.prototype.Shuffle = function() {
 
 module.exports = CardGroup;
 
-},{"./Logger.js":8}],8:[function(require,module,exports){
+},{"./Logger.js":9}],9:[function(require,module,exports){
 log = { };
 
 log.DEBUG   = 0x01;
@@ -1438,7 +1455,7 @@ log._out = function (level, format) {
 
 module.exports = log;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var CGEActiveEntity = require("./CGEActiveEntity.js");
 var log = require("./Logger.js");
 
@@ -1475,7 +1492,7 @@ Player.prototype.GetScore = function() {
 
 module.exports = Player;
 
-},{"./CGEActiveEntity.js":2,"./Logger.js":8}],10:[function(require,module,exports){
+},{"./CGEActiveEntity.js":2,"./Logger.js":9}],11:[function(require,module,exports){
 /*******************************************************************************
  * NodeJS stuff
  ******************************************************************************/
@@ -1686,7 +1703,7 @@ State.prototype.FindState = function(name, goDeep) {
 
 module.exports = State;
 
-},{"./Logger.js":8}],11:[function(require,module,exports){
+},{"./Logger.js":9}],12:[function(require,module,exports){
 
 /******************************************************************************
  * Global array of Transaction Definitions
@@ -1754,7 +1771,7 @@ module.exports = {
  TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
 
 var SWG_CONSTANTS = {
@@ -1772,28 +1789,20 @@ var SWG_CONSTANTS = {
    /***************************************************************************
     * SimpleWar Events
     ***************************************************************************/
-   // TODO: This needs to go somewhere else
-   CGE_EVENT_EXIT             :    0,
-   CGE_EVENT_DO_TRANSACTION   :    1,
-   CGE_EVENT_TRANSACTION      :    2,
-   CGE_EVENT_DEAL             :   10,
-   CGE_EVENT_SCORE            :   11,
-   CGE_EVENT_NOTIFY           :  100,
-   CGE_EVENT_STATUS_UPDATE    :  101,
-
    SW_EVENT_DO_BATTLE         : 1000,
    SW_EVENT_DO_WAR            : 1001
 };
 
 module.exports = SWG_CONSTANTS;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = SimpleWarGame;
 
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SimpleWarPlayerAI = require("./SimpleWarPlayerAI.js");
 var CardGame = require("../../CardGame.js");
 var transDef = require("../../TransactionDefinition.js");
+var CGE = require("../../CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
 var GameStatus = require("./SimpleWarStatus.js").SimpleWarStatus;
 var SimpleWarUI = require("./SimpleWarUI.js");
@@ -1844,9 +1853,9 @@ function SimpleWarGame(id) {
    this.SetEnterRoutine(SIMPLE_WAR_STATE_BATTLE,      this.BattleEnter);
    this.SetEnterRoutine(SIMPLE_WAR_STATE_SCORE,       this.ScoreEnter);
 
-   this.AddEventHandler(SIMPLE_WAR_STATE_BATTLE,      SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction);
-   this.AddEventHandler(SIMPLE_WAR_STATE_IN_PROGRESS, SWGC.CGE_EVENT_DEAL,        this.Deal);
-   this.AddEventHandler(SIMPLE_WAR_STATE_SCORE,       SWGC.CGE_EVENT_SCORE,       this.EventScore);
+   this.AddEventHandler(SIMPLE_WAR_STATE_BATTLE,      CGE.CGE_EVENT_TRANSACTION, this.BattleTransaction);
+   this.AddEventHandler(SIMPLE_WAR_STATE_IN_PROGRESS, CGE.CGE_EVENT_DEAL,        this.Deal);
+   this.AddEventHandler(SIMPLE_WAR_STATE_SCORE,       CGE.CGE_EVENT_SCORE,       this.EventScore);
 
    // Add the valid transactions to the states
    this.AddValidTransaction(SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL");
@@ -1882,7 +1891,7 @@ SimpleWarGame.prototype.AddPlayer = function(id, alias, type) {
 SimpleWarGame.prototype.InProgressEnter = function() {
    if (this.isHost) {
       this.dealer.Shuffle();
-      this.SendEvent(SWGC.CGE_EVENT_DEAL);
+      this.SendEvent(CGE.CGE_EVENT_DEAL);
    }
 
    // Advance to the first player
@@ -1945,11 +1954,10 @@ SimpleWarGame.prototype.BattleTransaction = function(eventId, data) {
  ******************************************************************************/
 SimpleWarGame.prototype.ScoreEnter = function() {
    var that = this;
-   //var timeout = 2000;
-   var timeout = 5;
+   var timeout = 2000;
 
    setTimeout(function() {
-      that.SendEvent(SWGC.CGE_EVENT_SCORE, undefined);
+      that.SendEvent(CGE.CGE_EVENT_SCORE, undefined);
    }, timeout);
 };
 
@@ -1971,7 +1979,7 @@ SimpleWarGame.prototype.EventScore = function() {
       var alias = this.players[this.atBattle[0]].alias;
       this.Notify(alias + ' Wins the Game!');
       this.Transition(SIMPLE_WAR_STATE_GAME_OVER);
-      this.SendEvent(SWGC.CGE_EVENT_EXIT, undefined);
+      this.SendEvent(CGE.CGE_EVENT_EXIT, undefined);
    } else {
       this.Transition(SIMPLE_WAR_STATE_BATTLE);
    }
@@ -2156,7 +2164,7 @@ SimpleWarGame.prototype.AddUI = function() {
 SimpleWarGame.prototype.UpdatePlayerStatus = function(playerId, status) {
    this.status[playerId] = status;
 
-   this.SendEvent(SWGC.CGE_EVENT_STATUS_UPDATE, {
+   this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {
       ownerId : playerId
    });
 };
@@ -2197,9 +2205,10 @@ SimpleWarGame.prototype.GetPlayerStatus = function(playerId) {
    return this.status[playerId];
 };
 
-},{"../../CardGame.js":6,"../../Logger.js":8,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14,"./SimpleWarPlayerAI.js":15,"./SimpleWarStatus.js":16,"./SimpleWarUI.js":17}],14:[function(require,module,exports){
+},{"../../CardGame.js":6,"../../CardGameDefs.js":7,"../../Logger.js":9,"../../TransactionDefinition.js":12,"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15,"./SimpleWarPlayerAI.js":16,"./SimpleWarStatus.js":17,"./SimpleWarUI.js":18}],15:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
+var CGE = require("../../CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
 var Player = require("../../Player.js");
 var transDef = require("../../TransactionDefinition.js");
@@ -2273,10 +2282,10 @@ function SimpleWarPlayer(parent, id, alias) {
    this.SetEnterRoutine(SWP_STATE_WAIT,    this.WaitEnter);
    this.SetExitRoutine( SWP_STATE_IN_GAME, this.InProgressExit);
 
-   this.AddEventHandler(SWP_STATE_IN_GAME, SWGC.CGE_EVENT_TRANSACTION, this.InGameTransaction); // Catch-all to update status after a // transaction
+   this.AddEventHandler(SWP_STATE_IN_GAME, CGE.CGE_EVENT_TRANSACTION,  this.InGameTransaction); // Catch-all to update status after a // transaction
    this.AddEventHandler(SWP_STATE_READY,   SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle);
-   this.AddEventHandler(SWP_STATE_BATTLE,  SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction);
-   this.AddEventHandler(SWP_STATE_WAIT,    SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction);
+   this.AddEventHandler(SWP_STATE_BATTLE,  CGE.CGE_EVENT_TRANSACTION,  this.BattleTransaction);
+   this.AddEventHandler(SWP_STATE_WAIT,    CGE.CGE_EVENT_TRANSACTION,  this.WaitTransaction);
    this.AddEventHandler(SWP_STATE_WAIT,    SWGC.SW_EVENT_DO_WAR,       this.DoWar);
 
    // TODO: Need definitions for Max cards in deck
@@ -2504,7 +2513,7 @@ SimpleWarPlayer.prototype.UpdateStatus = function() {
    this.parentGame.UpdatePlayerStatus(this.id, this.status);
 };
 
-},{"../../Logger.js":8,"../../Player.js":9,"../../TransactionDefinition.js":11,"./SimpleWarDefs.js":12,"./SimpleWarStatus.js":16}],15:[function(require,module,exports){
+},{"../../CardGameDefs.js":7,"../../Logger.js":9,"../../Player.js":10,"../../TransactionDefinition.js":12,"./SimpleWarDefs.js":13,"./SimpleWarStatus.js":17}],16:[function(require,module,exports){
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SWGC = require("./SimpleWarDefs.js");
 
@@ -2558,7 +2567,7 @@ SimpleWarPlayerAI.prototype.BattleEnter = function() {
 
 module.exports = SimpleWarPlayerAI;
 
-},{"./SimpleWarDefs.js":12,"./SimpleWarPlayer.js":14}],16:[function(require,module,exports){
+},{"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15}],17:[function(require,module,exports){
 
 
 function SimpleWarPlayerStatus()
@@ -2583,8 +2592,9 @@ module.exports = {
                   SimpleWarPlayerStatus: SimpleWarPlayerStatus,
                   SimpleWarStatus: SimpleWarStatus };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var CGEActiveEntity = require ('../../CGEActiveEntity.js');
+var CGE = require("../../CardGameDefs.js");
 var SWGC = require('./SimpleWarDefs.js');
 
 var MAIN_STATE = "MAIN_STATE";
@@ -2680,7 +2690,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          yPos,
          timer = null;
 
-   if (eventId === SWGC.CGE_EVENT_NOTIFY)
+   if (eventId === CGE.CGE_EVENT_NOTIFY)
    {
       if (typeof window === 'undefined') return;
 
@@ -2696,7 +2706,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          }, 1000);
       }
    }
-   else if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
+   else if (eventId === CGE.CGE_EVENT_STATUS_UPDATE)
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
       log.debug('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);
@@ -2798,7 +2808,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
 
 module.exports = SimpleWarUI;
 
-},{"../../CGEActiveEntity.js":2,"./SimpleWarDefs.js":12}],18:[function(require,module,exports){
+},{"../../CGEActiveEntity.js":2,"../../CardGameDefs.js":7,"./SimpleWarDefs.js":13}],19:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
@@ -2991,9 +3001,9 @@ else
    window.addEventListener('load', main, false);
 }
 
-},{"../../src/js/Logger.js":8,"../../src/js/games/SimpleWar/SimpleWarGame.js":13,"readline":19}],19:[function(require,module,exports){
+},{"../../src/js/Logger.js":9,"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"readline":20}],20:[function(require,module,exports){
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3295,4 +3305,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[18])
+},{}]},{},[19])

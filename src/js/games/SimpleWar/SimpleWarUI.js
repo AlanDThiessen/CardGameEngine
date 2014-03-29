@@ -1,4 +1,5 @@
 var CGEActiveEntity = require ('../../CGEActiveEntity.js');
+var CGE = require("../../CardGameDefs.js");
 var SWGC = require('./SimpleWarDefs.js');
 
 var MAIN_STATE = "MAIN_STATE";
@@ -94,7 +95,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          yPos,
          timer = null;
 
-   if (eventId === SWGC.CGE_EVENT_NOTIFY)
+   if (eventId === CGE.CGE_EVENT_NOTIFY)
    {
       if (typeof window === 'undefined') return;
 
@@ -110,7 +111,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          }, 1000);
       }
    }
-   else if (eventId === SWGC.CGE_EVENT_STATUS_UPDATE)
+   else if (eventId === CGE.CGE_EVENT_STATUS_UPDATE)
    {
       playerStatus = this.parentGame.GetPlayerStatus(data.ownerId);
       log.debug('StatusUpdateEvent: %s, %s', playerStatus.id, playerStatus.battleStackTop);

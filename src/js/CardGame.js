@@ -2,7 +2,7 @@ var ActiveEntity = require("./ActiveEntity.js");
 var CGEActiveEntity = require("./CGEActiveEntity.js");
 var Card = require("./Card.js");
 var transDef = require("./TransactionDefinition.js");
-var SWGC = require("./games/SimpleWar/SimpleWarDefs.js");
+var CGE = require("./CardGameDefs.js");
 var Events = require('events');
 
 var TransactionDefinition = transDef.TransactionDefinition;
@@ -319,7 +319,7 @@ CardGame.prototype.ProcessEvents = function() {
    event = this.events.shift();
 
    if (event != undefined) {
-      if (event.eventId == SWGC.CGE_EVENT_DO_TRANSACTION) {
+      if (event.eventId == CGE.CGE_EVENT_DO_TRANSACTION) {
          this.ProcessEventTransaction(event.data.destId,
                                       event.data.destTransName,
                                       event.data.srcId,
@@ -344,8 +344,8 @@ CardGame.prototype.ProcessEvents = function() {
  * 
  ******************************************************************************/
 CardGame.prototype.DispatchEvent = function(eventId, data) {
-   if (    (eventId != SWGC.CGE_EVENT_STATUS_UPDATE)
-        && (eventId != SWGC.CGE_EVENT_NOTIFY)) {
+   if (    (eventId != CGE.CGE_EVENT_STATUS_UPDATE)
+        && (eventId != CGE.CGE_EVENT_NOTIFY)) {
       if ((data != undefined) && (data.ownerId != undefined)) {
          var entity = this.GetEntityById(data.ownerId);
          entity.HandleEvent(eventId, data);
@@ -383,7 +383,7 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
             var cardArray = Array();
 
             if (srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {
-               this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+               this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
                   ownerId : srcId,
                   transaction : srcTransName
                });
@@ -391,7 +391,7 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
                      cardArray);
 
                if (success) {
-                  this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+                  this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
                      ownerId : destId,
                      transaction : destTransName
                   });
@@ -407,7 +407,7 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
                undefined);
 
          if (success) {
-            this.SendEvent(SWGC.CGE_EVENT_TRANSACTION, {
+            this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
                ownerId : destId,
                transaction : destTransName
             });
@@ -482,7 +482,7 @@ CardGame.prototype.EventTransaction = function(inDestId,
       cardList : inCardList
    };
 
-   this.SendEvent(SWGC.CGE_EVENT_DO_TRANSACTION, event);
+   this.SendEvent(CGE.CGE_EVENT_DO_TRANSACTION, event);
 };
 
 /*******************************************************************************
@@ -495,7 +495,7 @@ CardGame.prototype.EventTransaction = function(inDestId,
  ******************************************************************************/
 CardGame.prototype.Notify = function(message) {
    log.info("Notify : %s", message);
-   this.SendEvent(SWGC.CGE_EVENT_NOTIFY, {
+   this.SendEvent(CGE.CGE_EVENT_NOTIFY, {
       msg : message
    });
 };

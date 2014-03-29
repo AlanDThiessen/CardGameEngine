@@ -1,5 +1,6 @@
 module.exports = SimpleWarPlayer;
 
+var CGE = require("../../CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
 var Player = require("../../Player.js");
 var transDef = require("../../TransactionDefinition.js");
@@ -73,10 +74,10 @@ function SimpleWarPlayer(parent, id, alias) {
    this.SetEnterRoutine(SWP_STATE_WAIT,    this.WaitEnter);
    this.SetExitRoutine( SWP_STATE_IN_GAME, this.InProgressExit);
 
-   this.AddEventHandler(SWP_STATE_IN_GAME, SWGC.CGE_EVENT_TRANSACTION, this.InGameTransaction); // Catch-all to update status after a // transaction
+   this.AddEventHandler(SWP_STATE_IN_GAME, CGE.CGE_EVENT_TRANSACTION,  this.InGameTransaction); // Catch-all to update status after a // transaction
    this.AddEventHandler(SWP_STATE_READY,   SWGC.SW_EVENT_DO_BATTLE,    this.DoBattle);
-   this.AddEventHandler(SWP_STATE_BATTLE,  SWGC.CGE_EVENT_TRANSACTION, this.BattleTransaction);
-   this.AddEventHandler(SWP_STATE_WAIT,    SWGC.CGE_EVENT_TRANSACTION, this.WaitTransaction);
+   this.AddEventHandler(SWP_STATE_BATTLE,  CGE.CGE_EVENT_TRANSACTION,  this.BattleTransaction);
+   this.AddEventHandler(SWP_STATE_WAIT,    CGE.CGE_EVENT_TRANSACTION,  this.WaitTransaction);
    this.AddEventHandler(SWP_STATE_WAIT,    SWGC.SW_EVENT_DO_WAR,       this.DoWar);
 
    // TODO: Need definitions for Max cards in deck

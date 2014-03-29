@@ -10,9 +10,6 @@ var GetTransactionDefinition = TransDef.GetTransactionDefinition;
 var TRANSACTION_TYPE_INBOUND = TransDef.TRANSACTION_TYPE_INBOUND;
 var TRANSACTION_TYPE_OUTBOUND = TransDef.TRANSACTION_TYPE_OUTBOUND;
 
-// TODO: Yeah, this doesn't belong here.
-var SWGC = require("./games/SimpleWar/SimpleWarDefs.js");
-
 /*******************************************************************************
  * CLASS: CGEActiveEntity
  ******************************************************************************/
