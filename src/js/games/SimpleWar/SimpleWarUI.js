@@ -44,6 +44,7 @@ SimpleWarUI.prototype.MainEnter = function ()
 
    if (typeof window === 'undefined') return;
 
+   document.getElementById('revision').innerHTML = 'Ver. ' + CGE.REVISION;
    gameDiv = document.getElementById('game');
 
    playerIds = this.parentGame.GetPlayerIds();
