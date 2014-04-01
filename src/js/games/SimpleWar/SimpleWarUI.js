@@ -26,7 +26,15 @@ SimpleWarUI.prototype.MainEnter = function ()
    if (typeof window === 'undefined') return;
 
    var that = this;
-   window.addEventListener('touchend', function () {
+   var eventStr;
+
+   if (!!document.createTouch) {
+      eventStr = 'touchend';
+   } else {
+      eventStr = 'mouseup';
+   }
+
+   window.addEventListener(eventStr, function () {
       if (that.playerId)
       {
          that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,

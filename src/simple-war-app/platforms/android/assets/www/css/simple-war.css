@@ -11,6 +11,13 @@ body {
    margin-right: auto;
    margin-left: auto;
    margin-top: 2em;
+   margin-bottom: 0em;
+}
+
+#revision {
+   color: white;
+   font-size: 14px;
+   font-family: Helvetica;
    margin-bottom: 2em;
 }
 
