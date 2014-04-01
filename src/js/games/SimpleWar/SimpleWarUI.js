@@ -100,8 +100,6 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          infoDiv,
          noteDiv,
          x,
-         xPos,
-         yPos,
          timer = null;
 
    if (eventId === CGE.CGE_EVENT_NOTIFY)
@@ -149,56 +147,7 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
       battleStack = document.getElementById(playerStatus.alias + '-battle');
       if (battleStack)
       {
-         xPos = '0';
-         yPos = '0';
-
-         switch (playerStatus.battleStackTop.charAt(0))
-         {
-            case 'H':
-               yPos = '-140px';
-               break;
-
-            case 'S':
-               yPos = '-280px';
-               break;
-
-            case 'D':
-               yPos = '-420px';
-               break;
-         }
-
-         switch (playerStatus.battleStackTop.charAt(1))
-         {
-            case 'A':
-               break;
-
-            case 'K':
-               xPos = '-1200px';
-               break;
-
-            case 'Q':
-               xPos = '-1100px';
-               break;
-
-            case 'J':
-               xPos = '-1000px';
-               break;
-
-            default:
-               x = (parseInt(playerStatus.battleStackTop.slice(1), 10) - 1) * 100;
-               xPos = '-' + x + 'px';
-               break;
-         }
-
-         if (playerStatus.battleStackTop === '')
-         {
-            battleStack.style.backgroundImage = '';
-         }
-         else 
-         {
-            battleStack.style.backgroundImage = 'url("./img/cards.png")';
-            battleStack.style.backgroundPosition = xPos + ' ' + yPos;
-         }
+         this.setCardFace(battleStack, playerStatus.battleStackTop);
       }
 
       discardStack = document.getElementById(playerStatus.alias + '-discard');
@@ -208,16 +157,72 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          {
             discardStack.removeChild(discardStack.firstChild);
          }
+
          for (var i = 0; i < playerStatus.discardSize; i++)
          {
             var discardCard = document.createElement('div');
             discardCard.className = 'discard-card';
             discardCard = discardStack.appendChild(discardCard);
 
+            this.setCardFace(discardCard, playerStatus.discardList[i]);
+
             discardCard.style.marginLeft = (i * 20) + 'px';
          }
       }
    }
 };
+
+SimpleWarUI.prototype.setCardFace = function (element, rank) {
+   var xPos = '0';
+   var yPos = '0';
+
+   switch (rank.charAt(0))
+   {
+      case 'H':
+         yPos = '-140px';
+         break;
+
+      case 'S':
+         yPos = '-280px';
+         break;
+
+      case 'D':
+         yPos = '-420px';
+         break;
+   }
+
+   switch (rank.charAt(1))
+   {
+      case 'A':
+         break;
+
+      case 'K':
+         xPos = '-1200px';
+         break;
+
+      case 'Q':
+         xPos = '-1100px';
+         break;
+
+      case 'J':
+         xPos = '-1000px';
+         break;
+
+      default:
+         x = (parseInt(rank.slice(1), 10) - 1) * 100;
+         xPos = '-' + x + 'px';
+         break;
+   }
+
+   if (rank === '')
+   {
+      element.style.backgroundImage = '';
+   }
+   else 
+   {
+      element.style.backgroundImage = 'url("./img/cards.png")';
+      element.style.backgroundPosition = xPos + ' ' + yPos;
+   }
+}
 
 module.exports = SimpleWarUI;
