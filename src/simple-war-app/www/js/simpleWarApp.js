@@ -1957,6 +1957,8 @@ SimpleWarGame.prototype.ScoreEnter = function() {
    var that = this;
    var timeout = 2000;
 
+   this.atBattle = this.ScoreBattle();
+
    setTimeout(function() {
       that.SendEvent(CGE.CGE_EVENT_SCORE, undefined);
    }, timeout);
@@ -1973,7 +1975,6 @@ SimpleWarGame.prototype.ScoreEnter = function() {
  ******************************************************************************/
 SimpleWarGame.prototype.EventScore = function() {
    this.LogPlayerStatus();
-   this.atBattle = this.ScoreBattle();
    this.DetermineBattleResult(this.atBattle);
 
    if (this.atBattle.length == 1) {
@@ -2051,7 +2052,14 @@ SimpleWarGame.prototype.ScoreBattle = function() {
 
    if (topPlayers.length == 1) {
       log.info("SWGame : Battle Winner: %s", this.players[topPlayers[0]].name);
+
+      if (this.atWar) {
+         this.Notify(this.players[topPlayers[0]].alias + ' Wins the War!');
+      } else {
+         this.Notify(this.players[topPlayers[0]].alias + ' Wins the Battle!');
+      }
    } else {
+      this.Notify("Going to War!");
       log.info("SWGame : Tie between:");
 
       for ( var cntr = 0; cntr < topPlayers.length; cntr++) {
@@ -2085,7 +2093,6 @@ SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
    // If there is a tie, we need to go to War!
    if (topPlayers.length > 1) {
       log.info("SWGame : ************************* WAR!!! *************************");
-      this.Notify("Going to War!");
       this.atWar = true;
 
       for ( var cntr = 0; cntr < numPlayers; cntr++) {
@@ -2104,13 +2111,6 @@ SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
       }
    } else {
       var winnerIndex = topPlayers.pop();
-
-      if (this.atWar) {
-         this.Notify(this.players[winnerIndex].alias + ' Wins the War!');
-      } else {
-         this.Notify(this.players[winnerIndex].alias + ' Wins the Battle!');
-      }
-
       this.atWar = false;
 
       for ( var cntr = 0; cntr < numPlayers; cntr++) {
