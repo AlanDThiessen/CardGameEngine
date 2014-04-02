@@ -1170,7 +1170,7 @@ module.exports = CardGame;
 
 
 var CGE_CONSTANTS = {
-   REVISION							: '0.1.5',
+   REVISION							: '0.1.6',
 
    /***************************************************************************
     * SimpleWar Events
