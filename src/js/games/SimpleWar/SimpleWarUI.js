@@ -112,10 +112,17 @@ SimpleWarUI.prototype.HandleEvent = function (eventId, data)
          noteDiv.style.display = 'block';
          noteDiv.innerHTML = data.msg;
 
-         clearTimeout(timer);
-         timer = setTimeout(function () {
-            noteDiv.style.display = 'none';   
-         }, 1000);
+         noteDiv.style.opacity = 0;
+
+         $('#note').animate(
+            {opacity: 1.0}, 250,
+            function () {
+               clearTimeout(timer);
+               timer = setTimeout(function () {
+                  $('#note').animate({opacity: 0}, 500);
+                  }, 1000);
+            });
+         
       }
    }
    else if (eventId === CGE.CGE_EVENT_STATUS_UPDATE)
