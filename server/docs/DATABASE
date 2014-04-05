@@ -1,0 +1,5 @@
+
+Game: id game_type_id game_name created_by num_players_allowed game_state
+Player: id game_id user_id latest_notif
+Transaction: id game_id user_id from_group_id to_group_id items
+Notification: id game_id user_id table_name trans_id 

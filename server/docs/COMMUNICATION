@@ -1,0 +1,48 @@
+
+Client to Server
+
+Client will make AJAX calls to WP AJAX interface, sending one of the following commands:
+cge_get_user
+	Params:
+	Return: user : object
+cge_get_game_types
+	Params:
+	Return: list of game types : html
+cge_get_joinable_games
+	Params:
+	Return: ulist of games in progress : html
+cge_start_game
+	Params: game_type_id : string
+	Return: game specification : object
+cge_join_game
+	Params: game_id : int
+	Return: game specification : object
+cge_load_deck_spec
+	Params: deck_type_id : string
+	Return: deck specification : object
+
+Not Yet Implemented:
+cge_transaction
+	Params: 
+		game_id : int
+		user_id : int
+		from_group_id : string
+		to_group_id : string
+		items : array of card ids
+	Return: transaction_id : int
+
+
+
+Server to Client
+
+Server will send Server Sent Events to client, sending on of the following commands:
+message (default)
+	Params: data : string
+	Return: N/A
+userJoined
+	Params: user : object
+	Return: N/A
+update
+	Params: transaction : object
+	Return: N/A
+
