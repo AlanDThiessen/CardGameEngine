@@ -21,10 +21,14 @@ jQuery(document).ready(function($) {
 	initialize();
 
 	function initialize() {
-		var ajaxUrl = $( '#ajaxUrl' ).val();
+		// set ajaxUrl so all functions can use it
+		ajaxUrl = $( '#ajaxUrl' ).val();
+
 		// make sure user is logged in, then show available games
 		var data = {
-			action: 'cge_get_user'
+			action: 'cge_login_user',
+			username: 'davidd',
+			password: 'bob'
 		};
 		$.post(ajaxUrl, data, function(response) {
 			console.log('Ajax response: ' + response);

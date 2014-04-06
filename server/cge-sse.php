@@ -3,12 +3,11 @@
 header( 'Content-Type: text/event-stream' );
 header( 'Cache-Control: no-cache' );
 
-// load wp config so we can access user info
-require( '../../../../wp-load.php' );
-include_once( 'cge-database.php' );
+include_once( 'src/cge-config.php' );
+include_once( 'src/cge-database.php' );
 
-$user = wp_get_current_user();
-$player_info = get_player_info( $user->ID );
+$user = 3;
+$player_info = get_player_info( $user );
 
 if ( $player_info === 0 ) {
 	exit;

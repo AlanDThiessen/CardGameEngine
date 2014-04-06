@@ -3,7 +3,7 @@
 require('src/cge-server.php');
 
 $ajax_functions = array(
-	'cge_get_user',
+	'cge_login_user',
 	'cge_get_game_types',
 	'cge_get_joinable_games',
 	'cge_get_my_games',
@@ -24,4 +24,4 @@ if (in_array($action, $ajax_functions)) {
 	$action();
 }
 
-
+die();

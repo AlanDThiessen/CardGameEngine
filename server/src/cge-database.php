@@ -24,6 +24,24 @@ Description: create db tables if they don't exist:
 function cge_db_init() {
 	// create game table if it doesn't exist
 	global $mysqli;
+
+	$userDbExists = $mysqli->query( 'select 1 from ' . CGEUSERDB );
+	if ($userDbExists === false) {
+		$createUserDb  = 'create table ' . CGEUSERDB . ' ( ';
+		$createUserDb .= 'id int not null auto_increment primary key, ';
+		$createUserDb .= 'user_name varchar(50), ';
+		$createUserDb .= 'password varchar(50), ';
+		$createUserDb .= 'display_name varchar(50), ';
+		$createUserDb .= 'email varchar(50), ';
+		$createUserDb .= 'active int default 1 ';
+		$createUserDb .= ')';
+
+		$userDbCreated = $mysqli->query( $createUserDb );
+		if ($userDbCreated === false) {
+			return false;
+		}
+	}
+
 	$gameDbExists = $mysqli->query( 'select 1 from ' . CGEGAMEDB );
 	if ($gameDbExists === false) {
 		$createGameDb  = 'create table ' . CGEGAMEDB . ' ( ';
@@ -92,6 +110,22 @@ function cge_db_init() {
 		}
 	}
 	return true;
+}
+
+/*
+Name: get_joinable_games
+Input: none
+Output: array of joinable games
+*/
+function login_user($username, $password) {
+	global $mysqli;
+	$result = $mysqli->query( 'select * from ' . CGEUSERDB . ' where user_name = "' . $username . '"');
+	if ($result) {
+		$user = $result->fetch_object();
+		return $user;
+	} else {
+		return $result;
+	}
 }
 
 /*
@@ -186,7 +220,7 @@ function get_players( $game_id ) {
 	$players = array();
 	$result = $mysqli->query( "select user_id from " . CGEPLAYERDB . " where game_id = " . $game_id );
 	while ($row = $result->fetch_object()) {
-		$players[] = $row;
+		$players[] = $row->user_id;
 	}
 
 	return $players;

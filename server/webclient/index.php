@@ -3,9 +3,9 @@
 require('../src/cge-config.php');
 require(CGEPATH . '/cge-database.php');
 
-cge_show_launch_link();
+show_launch_link();
 
-function cge_show_launch_link() {
+function show_launch_link() {
 
 	echo '<html>
 	<head><script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script></head>

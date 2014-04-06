@@ -5,134 +5,15 @@
 require('cge-config.php');
 require('cge-database.php');
 
-function cge_show_launch_link() {
-
-	echo '<div id="cge">';
-	echo '<div id="content">';
-	echo '<div id="welcome">';
-	echo 'Welcome to the ' . CGENAME;
-
-	$user = wp_get_current_user();
-	// Stop here if the user isn't logged in.
-	if (!$user->ID) {
-		echo '!  Please <a href="' . site_url() . '/wp-login.php">log in</a> to play.';
-		echo '</div>';
-	} else {
-		// OK, they're logged in, now make sure the database is initialized
-		$dbinit = cge_db_init();
-		if ($dbinit === false) {
-			echo '. <div class="error">Unable to create database.</div>';
-		} else {
-			// now greet user by name and show launch link
-			echo ', ' . $user->display_name . '!';
-			echo '</div>';
-			echo '<input type="hidden" id="sse-server" value="' . plugins_url( '/cge-sse-server.php', __FILE__  ) . '" />';
-			echo '<div id="result">';
-			echo '</div>';
-			echo '<div id="cge_display">';
-			echo '<div id="cge_header">';
-			echo '	<div id="gameTypes"></div>';
-			echo '	<div id="joinable"></div>';
-			echo '	<div id="myGames"></div>';
-			echo '</div>';
-			echo '<div id="cge_window"></div>';
-			echo '<div id="cge_footer"></div>';
-			echo '</div>';
-		}
-	}
-	echo '</div>';
-	echo '</div>';
-}
-
-function cge_enqueue_css() {
-	wp_register_style( 'cge_style', plugins_url( '/css/card-game-engine.css', __FILE__  ), array(  ), '20130130', 'all');
-	wp_enqueue_style( 'cge_style' );
-}
-
-function cge_enqueue_js() {
-	$cgeJsVars = array(
-		'ajaxurl' => admin_url( 'admin-ajax.php' )
-	);
-
-	wp_register_script( 'cge_client', plugins_url( '/js/cge_client.js', __FILE__  ), array( 'jquery' ), '20130130', true );
-
-/*
-   wp_register_script( 'js_active_entity',
-                       plugins_url( '/js/ActiveEntity.js', __FILE__ ),
-                       false,
-                       false,
-                       false );
-
-   wp_register_script( 'js_card',
-                       plugins_url( '/js/Card.js', __FILE__ ),
-                       false,
-                       false,
-                       false );
-
-   wp_register_script( 'js_card_group',
-                       plugins_url( '/js/CardGroup.js', __FILE__ ), 
-                       array( 'js_card' ), 
-                       false, 
-                       false );
-
-   wp_register_script( 'js_card_container', 
-                       plugins_url( '/js/CardContainer.js', __FILE__ ), 
-                       array( 'js_card_group' ), 
-                       false, 
-                       false );
-
-   wp_register_script( 'js_dealer', 
-                       plugins_url( '/js/Dealer.js', __FILE__ ), 
-                       array( 'js_card_container' ), 
-                       false, 
-                       false );
-
-   wp_register_script( 'js_player', 
-                       plugins_url( '/js/Player.js', __FILE__ ), 
-                       array( 'js_card_container' ), 
-                       false, 
-                       false );
-
-   wp_register_script( 'js_table', 
-                       plugins_url( '/js/Table.js', __FILE__ ), 
-                       array( 'js_card_container' ), 
-                       false, 
-                       false );
-
-   wp_register_script( 'js_card_game', 
-                       plugins_url( '/js/CardGame.js', __FILE__ ), 
-                       array( 'js_dealer', 'js_player', 'js_table' ), 
-                       false, 
-                       false );
-*/
-
-   wp_register_script( 'js_ten_phases_game', 
-                       plugins_url( '/js/games/TenPhases/TenPhases.js', __FILE__ ), 
-                       array( 'js_card_game' ), 
-                       false, 
-                       false );
-
-   wp_enqueue_script( 'js_active_entity' );
-   wp_enqueue_script( 'js_card' );
-   wp_enqueue_script( 'js_card_group' );
-   wp_enqueue_script( 'js_card_container' );
-   wp_enqueue_script( 'js_dealer' );
-   wp_enqueue_script( 'js_player' );
-   wp_enqueue_script( 'js_table' );
-   wp_enqueue_script( 'js_card_game' );
-   wp_enqueue_script( 'js_ten_phases_game' );
-   wp_enqueue_script( 'cge_client' );
-
-	wp_localize_script( 'cge_client', 'cgeVars', $cgeJsVars );
-}
-
-function cge_get_user() {
-	$user = wp_get_current_user();
-	if ($user->ID) {
+function cge_login_user() {
+	$username = htmlspecialchars( $_POST[ 'username' ] );
+	$password = htmlspecialchars( $_POST[ 'password' ] );
+	$user = login_user($username, $password);
+	if ($user) {
 		$userResponse = array(
-			'ID' => $user->ID,
-			'login' => $user->user_login,
-			'name' => $user->display_name,
+			'id' => $user->id,
+			'login' => $user->user_name,
+			'name' => $user->display_name
 		);
 		echo json_encode($userResponse);
 	}
@@ -142,10 +23,10 @@ function cge_get_user() {
 
 function cge_get_game_types() {
 	$game_types = array();
-	$xml_files = scandir( CGEPATH . 'xml/games' );
+	$xml_files = scandir( CGEPATH . '/../xml/games' );
 	foreach ( $xml_files as $xml_file ) {
 		if ( substr( $xml_file, -8, 8 ) == 'game.xml' ) {
-			$game_spec = simplexml_load_file( CGEPATH . 'xml/games/' . $xml_file );
+			$game_spec = simplexml_load_file( CGEPATH . '/../xml/games/' . $xml_file );
 			if ( $game_spec[ 'id' ] != null ) {
 				$game_types[] = array(
 					'id'   => (string)$game_spec[ 'id' ],
@@ -163,13 +44,13 @@ function cge_get_game_types() {
 
 function cge_get_joinable_games() {
 
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$joinable_games = array();
-	$user = wp_get_current_user();
 	$games = get_joinable_games();
 
 	foreach ( $games as $game ) {
 		$players = get_players( $game->id );
-		if ( !in_array( $user->ID, $players ) ) {
+		if ( !in_array( $user_id, $players ) ) {
 			$joinable_games[] = $game;
 		}
 	}
@@ -182,8 +63,8 @@ function cge_get_joinable_games() {
 
 function cge_get_my_games() {
 
-	$user = wp_get_current_user();
-	$my_games = get_my_games( $user->ID );
+	$user = 3;
+	$my_games = get_my_games( $user );
 
 	echo json_encode($my_games);
 
@@ -193,7 +74,7 @@ function cge_get_my_games() {
 
 function cge_start_game() {
 	$game_type_id = htmlspecialchars( $_POST[ 'game_type_id' ] );
-	$gameFile = CGEPATH . 'xml/games/' . $game_type_id . '-game.xml';
+	$gameFile = CGEPATH . '/../xml/games/' . $game_type_id . '-game.xml';
 	if (!file_exists($gameFile)) {
 		die('CGE ERROR: ' . $game_type_id . ' definition file not found.');
 	} 
@@ -202,10 +83,10 @@ function cge_start_game() {
 		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $game_type_id );
 	}
 
-	$user = wp_get_current_user();
+	$user = 3;
 
 	// check whether this user already has a game of this type, 
-	$game_id = get_game_by_creator( $game_type_id, $user->ID );
+	$game_id = get_game_by_creator( $game_type_id, $user );
 
 	if ( $game_id ) {
 		// @TODO: verify with user to reusue or delete this game?
@@ -214,14 +95,14 @@ function cge_start_game() {
 		$game_name = $game_spec->name . ' created by ' . $user->display_name;
 
 		// create game in db
-		$game_id = create_game( $game_type_id, $game_name, $user->ID, $game_spec->required->maxPlayers );
+		$game_id = create_game( $game_type_id, $game_name, $user, $game_spec->required->maxPlayers );
 
 		// add first user to game
-		$success = join_game( $game_id, $user->ID );
+		$success = join_game( $game_id, $user );
 	}
 
 	if ($success) {
-		notify( $game_id, CGEGAMEDB, $game_id );
+		notify( $game_id, $user, CGEGAMEDB, $game_id );
 	}
 
 	// return game id & spec
@@ -246,7 +127,7 @@ function cge_join_game() {
 
 	// load game definition file
 	$game_type_id = $game->game_type_id;
-	$gameFile = CGEPATH . 'xml/games/' . $game_type_id . '-game.xml';
+	$gameFile = CGEPATH . '/../xml/games/' . $game_type_id . '-game.xml';
 	if (!file_exists($gameFile)) {
 		die('CGE ERROR: ' . $game_type_id . ' definition file not found.');
 	} 
@@ -255,13 +136,13 @@ function cge_join_game() {
 		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $game_type_id );
 	}
 
-	$user = wp_get_current_user();
+	$user = 3;
 
 	// add user to game; sse-server will notify players of change
-	$success = join_game( $game_id, $user->ID );
+	$success = join_game( $game_id, $user );
 	
 	if ($success) {
-		notify( $game_id, CGEGAMEDB, $game_id );
+		notify( $game_id, $user, CGEGAMEDB, $game_id );
 	}
 
 	// return game id & spec
@@ -288,7 +169,7 @@ function cge_get_num_players() {
 
 function cge_load_deck_spec() {
 	$deckType = htmlspecialchars( $_POST[ 'deck_type' ] );
-	$deckFile = CGEPATH . 'xml/decks/' . $deckType . '-deck.xml';
+	$deckFile = CGEPATH . '/../xml/decks/' . $deckType . '-deck.xml';
 	if (!file_exists($deckFile)) {
 		die('CGE ERROR: ' . $deckType . ' definition file not found.');
 	} 
@@ -307,12 +188,12 @@ function cge_record_transaction() {
 	$to_group_id = htmlspecialchars( $_POST[ 'to_group_id' ] );
 	$items = htmlspecialchars( $_POST[ 'items' ] );
 
-	$user = wp_get_current_user();
+	$user = 3;
 
-	$success = record_transaction( $game_id, $user->ID, $from_group_id, $to_group_id, $items );
+	$success = record_transaction( $game_id, $user, $from_group_id, $to_group_id, $items );
 
 	if ( $success > 0 ) {
-		notify( $game_id, CGETRANSDB, $success );
+		notify( $game_id, $user, CGETRANSDB, $success );
 	}
 
 	$return_value = array(
@@ -330,7 +211,7 @@ function cge_pause_game() {
 	$success = pause_game( $game_id );
 
 	if ( $success > 0 ) {
-		notify( $game_id, CGEGAMEDB, $game_id );
+		notify( $game_id, $user, CGEGAMEDB, $game_id );
 	}
 
 	$return_value = array(
@@ -348,7 +229,7 @@ function cge_resume_game() {
 	$success = resume_game( $game_id );
 
 	if ($success > 0) {
-		notify( $game_id, CGEGAMEDB, $game_id );
+		notify( $game_id, $user, CGEGAMEDB, $game_id );
 	}
 
 	$return_value = array(
@@ -366,7 +247,7 @@ function cge_end_game() {
 	$success = end_game( $game_id );
 
 	if ($success > 0) {
-		notify( $game_id, CGEGAMEDB, $game_id );
+		notify( $game_id, $user, CGEGAMEDB, $game_id );
 	}
 
 	$return_value = array(
@@ -380,11 +261,11 @@ function cge_end_game() {
 
 function cge_ack_event() {
  
-	$user = wp_get_current_user();
+	$user = 3;
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
 	$notif_id = htmlspecialchars( $_POST[ 'notif_id' ] );
 	//error_log($game_id . ':' . $notif_id);
-	$success = update_player_info( $game_id, $user->ID, $notif_id );
+	$success = update_player_info( $game_id, $user, $notif_id );
 
 	$return_value = array(
 		'success' => $success

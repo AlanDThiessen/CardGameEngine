@@ -11,10 +11,11 @@ define( 'CGEDB', 'card_game_engine' );
 define( 'CGEDBUSER', 'cgeuser' );
 define( 'CGEDBPWD', 'cgepwd!' );
 
-define( 'CGEGAMEDB', 'cge_game' );
-define( 'CGEPLAYERDB', 'cge_player' );
-define( 'CGETRANSDB', 'cge_transaction' );
-define( 'CGENOTIFDB', 'cge_notification' );
+define( 'CGEUSERDB', 'cge_users' );
+define( 'CGEGAMEDB', 'cge_games' );
+define( 'CGEPLAYERDB', 'cge_players' );
+define( 'CGETRANSDB', 'cge_transactions' );
+define( 'CGENOTIFDB', 'cge_notifications' );
 
 define( 'CGESTARTING', 0 );
 define( 'CGEPLAYING', 1 );
