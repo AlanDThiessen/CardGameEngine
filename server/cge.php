@@ -3,6 +3,7 @@
 require('src/cge-server.php');
 
 $ajax_functions = array(
+	'cge_register_user',
 	'cge_login_user',
 	'cge_get_game_types',
 	'cge_get_joinable_games',

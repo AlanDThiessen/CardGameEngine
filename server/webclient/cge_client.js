@@ -51,7 +51,7 @@ jQuery(document).ready(function($) {
 		var data = '';
 		var sseSourceUrl = $( '#sse-server' ).val();
 		if ( '' != sseSourceUrl ) {
-			console.log('SSE Source URL: ' + sseSourceUrl);
+			//console.log('SSE Source URL: ' + sseSourceUrl);
 			var sseSource = new EventSource( sseSourceUrl );
 
 			sseSource.addEventListener( 'message', function( evt ) {
@@ -84,6 +84,7 @@ jQuery(document).ready(function($) {
 		var data = {
 			action: 'cge_ack_event',
 			game_id: game_id,
+			user_id: user.id,
 			notif_id: notif_id
 		};
 		$.post(ajaxUrl, data, function(response) {
@@ -126,8 +127,10 @@ jQuery(document).ready(function($) {
 		});
 
 		$('.gameType a').click(function(evt) {
+			console.log("gameType click");
 			var data = {
 				action:       'cge_start_game',
+				user_id:       user.id,
 				game_type_id: $(this).parent().data( 'game-type-id'),
 			};
 			$.post(ajaxUrl, data, function(response) {
@@ -175,6 +178,7 @@ jQuery(document).ready(function($) {
 	function get_my_games() {
 		var data = {
 			action: 'cge_get_my_games',
+			user_id: user.id,
 		};
 		$.post(ajaxUrl, data, function(response) {
 			console.log('GMG: Ajax response: ' + response);
@@ -203,6 +207,7 @@ jQuery(document).ready(function($) {
 			$('.myGame a.join').click(function(evt) {
 				var data = {
 					action:       'cge_join_game',
+					user_id:       user.id,
 					game_id: $(this).parent().data( 'game-id'),
 				}
 				$.post(ajaxUrl, data, function(response) {
@@ -221,6 +226,7 @@ jQuery(document).ready(function($) {
 			$('.myGame a.pause').click(function(evt) {
 				var data = {
 					action:       'cge_pause_game',
+					user_id:       user.id,
 					game_id: $(this).parent().data( 'game-id'),
 				}
 				$.post(ajaxUrl, data, function(response) {
@@ -237,6 +243,7 @@ jQuery(document).ready(function($) {
 			$('.myGame a.end').click(function(evt) {
 				var data = {
 					action:       'cge_end_game',
+					user_id:       user.id,
 					game_id: $(this).parent().data( 'game-id'),
 				}
 				$.post(ajaxUrl, data, function(response) {
@@ -254,10 +261,11 @@ jQuery(document).ready(function($) {
 				var itemsArray = [ "3C", "2D", "5H", "AS" ];
 				var items = JSON.stringify(itemsArray);
 				var data = {
-					action:       'cge_record_transaction',
-					game_id: $(this).parent().data( 'game-id'),
-					from_group_id: "player1_hand",
-					to_group_id: "dealer_discard",
+					action:      	'cge_record_transaction',
+					game_id: 		$(this).parent().data( 'game-id'),
+					user_id:       	user.id,
+					from_group_id: 	"player1_hand",
+					to_group_id:   	"dealer_discard",
 					items: items,
 				};
 				console.log(data);
@@ -278,6 +286,7 @@ jQuery(document).ready(function($) {
 	function get_joinable_games() {
 		var data = {
 			action: 'cge_get_joinable_games',
+			user_id: user.id,
 		};
 		$.post(ajaxUrl, data, function(response) {
 			console.log('GJG: Ajax response: ' + response);
@@ -308,6 +317,7 @@ jQuery(document).ready(function($) {
 			$('.joinableGame a').click(function(evt) {
 				var data = {
 					action:       'cge_join_game',
+					user_id:       user.id,
 					game_id: $(this).parent().data( 'game-id'),
 				};
 				$.post(ajaxUrl, data, function(response) {

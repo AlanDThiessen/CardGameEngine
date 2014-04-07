@@ -5,18 +5,54 @@
 require('cge-config.php');
 require('cge-database.php');
 
+function cge_register_user() {
+	$username = htmlspecialchars( $_POST[ 'username' ] );
+	$password = htmlspecialchars( $_POST[ 'password' ] );
+	$display_name = htmlspecialchars( $_POST[ 'display_name' ] );
+	$email = htmlspecialchars( $_POST[ 'email' ] );
+	$user = register_user($username, $password, $display_name, $email);
+	if ($user === true) {
+		$userResponse = array(
+			'cge_error_id' => '001',
+			'cge_error' => 'User ' . $username . ' already exists.'
+		);
+	} elseif ($user === false) {
+		$userResponse = array(
+			'cge_error_id' => '002',
+			'cge_error' => 'Database error.'
+		);
+	} else {
+		$userResponse = array(
+			'id' => $user->id,
+			'username' => $user->user_name,
+			'display_name' => $user->display_name,
+			'email' => $user->email
+		);
+	}
+	echo json_encode($userResponse);
+
+	// Need this for Ajax return
+	die();
+}
+
 function cge_login_user() {
 	$username = htmlspecialchars( $_POST[ 'username' ] );
 	$password = htmlspecialchars( $_POST[ 'password' ] );
 	$user = login_user($username, $password);
-	if ($user) {
+	if ($user === false) {
+		$userResponse = array(
+			'cge_error_id' => '002',
+			'cge_error' => 'Database error.'
+		);
+	} else {
 		$userResponse = array(
 			'id' => $user->id,
-			'login' => $user->user_name,
-			'name' => $user->display_name
+			'username' => $user->user_name,
+			'display_name' => $user->display_name,
+			'email' => $user->email
 		);
-		echo json_encode($userResponse);
 	}
+	echo json_encode($userResponse);
 	// Need this for Ajax return
 	die();
 }
@@ -43,7 +79,6 @@ function cge_get_game_types() {
 }
 
 function cge_get_joinable_games() {
-
 	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$joinable_games = array();
 	$games = get_joinable_games();
@@ -63,8 +98,8 @@ function cge_get_joinable_games() {
 
 function cge_get_my_games() {
 
-	$user = 3;
-	$my_games = get_my_games( $user );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
+	$my_games = get_my_games( $user_id );
 
 	echo json_encode($my_games);
 
@@ -74,6 +109,8 @@ function cge_get_my_games() {
 
 function cge_start_game() {
 	$game_type_id = htmlspecialchars( $_POST[ 'game_type_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
+
 	$gameFile = CGEPATH . '/../xml/games/' . $game_type_id . '-game.xml';
 	if (!file_exists($gameFile)) {
 		die('CGE ERROR: ' . $game_type_id . ' definition file not found.');
@@ -83,26 +120,25 @@ function cge_start_game() {
 		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $game_type_id );
 	}
 
-	$user = 3;
-
 	// check whether this user already has a game of this type, 
-	$game_id = get_game_by_creator( $game_type_id, $user );
+	$game_id = get_game_by_creator( $game_type_id, $user_id );
 
 	if ( $game_id ) {
 		// @TODO: verify with user to reusue or delete this game?
 		$success = 0;
 	} else {
-		$game_name = $game_spec->name . ' created by ' . $user->display_name;
+		//$game_name = $game_spec->name . ' created by ' . $user->display_name;
+		$game_name = $game_spec->name . ' created by FIXME';
 
 		// create game in db
-		$game_id = create_game( $game_type_id, $game_name, $user, $game_spec->required->maxPlayers );
+		$game_id = create_game( $game_type_id, $game_name, $user_id, $game_spec->required->maxPlayers );
 
 		// add first user to game
-		$success = join_game( $game_id, $user );
+		$success = join_game( $game_id, $user_id );
 	}
 
 	if ($success) {
-		notify( $game_id, $user, CGEGAMEDB, $game_id );
+		notify( $game_id, $user_id, CGEGAMEDB, $game_id );
 	}
 
 	// return game id & spec
@@ -120,6 +156,8 @@ function cge_start_game() {
 function cge_join_game() {
 	//load game type from db
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
+
 	$game = get_game_by_id( $game_id );
 	if (!$game) {
 		die('CGE ERROR: ' . $game_id . ' not found.');
@@ -136,13 +174,11 @@ function cge_join_game() {
 		die('CGE ERROR: Definition file found is for ' . $game_spec[ 'id' ] . ', not for ' . $game_type_id );
 	}
 
-	$user = 3;
-
 	// add user to game; sse-server will notify players of change
-	$success = join_game( $game_id, $user );
+	$success = join_game( $game_id, $user_id );
 	
 	if ($success) {
-		notify( $game_id, $user, CGEGAMEDB, $game_id );
+		notify( $game_id, $user_id, CGEGAMEDB, $game_id );
 	}
 
 	// return game id & spec
@@ -184,16 +220,15 @@ function cge_load_deck_spec() {
 function cge_record_transaction() {
 
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$from_group_id = htmlspecialchars( $_POST[ 'from_group_id' ] );
 	$to_group_id = htmlspecialchars( $_POST[ 'to_group_id' ] );
 	$items = htmlspecialchars( $_POST[ 'items' ] );
 
-	$user = 3;
-
-	$success = record_transaction( $game_id, $user, $from_group_id, $to_group_id, $items );
+	$success = record_transaction( $game_id, $user_id, $from_group_id, $to_group_id, $items );
 
 	if ( $success > 0 ) {
-		notify( $game_id, $user, CGETRANSDB, $success );
+		notify( $game_id, $user_id, CGETRANSDB, $success );
 	}
 
 	$return_value = array(
@@ -208,10 +243,11 @@ function cge_record_transaction() {
 function cge_pause_game() {
 
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$success = pause_game( $game_id );
 
 	if ( $success > 0 ) {
-		notify( $game_id, $user, CGEGAMEDB, $game_id );
+		notify( $game_id, $user_id, CGEGAMEDB, $game_id );
 	}
 
 	$return_value = array(
@@ -226,10 +262,11 @@ function cge_pause_game() {
 function cge_resume_game() {
 
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$success = resume_game( $game_id );
 
 	if ($success > 0) {
-		notify( $game_id, $user, CGEGAMEDB, $game_id );
+		notify( $game_id, $user_id, CGEGAMEDB, $game_id );
 	}
 
 	$return_value = array(
@@ -244,10 +281,11 @@ function cge_resume_game() {
 function cge_end_game() {
  
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$success = end_game( $game_id );
 
 	if ($success > 0) {
-		notify( $game_id, $user, CGEGAMEDB, $game_id );
+		notify( $game_id, $user_id, CGEGAMEDB, $game_id );
 	}
 
 	$return_value = array(
@@ -260,12 +298,12 @@ function cge_end_game() {
 }
 
 function cge_ack_event() {
- 
-	$user = 3;
 	$game_id = htmlspecialchars( $_POST[ 'game_id' ] );
+	$user_id = htmlspecialchars( $_POST[ 'user_id' ] );
 	$notif_id = htmlspecialchars( $_POST[ 'notif_id' ] );
+
 	//error_log($game_id . ':' . $notif_id);
-	$success = update_player_info( $game_id, $user, $notif_id );
+	$success = update_player_info( $game_id, $user_id, $notif_id );
 
 	$return_value = array(
 		'success' => $success

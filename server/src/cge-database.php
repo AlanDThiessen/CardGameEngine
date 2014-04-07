@@ -113,9 +113,37 @@ function cge_db_init() {
 }
 
 /*
-Name: get_joinable_games
-Input: none
-Output: array of joinable games
+Name: register_user
+Input: username, pasword, display_name, email
+Output: user id or false
+*/
+function register_user($username, $password, $display_name, $email) {
+	global $mysqli;
+
+	$result = $mysqli->query( 'select * from ' . CGEUSERDB . ' where user_name = "' . $username . '"');
+	if ($result) {
+		return true;
+	} else {
+		$query  = 'insert into ' . CGEUSERDB . ' SET ';
+		$query .= 'user_name = "' . $username . '",';
+		$query .= 'password = "' . $password . '",';
+		$query .= 'display_name = "' . $display_name . '",';
+		$query .= 'email = "' . $email . '"';
+		$result = $mysqli->query($query);
+		if ($result === false) {
+			return $result;
+		} else {
+			$user = login_user($usename, $password);
+			return $user;
+		}
+	}
+	
+}
+
+/*
+Name: login_user
+Input: username, pasword
+Output: user object or false
 */
 function login_user($username, $password) {
 	global $mysqli;
@@ -137,8 +165,10 @@ function get_joinable_games() {
 	global $mysqli;
 	$result = $mysqli->query( "select * from " . CGEGAMEDB );
 	$games = array();
-	while ($row = $result->fetch_object()) {
-		$games[] = $row;
+	if ($result) {
+		while ($row = $result->fetch_object()) {
+			$games[] = $row;
+		}
 	}
 	return $games;
 
@@ -150,8 +180,10 @@ function get_my_games( $user_id ) {
 	$games = array();
 	$result = $mysqli->query( "select distinct game_id from " . CGEPLAYERDB . " where user_id = " . $user_id  );
 
-	while ($row = $result->fetch_object()) {
-		$games[] = get_game_by_id( $row->game_id );
+	if ($result) {
+		while ($row = $result->fetch_object()) {
+			$games[] = get_game_by_id( $row->game_id );
+		}
 	}
 
 	return $games;
@@ -160,34 +192,43 @@ function get_my_games( $user_id ) {
 function get_game_by_id( $game_id ) {
 	global $mysqli;
 	$result = $mysqli->query( "select * from " . CGEGAMEDB . " where id = \"$game_id\"" );
-	$game = $result->fetch_object();
-	if ( $game->id ) {
-		return $game;
-	} else { 
-		return 0;
+	if ($result) {
+		$game = $result->fetch_object();
+		if ( $game->id ) {
+			return $game;
+		} else { 
+			return 0;
+		}
 	}
+	return $result;
 }
 
 function get_game_by_creator( $game_type_id, $user_id ) {
 	global $mysqli;
 	$result = $mysqli->query( "select id from " . CGEGAMEDB . " where game_type_id = \"$game_type_id\" and created_by = $user_id" );
-	$game = $result->fetch_object();
-	if ( $game->id ) {
-		return $game->id;
-	} else { 
-		return 0;
+	if ($result) {
+		$game = $result->fetch_object();
+		if ( $game->id ) {
+			return $game->id;
+		} else { 
+			return 0;
+		}
 	}
+	return $result;
 }
 
 function get_player_info( $user_id ) {
 	global $mysqli;
 	$result = $mysqli->query( "select game_id, latest_notif from " . CGEPLAYERDB . " where user_id = $user_id" );
-	$player_info = $result->fetch_object();
-	if ( $player_info->game_id ) {
-		return $player_info;
-	} else { 
-		return 0;
+	if ($result) {
+		$player_info = $result->fetch_object();
+		if ( $player_info->game_id ) {
+			return $player_info;
+		} else { 
+			return 0;
+		}
 	}
+	return $result;
 }
 
 function update_player_info( $game_id, $user_id, $notif_id ) {
@@ -208,19 +249,24 @@ function get_player_info_by_id( $trans_id ) {
 	global $mysqli;
 	$result = $mysqli->query( "select game_id, user_id, latest_notif from " . CGEPLAYERDB . " where id = $trans_id" );
 	$player_info = $result->fetch_object();
-	if ( $player_info->game_id ) {
-		return $player_info;
-	} else { 
-		return 0;
+	if ($result) {
+		if ( $player_info->game_id ) {
+			return $player_info;
+		} else { 
+			return 0;
+		}
 	}
+	return $result;
 }
 
 function get_players( $game_id ) {
 	global $mysqli;
 	$players = array();
 	$result = $mysqli->query( "select user_id from " . CGEPLAYERDB . " where game_id = " . $game_id );
-	while ($row = $result->fetch_object()) {
-		$players[] = $row->user_id;
+	if ($result) {
+		while ($row = $result->fetch_object()) {
+			$players[] = $row->user_id;
+		}
 	}
 
 	return $players;
@@ -239,7 +285,7 @@ function create_game( $game_type_id, $game_name, $user_id, $num_players_allowed 
 
 	$result = $mysqli->query($query);
 	if ($result === false) {
-		$insert_id = -1;
+		$insert_id = $result;
 	} else {
 		$insert_id =  $mysqli->insert_id;
 	}
@@ -252,12 +298,16 @@ function join_game( $game_id, $user_id ) {
 
 	$game_ids = array();
 	$result = $mysqli->query( "select distinct game_id from " . CGEPLAYERDB . " where user_id = " . $user_id  );
-	while ($row = $result->fetch_object()) {
-		$game_ids[] = $row->game_id;
+	if ($result) {
+		while ($row = $result->fetch_object()) {
+			$game_ids[] = $row->game_id;
+		}
 	}
 	if ( in_array( $game_id, $game_ids  ) ) {
 		$result = $mysqli->query( "select id from " . CGEPLAYERDB . " where game_id = " . $game_id . " and user_id = " . $user_id  );
-		$insert_id = $result->fetch_object()->id;
+		if ($result) {
+			$insert_id = $result->fetch_object()->id;
+		}
 	} else {
 
 		// add player to player table in db
@@ -275,9 +325,12 @@ function join_game( $game_id, $user_id ) {
 function get_num_players( $game_id ) {
 	// get current number of players
 	$result = $mysqli->query( "select count(*) from " . CGEGAMEDB . " where game_id = $game_id" );
-	$row = $result->fetch_all(MYSQLI_NUM);
-	$num_players = $row[0];
-	return $num_players;
+	if ($result) {
+		$row = $result->fetch_all(MYSQLI_NUM);
+		$num_players = $row[0];
+		return $num_players;
+	}
+	return $result;
 }
 
 function record_transaction( $game_id, $user_id, $from_group_id, $to_group_id, $items ) {
@@ -351,23 +404,34 @@ function notify( $game_id, $user_id, $table_name, $trans_id ) {
 		$query .= 'table_name = "' . $table_name . '",';
 		$query .= 'trans_id = ' . $trans_id;
 		$result = $mysqli->query($query);
+		if ($result) {
+			return true;
+		} else {
+			return $result;
+		}
 	}
 }
 
 function get_transaction( $trans_id ) {
 	global $mysqli;
 	$result = $mysqli->query( "select * from " . CGETRANSDB . " where id=" . $trans_id );
-	$trans = $result->fetch_object();
-	return $trans;
+	if ($result) {
+		$trans = $result->fetch_object();
+		return $trans;
+	} 
+	return $result;
 }
 
 function get_notifications( $game_id, $notif_id = 0 ) {
 	global $mysqli;
 	$notifs = array();
 	$result = $mysqli->query( "select * from " . CGENOTIFDB . " where game_id=" . $game_id . " and id > " . $notif_id );
-	while ($row = $result->fetch_object()) {
-		$notifs[] = $row;
+	if ($result) {
+		while ($row = $result->fetch_object()) {
+			$notifs[] = $row;
+		}
+		return $notifs;
 	}
-	return $notifs;
+	return $result;
 }
 
