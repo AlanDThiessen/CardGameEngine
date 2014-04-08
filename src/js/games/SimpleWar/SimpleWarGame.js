@@ -154,7 +154,13 @@ SimpleWarGame.prototype.BattleTransaction = function(eventId, data) {
  ******************************************************************************/
 SimpleWarGame.prototype.ScoreEnter = function() {
    var that = this;
-   var timeout = 2000;
+   var timeout;
+      
+   if (typeof window !== 'undefined') {
+      timeout = 2000;
+   } else {
+      timeout = 20;
+   }
 
    this.atBattle = this.ScoreBattle();
 
