@@ -1,0 +1,8 @@
+Game state:
+	created
+	playing
+	paused
+	ending
+
+on game_state change:
+	notification table is updated with player(s) to be notified, table & id 
