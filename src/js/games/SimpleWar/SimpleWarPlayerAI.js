@@ -37,7 +37,13 @@ SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
  ******************************************************************************/
 SimpleWarPlayerAI.prototype.BattleEnter = function() {
    var that = this;
-   var timeout = ((Math.random() * 2) + 1) * 500;
+   var timeout;
+   
+   if (typeof window !== 'undefined') {
+      timeout = ((Math.random() * 2) + 1) * 500;
+   } else {
+      timeout = 15;
+   }
 
    setTimeout(function() {
       that.parentGame.EventTransaction(that.id,
