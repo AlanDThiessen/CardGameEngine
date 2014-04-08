@@ -4,6 +4,7 @@ var Card = require("./Card.js");
 var transDef = require("./TransactionDefinition.js");
 var CGE = require("./CardGameDefs.js");
 var Events = require('events');
+var CardGameStatus = require("./Status.js").CardGameStatus;
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -36,6 +37,7 @@ function CardGame(name) {
    this.currPlayerIndex = -1; // Index to current player
    this.currPlayer = undefined; // Reference to current player
    this.events = [];
+   this.status = new CardGameStatus();
 
    // TODO: Bug: generic card games can't have card limits
    this.table = this.AddContainer(CGE_TABLE, undefined, 0, 52);
@@ -526,6 +528,32 @@ CardGame.prototype.GetPlayerIds = function() {
    }
 
    return ids;
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.UpdatePlayerStatus
+ * 
+ * This method adds the specified player status to the hash of statuses.
+ * 
+ ******************************************************************************/
+CardGame.prototype.UpdatePlayerStatus = function(playerId, status) {
+   this.status[playerId] = status;
+
+   this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {
+      ownerId : playerId
+   });
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.GetPlayerStatus
+ * 
+ * This method returns the status structure of the requested player
+ * 
+ ******************************************************************************/
+CardGame.prototype.GetPlayerStatus = function(playerId) {
+   return this.status[playerId];
 };
 
 module.exports = CardGame;

@@ -6,7 +6,6 @@ var CardGame = require("../../CardGame.js");
 var transDef = require("../../TransactionDefinition.js");
 var CGE = require("../../CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
-var GameStatus = require("./SimpleWarStatus.js").SimpleWarStatus;
 var SimpleWarUI = require("./SimpleWarUI.js");
 var log = require("../../Logger.js");
 
@@ -38,7 +37,6 @@ function SimpleWarGame(id) {
    // Call the parent class constructor
    CardGame.call(this, "Simple War");
 
-   this.status = new GameStatus();
    this.hasBattled = [];
    this.atBattle = [];
    this.atWar = false;
@@ -358,21 +356,6 @@ SimpleWarGame.prototype.AddUI = function() {
 
 /*******************************************************************************
  * 
- * Simplewar.prototype.UpdatePlayerStatus
- * 
- * This method adds the specified player status to the hash of statuses.
- * 
- ******************************************************************************/
-SimpleWarGame.prototype.UpdatePlayerStatus = function(playerId, status) {
-   this.status[playerId] = status;
-
-   this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {
-      ownerId : playerId
-   });
-};
-
-/*******************************************************************************
- * 
  * Simplewar.prototype.LogPlayerStatus
  * 
  * This method logs the status data from a player's structure
@@ -394,15 +377,4 @@ SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
                this.status[playerIds[cntr]].discardSize,
                this.status[playerIds[cntr]].battleStackTop);
    }
-};
-
-/*******************************************************************************
- * 
- * Simplewar.prototype.GetPlayerStatus
- * 
- * This method returns the status structure of the requested player
- * 
- ******************************************************************************/
-SimpleWarGame.prototype.GetPlayerStatus = function(playerId) {
-   return this.status[playerId];
 };
