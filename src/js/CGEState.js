@@ -14,7 +14,7 @@ function CGEState(owner, name, parent) {
 
    // Array of definition names that are valid for this state
    this.validTransactions = Array();
-};
+}
 
 CGEState.prototype = new State();
 CGEState.prototype.constructor = CGEState;
@@ -46,8 +46,9 @@ CGEState.prototype.IsTransactionValid = function(transDefName) {
 
    if (this.validTransactions.indexOf(transDefName) != -1) {
       isValid = true;
-   } else if (    (this.parent != undefined)
-               && (this.parent.IsTransactionValid != undefined)) {
+   } else if ( (this.parent !== undefined) &&
+               (this.parent.IsTransactionValid !== undefined)) {
+
       isValid = this.parent.IsTransactionValid(transDefName);
    }
 

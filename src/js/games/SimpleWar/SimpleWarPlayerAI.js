@@ -21,7 +21,7 @@ function SimpleWarPlayerAI(parent, id, alias) {
    this.status.type = "AI";
    this.status.alias = this.alias + " (AI)";
    this.SetEnterRoutine("Battle", this.BattleEnter);
-};
+}
 
 SimpleWarPlayerAI.prototype = new SimpleWarPlayer();
 SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;

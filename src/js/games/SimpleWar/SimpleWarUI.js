@@ -16,7 +16,7 @@ function SimpleWarUI(parentGame)
 
    this.parentGame = parentGame;
    this.playerId = null;
-};
+}
 
 SimpleWarUI.prototype = new CGEActiveEntity();
 SimpleWarUI.prototype.constructor = SimpleWarUI;
@@ -230,6 +230,6 @@ SimpleWarUI.prototype.setCardFace = function (element, rank) {
       element.style.backgroundImage = 'url("./img/cards.png")';
       element.style.backgroundPosition = xPos + ' ' + yPos;
    }
-}
+};
 
 module.exports = SimpleWarUI;
