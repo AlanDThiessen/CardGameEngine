@@ -23,7 +23,7 @@ function CGEActiveEntity(owner, name, parent) {
    ActiveEntity.call(this, owner, name, parent);
 
    this.rootContainer = new CardContainer(name);
-};
+}
 
 CGEActiveEntity.prototype = new ActiveEntity();
 CGEActiveEntity.prototype.constructor = CGEActiveEntity;
@@ -41,7 +41,7 @@ CGEActiveEntity.prototype.AddContainer = function(name, parent, minCards, maxCar
    var parentContainer;
    var container = new CardContainer(name, minCards, maxCards);
 
-   if (parent != undefined) {
+   if (parent !== undefined) {
       parentContainer = this.rootContainer.GetContainerById(parent);
    } else {
       parentContainer = this.rootContainer;
@@ -61,15 +61,15 @@ CGEActiveEntity.prototype.AddContainer = function(name, parent, minCards, maxCar
  * 
  ******************************************************************************/
 CGEActiveEntity.prototype.AddState = function(name, parentName) {
-   var parent = undefined;
+   var parent;
 
-   if (parentName != undefined) {
+   if (parentName !== undefined) {
       parent = this.topState.FindState(parentName, true);
    }
 
    // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
-   if (parent == undefined) {
+   if (parent === undefined) {
       parent = this.topState;
    }
 
@@ -89,13 +89,13 @@ CGEActiveEntity.prototype.AddState = function(name, parentName) {
  * 
  ******************************************************************************/
 CGEActiveEntity.prototype.AddValidTransaction = function(stateName, transDefName) {
-   var state = undefined;
+   var state;
 
-   if (stateName != undefined) {
+   if (stateName !== undefined) {
       state = this.topState.FindState(stateName, true);
    }
 
-   if (state != undefined) {
+   if (state !== undefined) {
       state.AddValidTransaction(transDefName);
    }
 };
@@ -114,7 +114,7 @@ CGEActiveEntity.prototype.AddValidTransaction = function(stateName, transDefName
 CGEActiveEntity.prototype.IsTransactionValid = function(transDefName) {
    var isValid = false;
 
-   if (this.currentState != undefined) {
+   if (this.currentState !== undefined) {
       isValid = this.currentState.IsTransactionValid(transDefName);
    }
 
@@ -131,19 +131,21 @@ CGEActiveEntity.prototype.IsTransactionValid = function(transDefName) {
  ******************************************************************************/
 CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, cards) {
    var success = false;
+   var toContainer;
+   var fromContainer;
 
    // First, make sure the transaction is valid in this state or any parent states
    if (this.IsTransactionValid(transName)) {
       var transDef = GetTransactionDefinition(transName);
 
-      if (transDef != undefined) {
+      if (transDef !== undefined) {
          if (transDef.fromContainerName == TRANSACTION_TYPE_INBOUND) {
             // The Transaction is inbound, meaning take cards from the provided
             // cards array parameter and send them to the container specified
             // by the transaction.
-            var toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
+            toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
 
-            if (toContainer != undefined) {
+            if (toContainer !== undefined) {
                toContainer.AddGroup(cards, transDef.location);
                success = true;
             }
@@ -151,20 +153,20 @@ CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, car
             // The Transaction is outbound, meaning take cards from the
             // container specified by the transaction and place them in the 
             // cards array parameter
-            var fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
+            fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
 
-            if (fromContainer != undefined) {
+            if (fromContainer !== undefined) {
                fromContainer.GetGroup(cards, cardList);
                success = true;
             }
          } else {
             // If the transaction is neither inbound or outbound, then it is
             // between two containers within this active entity.
-            var toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
-            var fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
+            toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
+            fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
             var cardArray = Array();
 
-            if ((toContainer != undefined) && (fromContainer != undefined)) {
+            if ((toContainer !== undefined) && (fromContainer !== undefined)) {
                fromContainer.GetGroup(cardArray, cardList);
                toContainer.AddGroup(cardArray, transDef.location);
                success = true;

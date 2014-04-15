@@ -56,7 +56,7 @@ State.prototype.AddEventHandler = function(eventId, routine) {
 State.prototype.SetInitialState = function(stateName) {
    var state = this.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       log.debug("State %s: Initial State set to %s", this.name, state.name);
       this.initial = state;
    }
@@ -94,7 +94,7 @@ State.prototype.EnterState = function(commonAncestor) {
    // If we are the common ancestor, then our state doesn't get entered
    if (commonAncestor != this.name) {
       // First, enter our parent state
-      if (this.parent != undefined) {
+      if (this.parent !== undefined) {
          this.parent.EnterState(commonAncestor);
       }
 
@@ -102,7 +102,7 @@ State.prototype.EnterState = function(commonAncestor) {
 
       log.debug("Enter State: %s", this.name);
 
-      if (this.enter != undefined) {
+      if (this.enter !== undefined) {
          this.enter.call(this.owner);
       }
    }
@@ -123,12 +123,12 @@ State.prototype.ExitState = function(commonAncestor) {
 
       this.inState = false;
 
-      if (this.exit != undefined) {
+      if (this.exit !== undefined) {
          this.exit.call(this.owner);
       }
 
       // Now, attempt to exit our parent state
-      if (this.parent != undefined) {
+      if (this.parent !== undefined) {
          this.parent.ExitState(commonAncestor);
       }
    }
@@ -147,7 +147,7 @@ State.prototype.HandleEvent = function(eventId, data) {
    }
 
    // We didn't handle the event, so pass it to our parent state
-   if ((eventHandled == false) && (this.parent != undefined)) {
+   if ((eventHandled === false) && (this.parent !== undefined)) {
       this.parent.HandleEvent(eventId, data);
    }
 };
@@ -163,7 +163,7 @@ State.prototype.GetAncestors = function(ancestorList) {
    // TODO: Verify ancestorList is an array
 
    // First, get our parent state
-   if (this.parent != undefined) {
+   if (this.parent !== undefined) {
       this.parent.GetAncestors(ancestorList);
    }
 
@@ -177,9 +177,9 @@ State.prototype.GetAncestors = function(ancestorList) {
  * 
  ******************************************************************************/
 State.prototype.FindState = function(name, goDeep) {
-   var stateFound = undefined;
+   var stateFound;
 
-   if (goDeep == undefined) {
+   if (goDeep === undefined) {
       goDeep = false;
    }
 
@@ -193,7 +193,7 @@ State.prototype.FindState = function(name, goDeep) {
          }
       }
 
-      if (goDeep && (stateFound == undefined)) {
+      if (goDeep && (stateFound === undefined)) {
          cntr = 0;
 
          while (!stateFound && (cntr < this.states.length)) {

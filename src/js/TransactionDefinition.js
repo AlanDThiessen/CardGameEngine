@@ -8,7 +8,7 @@
 
    function AddTransactionDefinition( name, from, to, minCards, maxCards, location )
    {
-      if( GetTransactionDefinition( name ) == undefined )
+      if( GetTransactionDefinition( name ) === undefined )
       {
          TransactionDefs.push( new TransactionDefinition( name, from, to, minCards, maxCards, location ) );
       }
@@ -16,7 +16,7 @@
 
    function GetTransactionDefinition( name )
    {
-      var transDef = undefined;
+      var transDef;
       
       for( var cntr = 0; cntr < TransactionDefs.length; cntr++ )
       {
@@ -52,8 +52,8 @@ function TransactionDefinition( name, from, to, minCards, maxCards, location )
    this.toContainerName    = to;
    this.minCards           = minCards;
    this.maxCards           = maxCards;
-   this.location			   = location;
-};
+   this.location           = location;
+}
 
 
 
