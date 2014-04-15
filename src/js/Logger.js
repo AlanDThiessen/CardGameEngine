@@ -14,7 +14,7 @@ log.debug = function (format) {
    if (log.mask & log.DEBUG) {
       log._out.apply(this, args);
    }
-}
+};
 
 log.info = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -23,7 +23,7 @@ log.info = function (format) {
    if (log.mask & log.INFO) {
       log._out.apply(this, args);
    }
-}
+};
 
 log.warn = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -32,7 +32,7 @@ log.warn = function (format) {
    if (log.mask & log.WARN) {
       log._out.apply(this, args);
    }
-}
+};
 
 log.error = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -41,7 +41,7 @@ log.error = function (format) {
    if (log.mask & log.ERROR) {
       log._out.apply(this, args);
    }
-}
+};
 
 log._out = function (level, format) {
    var i = -1;

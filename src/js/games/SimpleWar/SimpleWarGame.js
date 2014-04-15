@@ -59,7 +59,7 @@ function SimpleWarGame(id) {
 
    // Add the valid transactions to the states
    this.AddValidTransaction(SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL");
-};
+}
 
 SimpleWarGame.prototype = new CardGame();
 SimpleWarGame.prototype.constructor = SimpleWarGame;
@@ -125,9 +125,10 @@ SimpleWarGame.prototype.BattleEnter = function() {
 SimpleWarGame.prototype.BattleTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if (    (data             != undefined)
-        && (data.ownerId     != undefined)
-        && (data.transaction != undefined) ) {
+   if (  (data             !== undefined) &&
+         (data.ownerId     !== undefined) &&
+         (data.transaction !== undefined)) {
+
       if (data.transaction == SWGC.SWP_TRANSACTION_BATTLE) {
          this.hasBattled.push(data.ownerId);
 
@@ -241,8 +242,9 @@ SimpleWarGame.prototype.Deal = function() {
 SimpleWarGame.prototype.ScoreBattle = function() {
    var topPlayers = [];
    var topScore = 0;
+   var cntr;
 
-   for ( var cntr = 0; cntr < this.atBattle.length; cntr++) {
+   for (cntr = 0; cntr < this.atBattle.length; cntr++) {
       var score = this.players[this.atBattle[cntr]].GetScore();
 
       if (score > topScore) {
@@ -267,7 +269,7 @@ SimpleWarGame.prototype.ScoreBattle = function() {
       this.Notify("Going to War!");
       log.info("SWGame : Tie between:");
 
-      for ( var cntr = 0; cntr < topPlayers.length; cntr++) {
+      for (cntr = 0; cntr < topPlayers.length; cntr++) {
          log.info("SWGame :   - %s", this.players[topPlayers[cntr]].name);
       }
    }
@@ -285,9 +287,10 @@ SimpleWarGame.prototype.ScoreBattle = function() {
  ******************************************************************************/
 SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
    var numPlayers = this.NumPlayers();
+   var cntr;
 
    // Tell all players to discard
-   for ( var cntr = 0; cntr < numPlayers; cntr++) {
+   for (cntr = 0; cntr < numPlayers; cntr++) {
       this.EventTransaction(this.players[cntr].id,
                             SWGC.SWP_TRANSACTION_DICARD,
                             undefined,
@@ -300,7 +303,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
       log.info("SWGame : ************************* WAR!!! *************************");
       this.atWar = true;
 
-      for ( var cntr = 0; cntr < numPlayers; cntr++) {
+      for (cntr = 0; cntr < numPlayers; cntr++) {
          var doWar = false;
 
          // If the current player index is in the list of winners, then signal
@@ -318,7 +321,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
       var winnerIndex = topPlayers.pop();
       this.atWar = false;
 
-      for ( var cntr = 0; cntr < numPlayers; cntr++) {
+      for (cntr = 0; cntr < numPlayers; cntr++) {
          this.EventTransaction(this.players[winnerIndex].id,
                                SWGC.SWP_TRANSACTION_COLLECT,
                                this.players[cntr].id,
@@ -370,8 +373,8 @@ SimpleWarGame.prototype.AddUI = function() {
 SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
    var playerIds = [];
 
-   if (playerId != undefined) {
-      playerId.push(playerId)
+   if (playerId !== undefined) {
+      playerId.push(playerId);
    } else {
       playerIds = this.GetPlayerIds();
    }

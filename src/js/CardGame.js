@@ -165,12 +165,12 @@ CardGame.prototype.CreateDeck = function(deckSpec) {
  * 
  ******************************************************************************/
 CardGame.prototype.CreateSuitedCard = function(suit, value, count) {
-   return new Card(suit.name,
-		             suit.name + ' ' + value.name,
-		             suit.shortname + value.shortname,
-		             value.rank,
-		             suit.color,
-		             count);
+   return new Card(  suit.name,
+                     suit.name + ' ' + value.name,
+                     suit.shortname + value.shortname,
+                     value.rank,
+                     suit.color,
+                     count);
 };
 
 /*******************************************************************************
@@ -246,7 +246,7 @@ CardGame.prototype.StartGame = function() {
  ******************************************************************************/
 CardGame.prototype.GetEntityById = function(id) {
    var cntr = 0;
-   var entity = undefined;
+   var entity;
 
    if (this.id == id) {
       entity = this;
@@ -275,18 +275,18 @@ CardGame.prototype.GetEntityById = function(id) {
  ******************************************************************************/
 CardGame.prototype.GetContainerById = function(id) {
    var cntr;
-   var returnVal = undefined;
+   var returnVal;
 
    // Check to see if the dealer has this container
    returnVal = this.rootContainer.GetContainerById(id);
 
    // Otherwise, check all the players
-   if (returnVal == undefined) {
+   if (returnVal === undefined) {
       cntr = 0;
 
       do {
          returnVal = this.players[cntr].GetContainerById(id);
-      } while ((cntr < this.players.length) && (returnVal == undefined))
+      } while ((cntr < this.players.length) && (returnVal === undefined));
    }
 
    return returnVal;
@@ -320,7 +320,7 @@ CardGame.prototype.ProcessEvents = function() {
 
    event = this.events.shift();
 
-   if (event != undefined) {
+   if (event !== undefined) {
       if (event.eventId == CGE.CGE_EVENT_DO_TRANSACTION) {
          this.ProcessEventTransaction(event.data.destId,
                                       event.data.destTransName,
@@ -346,9 +346,10 @@ CardGame.prototype.ProcessEvents = function() {
  * 
  ******************************************************************************/
 CardGame.prototype.DispatchEvent = function(eventId, data) {
-   if (    (eventId != CGE.CGE_EVENT_STATUS_UPDATE)
-        && (eventId != CGE.CGE_EVENT_NOTIFY)) {
-      if ((data != undefined) && (data.ownerId != undefined)) {
+   if (  (eventId != CGE.CGE_EVENT_STATUS_UPDATE) &&
+         (eventId != CGE.CGE_EVENT_NOTIFY)) {
+
+      if ((data !== undefined) && (data.ownerId !== undefined)) {
          var entity = this.GetEntityById(data.ownerId);
          entity.HandleEvent(eventId, data);
       } else {
@@ -377,11 +378,11 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
    var success = false;
 
    // log.info( "CGame : Process Transaction Event" );
-   if (destEntity != undefined) {
-      if (srcId != undefined) {
+   if (destEntity !== undefined) {
+      if (srcId !== undefined) {
          var srcEntity = this.GetEntityById(srcId);
 
-         if (srcEntity != undefined) {
+         if (srcEntity !== undefined) {
             var cardArray = Array();
 
             if (srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {

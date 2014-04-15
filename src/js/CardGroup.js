@@ -28,7 +28,7 @@ CardGroup.prototype.Empty = function() {
  * 
  ******************************************************************************/
 CardGroup.prototype.GetCard = function(cardId) {
-   var card = undefined;
+   var card;
 
    if (cardId == "TOP") {
       card = this.cards.shift();

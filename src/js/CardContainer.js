@@ -24,7 +24,7 @@ CardContainer.prototype.constructor = CardContainer;
  * 
  ******************************************************************************/
 CardContainer.prototype.AddGroup = function(group, location) {
-   if (this.AcceptGroup(group) == true) {
+   if (this.AcceptGroup(group) === true) {
       var index;
 
       if (location == "TOP") {
@@ -69,7 +69,7 @@ CardContainer.prototype.CanGetGroup = function(cardList) {
  * 
  ******************************************************************************/
 CardContainer.prototype.GetGroup = function(cardArray, cardList) {
-   if (this.CanGetGroup(cardList) == true) {
+   if (this.CanGetGroup(cardList) === true) {
       for ( var cntr = 0; cntr < cardList.length; cntr++) {
          var numCards = 0;
          var action = cardList[cntr].split(':', 2);
@@ -114,7 +114,7 @@ CardContainer.prototype.AcceptGroup = function(group) {
  ******************************************************************************/
 CardContainer.prototype.GetContainerById = function(id) {
    var cntr;
-   var returnVal = undefined;
+   var returnVal;
 
    if (id == this.id) {
       returnVal = this;
@@ -124,7 +124,7 @@ CardContainer.prototype.GetContainerById = function(id) {
       for (cntr = 0; cntr < this.containers.length; cntr++) {
          returnVal = this.containers[cntr].GetContainerById(id);
 
-         if (returnVal != undefined) {
+         if (returnVal !== undefined) {
             break;
          }
       }
@@ -142,7 +142,7 @@ CardContainer.prototype.IsEmpty = function() {
    var isEmpty = true;
 
    // First check if we are empty.
-   if (this.cards.length == 0) {
+   if (this.cards.length === 0) {
       // If we are empty, then check our children containers
       for ( var cntr = 0; cntr < this.containers.length; cntr++) {
          if (!this.containers[cntr].IsEmpty()) {

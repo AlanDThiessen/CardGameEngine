@@ -55,7 +55,7 @@ function SimpleWarPlayer(parent, id, alias) {
    Player.call(this, parent, id, alias);
 
    this.inGame = true;
-   this.status = new PlayerStatus;
+   this.status = new PlayerStatus();
 
    this.status.id = this.id;
    this.status.type = 'USER';
@@ -93,7 +93,7 @@ function SimpleWarPlayer(parent, id, alias) {
    this.AddValidTransaction(SWP_STATE_READY,   SWGC.SWP_TRANSACTION_DEAL);
    this.AddValidTransaction(SWP_STATE_BATTLE,  SWGC.SWP_TRANSACTION_BATTLE);
    this.AddValidTransaction(SWP_STATE_WAIT,    SWGC.SWP_TRANSACTION_FLOP);
-};
+}
 
 SimpleWarPlayer.prototype = new Player();
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
@@ -166,8 +166,9 @@ SimpleWarPlayer.prototype.DoBattle = function() {
 SimpleWarPlayer.prototype.BattleTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if (    (data.ownerId == this.id)
-        && (data.transaction == SWGC.SWP_TRANSACTION_BATTLE)) {
+   if (  (data.ownerId == this.id) &&
+         (data.transaction == SWGC.SWP_TRANSACTION_BATTLE)) {
+
       this.UpdateStatus();
       this.Transition(SWP_STATE_WAIT);
       eventHandled = true;
@@ -197,8 +198,8 @@ SimpleWarPlayer.prototype.WaitEnter = function() {
 SimpleWarPlayer.prototype.WaitTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if (    (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP)
-        && (data.ownerId == this.id)) {
+   if (  (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP) &&
+         (data.ownerId == this.id)) {
 
       // TODO: Fix bug where player will go out even if he just won the battle
       if (this.stack.IsEmpty()) {

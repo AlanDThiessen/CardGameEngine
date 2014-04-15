@@ -31,15 +31,15 @@ function ActiveEntity(name) {
  * 
  ******************************************************************************/
 ActiveEntity.prototype.AddState = function(name, parentName) {
-   var parent = undefined;
+   var parent;
 
-   if (parentName != undefined) {
+   if (parentName !== undefined) {
       parent = this.topState.FindState(parentName, true);
    }
 
    // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
-   if (parent == undefined) {
+   if (parent === undefined) {
       parent = this.topState;
    }
 
@@ -53,7 +53,7 @@ ActiveEntity.prototype.AddState = function(name, parentName) {
 ActiveEntity.prototype.AddEventHandler = function(stateName, eventId, routine) {
    var state = this.topState.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       log.debug("Adding event handler for event %d to state %s", eventId, state.name);
       state.AddEventHandler(eventId, routine);
    }
@@ -62,7 +62,7 @@ ActiveEntity.prototype.AddEventHandler = function(stateName, eventId, routine) {
 ActiveEntity.prototype.SetEnterRoutine = function(stateName, routine) {
    var state = this.topState.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       state.SetEnterRoutine(routine);
    }
 };
@@ -70,7 +70,7 @@ ActiveEntity.prototype.SetEnterRoutine = function(stateName, routine) {
 ActiveEntity.prototype.SetExitRoutine = function(stateName, routine) {
    var state = this.topState.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       state.SetExitRoutine(routine);
    }
 };
@@ -86,7 +86,7 @@ ActiveEntity.prototype.SetExitRoutine = function(stateName, routine) {
 ActiveEntity.prototype.SetInitialState = function(initialStateName, parentName) {
    var state;
 
-   if (parentName != undefined) {
+   if (parentName !== undefined) {
       state = this.topState.FindState(parentName, true);
    } else {
       state = this.topState;
@@ -116,7 +116,7 @@ ActiveEntity.prototype.Start = function() {
  * 
  ******************************************************************************/
 ActiveEntity.prototype.HandleEvent = function(eventId, data) {
-   if (this.currentState != undefined) {
+   if (this.currentState !== undefined) {
       this.currentState.HandleEvent(eventId, data);
    }
 };
@@ -132,16 +132,16 @@ ActiveEntity.prototype.HandleEvent = function(eventId, data) {
 ActiveEntity.prototype.Transition = function(destStateName) {
    var destAncestors = Array();
    var srcAncestors = Array();
-   var found = undefined;
+   var found;
    var lcAncestor = this.name; // The Lowest Common Ancestor
    var destState = this.topState.FindState(destStateName, true);
 
    log.debug("Transition: %s -> %s; ", this.currentState.name, destStateName);
 
-   if (destState != undefined) {
+   if (destState !== undefined) {
       // If we are coming from outside the destination state, then we need to
       // change the destination state to the initial substate.
-      while ((!destState.inState) && (destState.initial != undefined)) {
+      while ((!destState.inState) && (destState.initial !== undefined)) {
          destState = destState.initial;
       }
 
