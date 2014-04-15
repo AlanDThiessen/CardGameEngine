@@ -371,7 +371,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, car
 
 module.exports = CGEActiveEntity;
 
-},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":12}],3:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":13}],3:[function(require,module,exports){
 var State = require("./State.js");
 
 /*******************************************************************************
@@ -640,6 +640,7 @@ var Card = require("./Card.js");
 var transDef = require("./TransactionDefinition.js");
 var CGE = require("./CardGameDefs.js");
 var Events = require('events');
+var CardGameStatus = require("./Status.js").CardGameStatus;
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -672,6 +673,7 @@ function CardGame(name) {
    this.currPlayerIndex = -1; // Index to current player
    this.currPlayer = undefined; // Reference to current player
    this.events = [];
+   this.status = new CardGameStatus();
 
    // TODO: Bug: generic card games can't have card limits
    this.table = this.AddContainer(CGE_TABLE, undefined, 0, 52);
@@ -1164,9 +1166,35 @@ CardGame.prototype.GetPlayerIds = function() {
    return ids;
 };
 
+/*******************************************************************************
+ * 
+ * CardGame.prototype.UpdatePlayerStatus
+ * 
+ * This method adds the specified player status to the hash of statuses.
+ * 
+ ******************************************************************************/
+CardGame.prototype.UpdatePlayerStatus = function(playerId, status) {
+   this.status[playerId] = status;
+
+   this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {
+      ownerId : playerId
+   });
+};
+
+/*******************************************************************************
+ * 
+ * CardGame.prototype.GetPlayerStatus
+ * 
+ * This method returns the status structure of the requested player
+ * 
+ ******************************************************************************/
+CardGame.prototype.GetPlayerStatus = function(playerId) {
+   return this.status[playerId];
+};
+
 module.exports = CardGame;
 
-},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Logger.js":9,"./TransactionDefinition.js":12,"events":21}],7:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Logger.js":9,"./Status.js":12,"./TransactionDefinition.js":13,"events":22}],7:[function(require,module,exports){
 
 
 var CGE_CONSTANTS = {
@@ -1706,6 +1734,27 @@ module.exports = State;
 
 },{"./Logger.js":9}],12:[function(require,module,exports){
 
+
+function PlayerStatus()
+{
+   this.id              = '';
+   this.type            = '';
+   this.alias           = '';
+}
+
+
+function CardGameStatus()
+{
+   this.players = {};
+}
+
+
+module.exports = {
+                  PlayerStatus: PlayerStatus,
+                  CardGameStatus: CardGameStatus };
+
+},{}],13:[function(require,module,exports){
+
 /******************************************************************************
  * Global array of Transaction Definitions
  ******************************************************************************/
@@ -1772,7 +1821,7 @@ module.exports = {
  TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 
 
 var SWG_CONSTANTS = {
@@ -1796,7 +1845,7 @@ var SWG_CONSTANTS = {
 
 module.exports = SWG_CONSTANTS;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = SimpleWarGame;
 
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
@@ -1805,7 +1854,6 @@ var CardGame = require("../../CardGame.js");
 var transDef = require("../../TransactionDefinition.js");
 var CGE = require("../../CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
-var GameStatus = require("./SimpleWarStatus.js").SimpleWarStatus;
 var SimpleWarUI = require("./SimpleWarUI.js");
 var log = require("../../Logger.js");
 
@@ -1837,7 +1885,6 @@ function SimpleWarGame(id) {
    // Call the parent class constructor
    CardGame.call(this, "Simple War");
 
-   this.status = new GameStatus();
    this.hasBattled = [];
    this.atBattle = [];
    this.atWar = false;
@@ -1955,7 +2002,13 @@ SimpleWarGame.prototype.BattleTransaction = function(eventId, data) {
  ******************************************************************************/
 SimpleWarGame.prototype.ScoreEnter = function() {
    var that = this;
-   var timeout = 2000;
+   var timeout;
+      
+   if (typeof window !== 'undefined') {
+      timeout = 2000;
+   } else {
+      timeout = 20;
+   }
 
    this.atBattle = this.ScoreBattle();
 
@@ -2157,21 +2210,6 @@ SimpleWarGame.prototype.AddUI = function() {
 
 /*******************************************************************************
  * 
- * Simplewar.prototype.UpdatePlayerStatus
- * 
- * This method adds the specified player status to the hash of statuses.
- * 
- ******************************************************************************/
-SimpleWarGame.prototype.UpdatePlayerStatus = function(playerId, status) {
-   this.status[playerId] = status;
-
-   this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {
-      ownerId : playerId
-   });
-};
-
-/*******************************************************************************
- * 
  * Simplewar.prototype.LogPlayerStatus
  * 
  * This method logs the status data from a player's structure
@@ -2195,18 +2233,7 @@ SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
    }
 };
 
-/*******************************************************************************
- * 
- * Simplewar.prototype.GetPlayerStatus
- * 
- * This method returns the status structure of the requested player
- * 
- ******************************************************************************/
-SimpleWarGame.prototype.GetPlayerStatus = function(playerId) {
-   return this.status[playerId];
-};
-
-},{"../../CardGame.js":6,"../../CardGameDefs.js":7,"../../Logger.js":9,"../../TransactionDefinition.js":12,"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15,"./SimpleWarPlayerAI.js":16,"./SimpleWarStatus.js":17,"./SimpleWarUI.js":18}],15:[function(require,module,exports){
+},{"../../CardGame.js":6,"../../CardGameDefs.js":7,"../../Logger.js":9,"../../TransactionDefinition.js":13,"./SimpleWarDefs.js":14,"./SimpleWarPlayer.js":16,"./SimpleWarPlayerAI.js":17,"./SimpleWarUI.js":19}],16:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
 var CGE = require("../../CardGameDefs.js");
@@ -2514,7 +2541,7 @@ SimpleWarPlayer.prototype.UpdateStatus = function() {
    this.parentGame.UpdatePlayerStatus(this.id, this.status);
 };
 
-},{"../../CardGameDefs.js":7,"../../Logger.js":9,"../../Player.js":10,"../../TransactionDefinition.js":12,"./SimpleWarDefs.js":13,"./SimpleWarStatus.js":17}],16:[function(require,module,exports){
+},{"../../CardGameDefs.js":7,"../../Logger.js":9,"../../Player.js":10,"../../TransactionDefinition.js":13,"./SimpleWarDefs.js":14,"./SimpleWarStatus.js":18}],17:[function(require,module,exports){
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SWGC = require("./SimpleWarDefs.js");
 
@@ -2554,7 +2581,13 @@ SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
  ******************************************************************************/
 SimpleWarPlayerAI.prototype.BattleEnter = function() {
    var that = this;
-   var timeout = ((Math.random() * 2) + 1) * 500;
+   var timeout;
+   
+   if (typeof window !== 'undefined') {
+      timeout = ((Math.random() * 2) + 1) * 500;
+   } else {
+      timeout = 15;
+   }
 
    setTimeout(function() {
       that.parentGame.EventTransaction(that.id,
@@ -2567,32 +2600,28 @@ SimpleWarPlayerAI.prototype.BattleEnter = function() {
 
 module.exports = SimpleWarPlayerAI;
 
-},{"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15}],17:[function(require,module,exports){
+},{"./SimpleWarDefs.js":14,"./SimpleWarPlayer.js":16}],18:[function(require,module,exports){
+
+var Status = require("../../Status.js");
 
 
 function SimpleWarPlayerStatus()
 {
-   this.id              = '';
-   this.type            = '';
-   this.alias           = '';
    this.stackSize       = 0;
    this.discardSize     = 0;
    this.battleStackTop  = '';
    this.discardList		= [];
 }
 
-
-function SimpleWarStatus()
-{
-   this.players = {};
-}
+SimpleWarPlayerStatus.prototype = new Status.PlayerStatus();
+SimpleWarPlayerStatus.prototype.constructor = SimpleWarPlayerStatus;
 
 
 module.exports = {
                   SimpleWarPlayerStatus: SimpleWarPlayerStatus,
-                  SimpleWarStatus: SimpleWarStatus };
+                  };
 
-},{}],18:[function(require,module,exports){
+},{"../../Status.js":12}],19:[function(require,module,exports){
 var CGEActiveEntity = require ('../../CGEActiveEntity.js');
 var CGE = require("../../CardGameDefs.js");
 var SWGC = require('./SimpleWarDefs.js');
@@ -2829,7 +2858,7 @@ SimpleWarUI.prototype.setCardFace = function (element, rank) {
 
 module.exports = SimpleWarUI;
 
-},{"../../CGEActiveEntity.js":2,"../../CardGameDefs.js":7,"./SimpleWarDefs.js":13}],19:[function(require,module,exports){
+},{"../../CGEActiveEntity.js":2,"../../CardGameDefs.js":7,"./SimpleWarDefs.js":14}],20:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
@@ -3022,9 +3051,9 @@ else
    window.addEventListener('load', main, false);
 }
 
-},{"../../src/js/Logger.js":9,"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"readline":20}],20:[function(require,module,exports){
+},{"../../src/js/Logger.js":9,"../../src/js/games/SimpleWar/SimpleWarGame.js":15,"readline":21}],21:[function(require,module,exports){
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3326,4 +3355,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[19])
+},{}]},{},[20])

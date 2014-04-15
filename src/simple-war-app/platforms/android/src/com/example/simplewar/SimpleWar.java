@@ -22,7 +22,7 @@ package com.example.simplewar;
 import android.os.Bundle;
 import org.apache.cordova.*;
 
-public class HelloCordova extends CordovaActivity 
+public class SimpleWar extends CordovaActivity 
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
