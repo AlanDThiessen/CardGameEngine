@@ -32,15 +32,15 @@ function ActiveEntity(name) {
  * 
  ******************************************************************************/
 ActiveEntity.prototype.AddState = function(name, parentName) {
-   var parent = undefined;
+   var parent;
 
-   if (parentName != undefined) {
+   if (parentName !== undefined) {
       parent = this.topState.FindState(parentName, true);
    }
 
    // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
-   if (parent == undefined) {
+   if (parent === undefined) {
       parent = this.topState;
    }
 
@@ -54,7 +54,7 @@ ActiveEntity.prototype.AddState = function(name, parentName) {
 ActiveEntity.prototype.AddEventHandler = function(stateName, eventId, routine) {
    var state = this.topState.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       log.debug("Adding event handler for event %d to state %s", eventId, state.name);
       state.AddEventHandler(eventId, routine);
    }
@@ -63,7 +63,7 @@ ActiveEntity.prototype.AddEventHandler = function(stateName, eventId, routine) {
 ActiveEntity.prototype.SetEnterRoutine = function(stateName, routine) {
    var state = this.topState.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       state.SetEnterRoutine(routine);
    }
 };
@@ -71,7 +71,7 @@ ActiveEntity.prototype.SetEnterRoutine = function(stateName, routine) {
 ActiveEntity.prototype.SetExitRoutine = function(stateName, routine) {
    var state = this.topState.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       state.SetExitRoutine(routine);
    }
 };
@@ -87,7 +87,7 @@ ActiveEntity.prototype.SetExitRoutine = function(stateName, routine) {
 ActiveEntity.prototype.SetInitialState = function(initialStateName, parentName) {
    var state;
 
-   if (parentName != undefined) {
+   if (parentName !== undefined) {
       state = this.topState.FindState(parentName, true);
    } else {
       state = this.topState;
@@ -117,7 +117,7 @@ ActiveEntity.prototype.Start = function() {
  * 
  ******************************************************************************/
 ActiveEntity.prototype.HandleEvent = function(eventId, data) {
-   if (this.currentState != undefined) {
+   if (this.currentState !== undefined) {
       this.currentState.HandleEvent(eventId, data);
    }
 };
@@ -133,16 +133,16 @@ ActiveEntity.prototype.HandleEvent = function(eventId, data) {
 ActiveEntity.prototype.Transition = function(destStateName) {
    var destAncestors = Array();
    var srcAncestors = Array();
-   var found = undefined;
+   var found;
    var lcAncestor = this.name; // The Lowest Common Ancestor
    var destState = this.topState.FindState(destStateName, true);
 
    log.debug("Transition: %s -> %s; ", this.currentState.name, destStateName);
 
-   if (destState != undefined) {
+   if (destState !== undefined) {
       // If we are coming from outside the destination state, then we need to
       // change the destination state to the initial substate.
-      while ((!destState.inState) && (destState.initial != undefined)) {
+      while ((!destState.inState) && (destState.initial !== undefined)) {
          destState = destState.initial;
       }
 
@@ -216,7 +216,7 @@ function CGEActiveEntity(owner, name, parent) {
    ActiveEntity.call(this, owner, name, parent);
 
    this.rootContainer = new CardContainer(name);
-};
+}
 
 CGEActiveEntity.prototype = new ActiveEntity();
 CGEActiveEntity.prototype.constructor = CGEActiveEntity;
@@ -234,7 +234,7 @@ CGEActiveEntity.prototype.AddContainer = function(name, parent, minCards, maxCar
    var parentContainer;
    var container = new CardContainer(name, minCards, maxCards);
 
-   if (parent != undefined) {
+   if (parent !== undefined) {
       parentContainer = this.rootContainer.GetContainerById(parent);
    } else {
       parentContainer = this.rootContainer;
@@ -254,15 +254,15 @@ CGEActiveEntity.prototype.AddContainer = function(name, parent, minCards, maxCar
  * 
  ******************************************************************************/
 CGEActiveEntity.prototype.AddState = function(name, parentName) {
-   var parent = undefined;
+   var parent;
 
-   if (parentName != undefined) {
+   if (parentName !== undefined) {
       parent = this.topState.FindState(parentName, true);
    }
 
    // If we didn't find the state name, or it's undefined, then set the topState
    // as the parent of the new state.
-   if (parent == undefined) {
+   if (parent === undefined) {
       parent = this.topState;
    }
 
@@ -282,13 +282,13 @@ CGEActiveEntity.prototype.AddState = function(name, parentName) {
  * 
  ******************************************************************************/
 CGEActiveEntity.prototype.AddValidTransaction = function(stateName, transDefName) {
-   var state = undefined;
+   var state;
 
-   if (stateName != undefined) {
+   if (stateName !== undefined) {
       state = this.topState.FindState(stateName, true);
    }
 
-   if (state != undefined) {
+   if (state !== undefined) {
       state.AddValidTransaction(transDefName);
    }
 };
@@ -307,7 +307,7 @@ CGEActiveEntity.prototype.AddValidTransaction = function(stateName, transDefName
 CGEActiveEntity.prototype.IsTransactionValid = function(transDefName) {
    var isValid = false;
 
-   if (this.currentState != undefined) {
+   if (this.currentState !== undefined) {
       isValid = this.currentState.IsTransactionValid(transDefName);
    }
 
@@ -324,19 +324,21 @@ CGEActiveEntity.prototype.IsTransactionValid = function(transDefName) {
  ******************************************************************************/
 CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, cards) {
    var success = false;
+   var toContainer;
+   var fromContainer;
 
    // First, make sure the transaction is valid in this state or any parent states
    if (this.IsTransactionValid(transName)) {
       var transDef = GetTransactionDefinition(transName);
 
-      if (transDef != undefined) {
+      if (transDef !== undefined) {
          if (transDef.fromContainerName == TRANSACTION_TYPE_INBOUND) {
             // The Transaction is inbound, meaning take cards from the provided
             // cards array parameter and send them to the container specified
             // by the transaction.
-            var toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
+            toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
 
-            if (toContainer != undefined) {
+            if (toContainer !== undefined) {
                toContainer.AddGroup(cards, transDef.location);
                success = true;
             }
@@ -344,20 +346,20 @@ CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, car
             // The Transaction is outbound, meaning take cards from the
             // container specified by the transaction and place them in the 
             // cards array parameter
-            var fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
+            fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
 
-            if (fromContainer != undefined) {
+            if (fromContainer !== undefined) {
                fromContainer.GetGroup(cards, cardList);
                success = true;
             }
          } else {
             // If the transaction is neither inbound or outbound, then it is
             // between two containers within this active entity.
-            var toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
-            var fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
+            toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
+            fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
             var cardArray = Array();
 
-            if ((toContainer != undefined) && (fromContainer != undefined)) {
+            if ((toContainer !== undefined) && (fromContainer !== undefined)) {
                fromContainer.GetGroup(cardArray, cardList);
                toContainer.AddGroup(cardArray, transDef.location);
                success = true;
@@ -388,7 +390,7 @@ function CGEState(owner, name, parent) {
 
    // Array of definition names that are valid for this state
    this.validTransactions = Array();
-};
+}
 
 CGEState.prototype = new State();
 CGEState.prototype.constructor = CGEState;
@@ -420,8 +422,9 @@ CGEState.prototype.IsTransactionValid = function(transDefName) {
 
    if (this.validTransactions.indexOf(transDefName) != -1) {
       isValid = true;
-   } else if (    (this.parent != undefined)
-               && (this.parent.IsTransactionValid != undefined)) {
+   } else if ( (this.parent !== undefined) &&
+               (this.parent.IsTransactionValid !== undefined)) {
+
       isValid = this.parent.IsTransactionValid(transDefName);
    }
 
@@ -485,7 +488,7 @@ CardContainer.prototype.constructor = CardContainer;
  * 
  ******************************************************************************/
 CardContainer.prototype.AddGroup = function(group, location) {
-   if (this.AcceptGroup(group) == true) {
+   if (this.AcceptGroup(group) === true) {
       var index;
 
       if (location == "TOP") {
@@ -530,7 +533,7 @@ CardContainer.prototype.CanGetGroup = function(cardList) {
  * 
  ******************************************************************************/
 CardContainer.prototype.GetGroup = function(cardArray, cardList) {
-   if (this.CanGetGroup(cardList) == true) {
+   if (this.CanGetGroup(cardList) === true) {
       for ( var cntr = 0; cntr < cardList.length; cntr++) {
          var numCards = 0;
          var action = cardList[cntr].split(':', 2);
@@ -575,7 +578,7 @@ CardContainer.prototype.AcceptGroup = function(group) {
  ******************************************************************************/
 CardContainer.prototype.GetContainerById = function(id) {
    var cntr;
-   var returnVal = undefined;
+   var returnVal;
 
    if (id == this.id) {
       returnVal = this;
@@ -585,7 +588,7 @@ CardContainer.prototype.GetContainerById = function(id) {
       for (cntr = 0; cntr < this.containers.length; cntr++) {
          returnVal = this.containers[cntr].GetContainerById(id);
 
-         if (returnVal != undefined) {
+         if (returnVal !== undefined) {
             break;
          }
       }
@@ -603,7 +606,7 @@ CardContainer.prototype.IsEmpty = function() {
    var isEmpty = true;
 
    // First check if we are empty.
-   if (this.cards.length == 0) {
+   if (this.cards.length === 0) {
       // If we are empty, then check our children containers
       for ( var cntr = 0; cntr < this.containers.length; cntr++) {
          if (!this.containers[cntr].IsEmpty()) {
@@ -801,12 +804,12 @@ CardGame.prototype.CreateDeck = function(deckSpec) {
  * 
  ******************************************************************************/
 CardGame.prototype.CreateSuitedCard = function(suit, value, count) {
-   return new Card(suit.name,
-		             suit.name + ' ' + value.name,
-		             suit.shortname + value.shortname,
-		             value.rank,
-		             suit.color,
-		             count);
+   return new Card(  suit.name,
+                     suit.name + ' ' + value.name,
+                     suit.shortname + value.shortname,
+                     value.rank,
+                     suit.color,
+                     count);
 };
 
 /*******************************************************************************
@@ -882,7 +885,7 @@ CardGame.prototype.StartGame = function() {
  ******************************************************************************/
 CardGame.prototype.GetEntityById = function(id) {
    var cntr = 0;
-   var entity = undefined;
+   var entity;
 
    if (this.id == id) {
       entity = this;
@@ -911,18 +914,18 @@ CardGame.prototype.GetEntityById = function(id) {
  ******************************************************************************/
 CardGame.prototype.GetContainerById = function(id) {
    var cntr;
-   var returnVal = undefined;
+   var returnVal;
 
    // Check to see if the dealer has this container
    returnVal = this.rootContainer.GetContainerById(id);
 
    // Otherwise, check all the players
-   if (returnVal == undefined) {
+   if (returnVal === undefined) {
       cntr = 0;
 
       do {
          returnVal = this.players[cntr].GetContainerById(id);
-      } while ((cntr < this.players.length) && (returnVal == undefined))
+      } while ((cntr < this.players.length) && (returnVal === undefined));
    }
 
    return returnVal;
@@ -956,7 +959,7 @@ CardGame.prototype.ProcessEvents = function() {
 
    event = this.events.shift();
 
-   if (event != undefined) {
+   if (event !== undefined) {
       if (event.eventId == CGE.CGE_EVENT_DO_TRANSACTION) {
          this.ProcessEventTransaction(event.data.destId,
                                       event.data.destTransName,
@@ -982,9 +985,10 @@ CardGame.prototype.ProcessEvents = function() {
  * 
  ******************************************************************************/
 CardGame.prototype.DispatchEvent = function(eventId, data) {
-   if (    (eventId != CGE.CGE_EVENT_STATUS_UPDATE)
-        && (eventId != CGE.CGE_EVENT_NOTIFY)) {
-      if ((data != undefined) && (data.ownerId != undefined)) {
+   if (  (eventId != CGE.CGE_EVENT_STATUS_UPDATE) &&
+         (eventId != CGE.CGE_EVENT_NOTIFY)) {
+
+      if ((data !== undefined) && (data.ownerId !== undefined)) {
          var entity = this.GetEntityById(data.ownerId);
          entity.HandleEvent(eventId, data);
       } else {
@@ -1013,11 +1017,11 @@ CardGame.prototype.ProcessEventTransaction = function(destId, destTransName,
    var success = false;
 
    // log.info( "CGame : Process Transaction Event" );
-   if (destEntity != undefined) {
-      if (srcId != undefined) {
+   if (destEntity !== undefined) {
+      if (srcId !== undefined) {
          var srcEntity = this.GetEntityById(srcId);
 
-         if (srcEntity != undefined) {
+         if (srcEntity !== undefined) {
             var cardArray = Array();
 
             if (srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {
@@ -1246,7 +1250,7 @@ CardGroup.prototype.Empty = function() {
  * 
  ******************************************************************************/
 CardGroup.prototype.GetCard = function(cardId) {
-   var card = undefined;
+   var card;
 
    if (cardId == "TOP") {
       card = this.cards.shift();
@@ -1423,7 +1427,7 @@ log.debug = function (format) {
    if (log.mask & log.DEBUG) {
       log._out.apply(this, args);
    }
-}
+};
 
 log.info = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -1432,7 +1436,7 @@ log.info = function (format) {
    if (log.mask & log.INFO) {
       log._out.apply(this, args);
    }
-}
+};
 
 log.warn = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -1441,7 +1445,7 @@ log.warn = function (format) {
    if (log.mask & log.WARN) {
       log._out.apply(this, args);
    }
-}
+};
 
 log.error = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -1450,7 +1454,7 @@ log.error = function (format) {
    if (log.mask & log.ERROR) {
       log._out.apply(this, args);
    }
-}
+};
 
 log._out = function (level, format) {
    var i = -1;
@@ -1580,7 +1584,7 @@ State.prototype.AddEventHandler = function(eventId, routine) {
 State.prototype.SetInitialState = function(stateName) {
    var state = this.FindState(stateName, true);
 
-   if (state != undefined) {
+   if (state !== undefined) {
       log.debug("State %s: Initial State set to %s", this.name, state.name);
       this.initial = state;
    }
@@ -1618,7 +1622,7 @@ State.prototype.EnterState = function(commonAncestor) {
    // If we are the common ancestor, then our state doesn't get entered
    if (commonAncestor != this.name) {
       // First, enter our parent state
-      if (this.parent != undefined) {
+      if (this.parent !== undefined) {
          this.parent.EnterState(commonAncestor);
       }
 
@@ -1626,7 +1630,7 @@ State.prototype.EnterState = function(commonAncestor) {
 
       log.debug("Enter State: %s", this.name);
 
-      if (this.enter != undefined) {
+      if (this.enter !== undefined) {
          this.enter.call(this.owner);
       }
    }
@@ -1647,12 +1651,12 @@ State.prototype.ExitState = function(commonAncestor) {
 
       this.inState = false;
 
-      if (this.exit != undefined) {
+      if (this.exit !== undefined) {
          this.exit.call(this.owner);
       }
 
       // Now, attempt to exit our parent state
-      if (this.parent != undefined) {
+      if (this.parent !== undefined) {
          this.parent.ExitState(commonAncestor);
       }
    }
@@ -1671,7 +1675,7 @@ State.prototype.HandleEvent = function(eventId, data) {
    }
 
    // We didn't handle the event, so pass it to our parent state
-   if ((eventHandled == false) && (this.parent != undefined)) {
+   if ((eventHandled === false) && (this.parent !== undefined)) {
       this.parent.HandleEvent(eventId, data);
    }
 };
@@ -1687,7 +1691,7 @@ State.prototype.GetAncestors = function(ancestorList) {
    // TODO: Verify ancestorList is an array
 
    // First, get our parent state
-   if (this.parent != undefined) {
+   if (this.parent !== undefined) {
       this.parent.GetAncestors(ancestorList);
    }
 
@@ -1701,9 +1705,9 @@ State.prototype.GetAncestors = function(ancestorList) {
  * 
  ******************************************************************************/
 State.prototype.FindState = function(name, goDeep) {
-   var stateFound = undefined;
+   var stateFound;
 
-   if (goDeep == undefined) {
+   if (goDeep === undefined) {
       goDeep = false;
    }
 
@@ -1717,7 +1721,7 @@ State.prototype.FindState = function(name, goDeep) {
          }
       }
 
-      if (goDeep && (stateFound == undefined)) {
+      if (goDeep && (stateFound === undefined)) {
          cntr = 0;
 
          while (!stateFound && (cntr < this.states.length)) {
@@ -1764,7 +1768,7 @@ module.exports = {
 
    function AddTransactionDefinition( name, from, to, minCards, maxCards, location )
    {
-      if( GetTransactionDefinition( name ) == undefined )
+      if( GetTransactionDefinition( name ) === undefined )
       {
          TransactionDefs.push( new TransactionDefinition( name, from, to, minCards, maxCards, location ) );
       }
@@ -1772,7 +1776,7 @@ module.exports = {
 
    function GetTransactionDefinition( name )
    {
-      var transDef = undefined;
+      var transDef;
       
       for( var cntr = 0; cntr < TransactionDefs.length; cntr++ )
       {
@@ -1808,8 +1812,8 @@ function TransactionDefinition( name, from, to, minCards, maxCards, location )
    this.toContainerName    = to;
    this.minCards           = minCards;
    this.maxCards           = maxCards;
-   this.location			   = location;
-};
+   this.location           = location;
+}
 
 
 
@@ -1907,7 +1911,7 @@ function SimpleWarGame(id) {
 
    // Add the valid transactions to the states
    this.AddValidTransaction(SIMPLE_WAR_STATE_IN_PROGRESS, "CGE_DEAL");
-};
+}
 
 SimpleWarGame.prototype = new CardGame();
 SimpleWarGame.prototype.constructor = SimpleWarGame;
@@ -1973,9 +1977,10 @@ SimpleWarGame.prototype.BattleEnter = function() {
 SimpleWarGame.prototype.BattleTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if (    (data             != undefined)
-        && (data.ownerId     != undefined)
-        && (data.transaction != undefined) ) {
+   if (  (data             !== undefined) &&
+         (data.ownerId     !== undefined) &&
+         (data.transaction !== undefined)) {
+
       if (data.transaction == SWGC.SWP_TRANSACTION_BATTLE) {
          this.hasBattled.push(data.ownerId);
 
@@ -2089,8 +2094,9 @@ SimpleWarGame.prototype.Deal = function() {
 SimpleWarGame.prototype.ScoreBattle = function() {
    var topPlayers = [];
    var topScore = 0;
+   var cntr;
 
-   for ( var cntr = 0; cntr < this.atBattle.length; cntr++) {
+   for (cntr = 0; cntr < this.atBattle.length; cntr++) {
       var score = this.players[this.atBattle[cntr]].GetScore();
 
       if (score > topScore) {
@@ -2115,7 +2121,7 @@ SimpleWarGame.prototype.ScoreBattle = function() {
       this.Notify("Going to War!");
       log.info("SWGame : Tie between:");
 
-      for ( var cntr = 0; cntr < topPlayers.length; cntr++) {
+      for (cntr = 0; cntr < topPlayers.length; cntr++) {
          log.info("SWGame :   - %s", this.players[topPlayers[cntr]].name);
       }
    }
@@ -2133,9 +2139,10 @@ SimpleWarGame.prototype.ScoreBattle = function() {
  ******************************************************************************/
 SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
    var numPlayers = this.NumPlayers();
+   var cntr;
 
    // Tell all players to discard
-   for ( var cntr = 0; cntr < numPlayers; cntr++) {
+   for (cntr = 0; cntr < numPlayers; cntr++) {
       this.EventTransaction(this.players[cntr].id,
                             SWGC.SWP_TRANSACTION_DICARD,
                             undefined,
@@ -2148,7 +2155,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
       log.info("SWGame : ************************* WAR!!! *************************");
       this.atWar = true;
 
-      for ( var cntr = 0; cntr < numPlayers; cntr++) {
+      for (cntr = 0; cntr < numPlayers; cntr++) {
          var doWar = false;
 
          // If the current player index is in the list of winners, then signal
@@ -2166,7 +2173,7 @@ SimpleWarGame.prototype.DetermineBattleResult = function(topPlayers) {
       var winnerIndex = topPlayers.pop();
       this.atWar = false;
 
-      for ( var cntr = 0; cntr < numPlayers; cntr++) {
+      for (cntr = 0; cntr < numPlayers; cntr++) {
          this.EventTransaction(this.players[winnerIndex].id,
                                SWGC.SWP_TRANSACTION_COLLECT,
                                this.players[cntr].id,
@@ -2218,8 +2225,8 @@ SimpleWarGame.prototype.AddUI = function() {
 SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
    var playerIds = [];
 
-   if (playerId != undefined) {
-      playerId.push(playerId)
+   if (playerId !== undefined) {
+      playerId.push(playerId);
    } else {
       playerIds = this.GetPlayerIds();
    }
@@ -2291,7 +2298,7 @@ function SimpleWarPlayer(parent, id, alias) {
    Player.call(this, parent, id, alias);
 
    this.inGame = true;
-   this.status = new PlayerStatus;
+   this.status = new PlayerStatus();
 
    this.status.id = this.id;
    this.status.type = 'USER';
@@ -2329,7 +2336,7 @@ function SimpleWarPlayer(parent, id, alias) {
    this.AddValidTransaction(SWP_STATE_READY,   SWGC.SWP_TRANSACTION_DEAL);
    this.AddValidTransaction(SWP_STATE_BATTLE,  SWGC.SWP_TRANSACTION_BATTLE);
    this.AddValidTransaction(SWP_STATE_WAIT,    SWGC.SWP_TRANSACTION_FLOP);
-};
+}
 
 SimpleWarPlayer.prototype = new Player();
 SimpleWarPlayer.prototype.constructor = SimpleWarPlayer;
@@ -2402,8 +2409,9 @@ SimpleWarPlayer.prototype.DoBattle = function() {
 SimpleWarPlayer.prototype.BattleTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if (    (data.ownerId == this.id)
-        && (data.transaction == SWGC.SWP_TRANSACTION_BATTLE)) {
+   if (  (data.ownerId == this.id) &&
+         (data.transaction == SWGC.SWP_TRANSACTION_BATTLE)) {
+
       this.UpdateStatus();
       this.Transition(SWP_STATE_WAIT);
       eventHandled = true;
@@ -2433,8 +2441,8 @@ SimpleWarPlayer.prototype.WaitEnter = function() {
 SimpleWarPlayer.prototype.WaitTransaction = function(eventId, data) {
    var eventHandled = false;
 
-   if (    (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP)
-        && (data.ownerId == this.id)) {
+   if (  (data.transaction == SWGC.SWP_TRANSACTION_GIVEUP) &&
+         (data.ownerId == this.id)) {
 
       // TODO: Fix bug where player will go out even if he just won the battle
       if (this.stack.IsEmpty()) {
@@ -2565,7 +2573,7 @@ function SimpleWarPlayerAI(parent, id, alias) {
    this.status.type = "AI";
    this.status.alias = this.alias + " (AI)";
    this.SetEnterRoutine("Battle", this.BattleEnter);
-};
+}
 
 SimpleWarPlayerAI.prototype = new SimpleWarPlayer();
 SimpleWarPlayerAI.prototype.constructor = SimpleWarPlayerAI;
@@ -2640,7 +2648,7 @@ function SimpleWarUI(parentGame)
 
    this.parentGame = parentGame;
    this.playerId = null;
-};
+}
 
 SimpleWarUI.prototype = new CGEActiveEntity();
 SimpleWarUI.prototype.constructor = SimpleWarUI;
@@ -2854,7 +2862,7 @@ SimpleWarUI.prototype.setCardFace = function (element, rank) {
       element.style.backgroundImage = 'url("./img/cards.png")';
       element.style.backgroundPosition = xPos + ' ' + yPos;
    }
-}
+};
 
 module.exports = SimpleWarUI;
 
