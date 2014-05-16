@@ -121,7 +121,7 @@ function register_user($username, $password, $display_name, $email) {
 	global $mysqli;
 
 	$result = $mysqli->query( 'select * from ' . CGEUSERDB . ' where user_name = "' . $username . '"');
-	if ($result) {
+	if (($result) && ($result->num_rows > 0)) {
 		return true;
 	} else {
 		$query  = 'insert into ' . CGEUSERDB . ' SET ';
@@ -133,7 +133,7 @@ function register_user($username, $password, $display_name, $email) {
 		if ($result === false) {
 			return $result;
 		} else {
-			$user = login_user($usename, $password);
+			$user = login_user($username, $password);
 			return $user;
 		}
 	}
