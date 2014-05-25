@@ -121,12 +121,12 @@ function cge_start_game() {
 	}
 
 	// check whether this user already has a game of this type, 
-	$game_id = get_game_by_creator( $game_type_id, $user_id );
+	//$game_id = get_game_by_creator( $game_type_id, $user_id );
 
-	if ( $game_id ) {
+	//if ( $game_id ) {
 		// @TODO: verify with user to reusue or delete this game?
-		$success = 0;
-	} else {
+		//$success = 0;
+	//} else {
 		//$game_name = $game_spec->name . ' created by ' . $user->display_name;
 		$game_name = $game_spec->name . ' created by FIXME';
 
@@ -135,7 +135,7 @@ function cge_start_game() {
 
 		// add first user to game
 		$success = join_game( $game_id, $user_id );
-	}
+	//}
 
 	if ($success) {
 		notify( $game_id, $user_id, CGEGAMEDB, $game_id );

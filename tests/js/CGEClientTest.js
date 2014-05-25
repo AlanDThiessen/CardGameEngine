@@ -1,38 +1,183 @@
-//var $ = require('jquery'); 
-var log = require("../../src/js/Logger.js");
 var qs = require('qs');
-//var http = require("http")
-var https = require("https")
+//var http = require('http');
+var https = require('https');
+var readline = require('readline');
 
-var ajaxUrl;
-var user;
-var game_id;
-var gameSpec;
-var deckSpec;
-var players = [ 1, 2, 3 ];
+
+var currMenu   = undefined;
+var currPlayer = undefined;
+var io         = undefined;
+
+var server     = {
+                   hostname:   'gator4021.hostgator.com',
+                   port:       443,
+                   path:       '/~thiessea/TheThiessens.net/cge/cge.php',
+                 };
+
+
+var settingsMenu =   { name: "Settings:",
+                       items: [
+                         { name:    'Return',
+                           enabled: true,
+                           value:   '',
+                           handler: function(){ currMenu = mainMenu },
+                         },
+                         { name:    'Host',
+                           enabled: true,
+                           value:   server.hostname,
+                           handler: SetMenuValue,
+                         },
+                         { name:    'Path',
+                           enabled: true,
+                           value:   server.path,
+                           handler: SetMenuValue,
+                         },
+                         { name:    'Port',
+                           enabled: true,
+                           value:   server.port,
+                           handler: SetMenuValue,
+                         },
+                       ]
+                     };
+
+var mainMenu =       { name: 'Main Menu:',
+                       items: [
+                         { name:    'Exit',
+                           enabled: true,
+                           value:   '',
+                           handler: function(){ process.exit(0) },
+                         },
+                         { name:    'Settings',
+                           enabled: true,
+                           value:   '',
+                           handler: function(){ currMenu = settingsMenu }
+                         },
+                         { name:    'Show Server',
+                           enabled: true,
+                           value:   '',
+                           handler: ShowServer
+                         }
+                       ]
+                     };
+                        
+
+function RunMenu() {
+   ResetScreen();
+   DisplayMenu(currMenu);
+
+   if(io !== undefined) {
+      io.prompt();
+   }
+}
+
+
+function HandleInput(input) {
+   var selected = parseInt(input, 10);
+ 
+   if(selected < currMenu.items.length) {
+      if((currMenu.items[selected].enabled) &&
+         (currMenu.items[selected].handler !== undefined)) {
+         currMenu.items[selected].handler(currMenu.items[selected]);
+      }
+   }
+ 
+   RunMenu();
+}
+
+
+function SetMenuValue(menuItem, value) {
+   if(value != undefined) {
+      if(typeof(menuItem.value) === 'string') {
+         menuItem.value = value.trim();
+      }
+      else if(typeof(menuItem.value) === 'number') {
+         menuItem.value = parseInt(value, 10);
+      }
+  
+      console.log("'" + menuItem.name + "' set to " + menuItem.value);
+      console.log('Press <Enter> to continue...');
+      io.prompt();
+   }
+  
+   if(value === undefined) {
+      io.question( "Enter new value for '" + menuItem.name + "': ", function(answer){
+    	  		SetMenuValue(menuItem, answer);
+         });
+      
+   }
+}
+
+
+function ResetScreen() {
+   //if(io !== undefined) {
+      //readline.cursorTo(io, 0,0);
+      //readline.clearScreenDown(io);
+   //}
+   console.log(String.fromCharCode(27) + "[2J" + String.fromCharCode(27) + "[;H" );
+}
+
+
+function DisplayMenu(menu) {
+   //if(io !== undefined) {
+      //io.write('\n' + menu.name);
+      console.log('\n' + menu.name);
+      
+      for(cntr = 0; cntr < menu.items.length; cntr++) {
+         outStr = '   ' + (cntr) + '. ' + menu.items[cntr].name;
+         if(menu.items[cntr].value != '') {
+            if(typeof(menu.items[cntr].value) === 'string') {
+               outStr += ": '" + menu.items[cntr].value + "'";
+            }
+            else {
+               outStr += ": " + menu.items[cntr].value;
+            }
+         }
+         
+         console.log(outStr);
+      }
+      
+      console.log('');
+   //}
+}
+
+
 
 function main() {
+   currMenu = mainMenu;
+   io = readline.createInterface(process.stdin, process.stdout);
+   SetMenuValue("path", server, 'path', 'alan thiessen');
+   
+   if(io !== undefined) {
+      RunMenu();
+      io.on('line', HandleInput);
+   }
+
    //register_user('athiessen', 'hello', "Alan Thiessen", 'AlanDThiessen@gmail.com');
+   //register_user('S', 'hello', "Alan Thiessen", 'AlanDThiessen@gmail.com');
+   //register_user('John', 'hola', "John", '');
    //login_user('athiessen', 'hello');
    //get_game_types();
    //start_game(1, 'simple-war');
    //get_joinable_games();
-   get_my_games(1);
+   //get_my_games(1);
 }
+
+
+function ShowServer() {
+   io.question(console.log(server), function(){});
+}
+
 
 function server_post(post_data, callback) {
    var options = {
-                  hostname:   'gator4021.hostgator.com',
-                  port:       443,
-                  path:       '/~thiessea/TheThiessens.net/cge/cge.php',
-                  //hostname:   'www.TheThiessens.net',
-                  //port:       80,
-                  //path:       '/cge/cge.php',
+                  hostname:   server.hostname,
+                  port:       server.port,
+                  path:       server.path,
                   method:     'POST',
-                  headers:		{
-	   									'Content-Type': 'application/x-www-form-urlencoded',
+                  headers:    {
+                                 'Content-Type': 'application/x-www-form-urlencoded',
                                  'Content-Length': post_data.length
-      								}
+                           	}
                   };
    
    //var post_req = http.request(options, callback);
@@ -122,97 +267,6 @@ function start_game(userId, gameType) {
    //user = $.parseJSON(response);
 }
 
-
-/*
-function initialize() {
-   // set ajaxUrl so all functions can use it
-   ajaxUrl = $( 'https://gator4021.hostgator.com/~thiessea/TheThiessens.net/cge/cge.php' ).val();
-
-   // make sure user is logged in, then show available games
-   var data = {
-      action: 'cge_login_user',
-      username: 'athiessen',
-      password: 'hello'
-   };
-   $.post(ajaxUrl, data, function(response) {
-      console.log('Ajax response: ' + response);
-      if (null != response && response.length && response != 0) {
-         user = $.parseJSON(response);
-         // may want to make sure user is in a game before listening for updates
-         setupSseListeners(); 
-         // show available games
-         get_game_types();
-         get_joinable_games();
-         get_my_games();
-      } else {
-         console.log('No user');
-      }
-   });
-}
-
-
-
-function get_game_types() {
-   var data = {
-      action: 'cge_get_game_types'
-   };
-   $.post(ajaxUrl, data, function(response) {
-      console.log('GGT: Ajax response: ' + response);
-      if (null != response && response.length && response != 0) {
-         show_game_types(response);
-      } else {
-         console.log('Error loading game types');
-      }
-   });
-}
-
-function show_game_types(game_types_json) {
-   var game_type_list = '';
-   var game_types = $.parseJSON(game_types_json);
-   $('#cge_header #gameTypes').append($('<div>', { 
-         class: 'gameTypesHeader',
-         text:  'Click a type of game below to start a new game!',
-   }));
-   $.each(game_types, function(index, element) {
-      $('#cge_header #gameTypes').append($('<div>', { 
-         html: '<a href="javascript:void(0)">' + element.name + '</a>',
-         class: 'gameType',
-         'data-game-type-id':  element.id,
-      }));
-   });
-
-   $('.gameType a').click(function(evt) {
-      console.log("gameType click");
-      var data = {
-         action:       'cge_start_game',
-         user_id:       user.id,
-         game_type_id: $(this).parent().data( 'game-type-id'),
-      };
-      $.post(ajaxUrl, data, function(response) {
-         console.log('CSG: Ajax response: ' + response);
-         if (null != response && response.length && response != 0) {
-            var responseObject = $.parseJSON(response);
-
-            // ADT: temporary work-around so we can launch a game even though it 
-            //      currently exists
-            responseObject.success = 1;
-
-            if (responseObject.success) {
-               get_joinable_games();
-               get_my_games();
-               game_id = responseObject.game_id;
-               gameSpec = responseObject.game_spec;
-               load_deck(gameSpec.required.deck);
-            } else {
-               alert('You already have a game of that type.');
-            }
-         } else {
-            console.log('Error loading game spec');
-         }
-      });
-   });
-}
-*/
 
 if (typeof window === 'undefined')
 {
