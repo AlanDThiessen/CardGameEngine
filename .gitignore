@@ -1,4 +1,7 @@
+# Ignore Eclipse project files
 /.buildpath
 /.settings
+
+# Ignore Cordova build output directories
 **/ant-build/
 **/ant-gen/
