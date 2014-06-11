@@ -1,5 +1,5 @@
 
-var Status = require("../../Status.js");
+var Status = require("../../engine/Status.js");
 
 
 function SimpleWarPlayerStatus()

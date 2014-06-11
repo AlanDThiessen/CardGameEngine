@@ -2,7 +2,7 @@
  * NodeJS stuff
  ******************************************************************************/
 var State = require("./State.js");
-var log = require("./Logger.js");
+var log = require("../utils/Logger.js");
 
 var TOP_STATE = "TOP";
 

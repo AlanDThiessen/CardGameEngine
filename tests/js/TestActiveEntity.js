@@ -1,7 +1,7 @@
 
 //var State        = require( "../../src/js/State.js" );
-var ActiveEntity = require( "../../src/js/ActiveEntity.js" );
-var log = require("../../src/js/Logger.js");
+var ActiveEntity = require( "../../src/js/engine/ActiveEntity.js" );
+var log = require("../../src/js/utils/Logger.js");
 
 var TEST_STATE_A  = "A";
 var TEST_STATE_B  = "B";

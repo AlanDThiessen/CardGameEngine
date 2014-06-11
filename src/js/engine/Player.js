@@ -1,5 +1,5 @@
 var CGEActiveEntity = require("./CGEActiveEntity.js");
-var log = require("./Logger.js");
+var log = require("../utils/Logger.js");
 
 /*******************************************************************************
  * 

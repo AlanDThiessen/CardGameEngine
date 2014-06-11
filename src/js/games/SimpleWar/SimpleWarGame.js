@@ -2,12 +2,12 @@ module.exports = SimpleWarGame;
 
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SimpleWarPlayerAI = require("./SimpleWarPlayerAI.js");
-var CardGame = require("../../CardGame.js");
-var transDef = require("../../TransactionDefinition.js");
-var CGE = require("../../CardGameDefs.js");
+var CardGame = require("../../engine/CardGame.js");
+var transDef = require("../../engine/TransactionDefinition.js");
+var CGE = require("../../engine/CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
 var SimpleWarUI = require("./SimpleWarUI.js");
-var log = require("../../Logger.js");
+var log = require("../../utils/Logger.js");
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;

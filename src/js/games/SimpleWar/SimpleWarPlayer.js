@@ -1,11 +1,11 @@
 module.exports = SimpleWarPlayer;
 
-var CGE = require("../../CardGameDefs.js");
+var CGE = require("../../engine/CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
-var Player = require("../../Player.js");
-var transDef = require("../../TransactionDefinition.js");
+var Player = require("../../engine/Player.js");
+var transDef = require("../../engine/TransactionDefinition.js");
 var PlayerStatus = require("./SimpleWarStatus.js").SimpleWarPlayerStatus;
-var log = require("../../Logger.js");
+var log = require("../../utils/Logger.js");
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;

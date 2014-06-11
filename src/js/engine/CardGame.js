@@ -14,7 +14,7 @@ var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 var CGE_DEALER = "Dealer";
 var CGE_TABLE = "Table";
 
-var log = require("./Logger.js");
+var log = require("../utils/Logger.js");
 
 // Outgoing Transactions
 AddTransactionDefinition("CGE_DEAL", CGE_DEALER, TRANSACTION_TYPE_OUTBOUND, 1, 1, "TOP");

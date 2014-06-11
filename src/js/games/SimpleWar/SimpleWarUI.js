@@ -1,5 +1,5 @@
-var CGEActiveEntity = require ('../../CGEActiveEntity.js');
-var CGE = require("../../CardGameDefs.js");
+var CGEActiveEntity = require ('../../engine/CGEActiveEntity.js');
+var CGE = require("../../engine/CardGameDefs.js");
 var SWGC = require('./SimpleWarDefs.js');
 
 var MAIN_STATE = "MAIN_STATE";
