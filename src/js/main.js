@@ -6,7 +6,7 @@
  * 
  ******************************************************************************/
 
-var FS = require('utils/FileSystem.js');
+var FS = require('./utils/FileSystem.js');
 
 
 function main ()
@@ -19,10 +19,14 @@ function OnDeviceReady() {
    FS.InitFileSystem();
 }
 
+function BrowserMain() {
+	FS.InitFileSystem();
+}
+
 
 if (typeof window === 'undefined') {
    main();
 }
 else {
-   window.addEventListener('load', main, false);
+   window.addEventListener('load', BrowserMain, false);
 }

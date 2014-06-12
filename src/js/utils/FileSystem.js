@@ -32,7 +32,6 @@ var dirEntries = {appStorageDir: undefined,
                   activeGamesDir: undefined
                   };
 
-
 // InitFileSystem() should always be called once at app startup
 // Note: This function cannot be called until after the Device Ready event.
 function InitFileSystem() {
@@ -51,19 +50,20 @@ function RequestFileSystem() {
 }
 
 
-function InitDirectories() {
+function InitDirectories(fileSystem) {
    // First, retrieve the application storage location using Cordova libraries
-   dirEntries.appStorageDir = window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory);
+   dirEntries.appStorageDir = fileSystem.root;
  
    if((dirEntries.gamesDefsDir === undefined) ||
       (dirEntries.deckDefsDir === undefined) ||
       (dirEntries.activeGamesDir === undefined)){
       // Attempt to read the dir entries
       log.info("Retrieving game directories");
-      dirReader = new DirectoryReader(cordova.file.applicationStorageDirectory);
+      dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
       dirReader.readEntries(CheckIfGameDirsExist, function(error){FSError(error, 'Read Directory');});
    }
    else {
+      alert("game dirs exist");
       log.info("Game directory objects already exist");
       SetFileSystemReady();
    }
@@ -72,13 +72,15 @@ function InitDirectories() {
 
 function CheckIfGameDirsExist(entries){
    // Go through looking for our entries
+   alert("There are " + entries.length + "entries");
    for(cntr = 0; cntr < entries.length; cntr++) {
       SetDirEntry(entries[cntr]);
    }
    
    // Create directories if they don't exist
-   if(dirEntries.gameDefsDir === undefined) {
+   if(dirEntries.gamesDefsDir === undefined) {
       log.info("Creating directory: " + GAME_DEFS_DIR );
+      alert("Creating directory: " + GAME_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(GAME_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -86,8 +88,9 @@ function CheckIfGameDirsExist(entries){
                                             );
    }
    
-   if(dirEntries.gameDefsDir === undefined) {
+   if(dirEntries.deckDefsDir === undefined) {
       log.info("Creating directory: " + DECK_DEFS_DIR );
+      alert("Creating directory: " + DECK_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(DECK_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -95,8 +98,9 @@ function CheckIfGameDirsExist(entries){
                                             );
    }
    
-   if(dirEntries.gameDefsDir === undefined) {
+   if(dirEntries.activeGamesDir === undefined) {
       log.info("Creating directory: " + ACTIVE_GAMES_DIR );
+      alert("Creating directory: " + ACTIVE_GAMES_DIR );
       dirEntries.appStorageDir.getDirectory(ACTIVE_GAMES_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -108,16 +112,20 @@ function CheckIfGameDirsExist(entries){
 
 function SetDirEntry(entry) {
    log.info("Setting directory object for " + entry.name);
-   if(entry.name == GAME_DEFS_DIR){
-      dirEntries.gameDefsDir = entry[cntr];
+   //alert("Set: '" + entry.name + "'; dir: " + entry.isDirectory + "; path: '" + entry.fullPath + "'");
+   if(entry.name == GAME_DEFS_DIR) {
+      dirEntries.gamesDefsDir = entry;
+      alert("set: " + dirEntries.gamesDefsDir.name);
    }
    
    if(entry.name == DECK_DEFS_DIR){
-      dirEntries.deckDefsDir = entry[cntr];
+      dirEntries.deckDefsDir = entry;
+      alert("set: " + dirEntries.deckDefsDir.name);
    }
    
    if(entry.name == ACTIVE_GAMES_DIR){
-      dirEntries.activeGamesDir = entry[cntr];
+      dirEntries.activeGamesDir = entry;
+      alert("set: " + dirEntries.activeGamesDir.name);
    }
 }
 
@@ -135,6 +143,7 @@ function DirectoryCreated(entry) {
 
 function SetFileSystemReady() {
    log.info("Filesystem is ready to go!");
+   alert("Filesystem is ready to go!");
    fileSystemGo = true;
 }
 
@@ -200,6 +209,8 @@ function FSError(error, location) {
    errorStr += " in " + location;
    
    log.error(errorStr);
+   
+   alert(errorStr);
 }
 
 

@@ -2,6 +2,7 @@
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
 var log = require ("../../src/js/utils/Logger.js");
+var main = require("../../src/js/main.js");
 
 log.mask = 0x08;
 
@@ -172,7 +173,7 @@ var deckSpec =
 };
 
 
-function main ()
+function StartGame()
 {
    log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
@@ -181,11 +182,4 @@ function main ()
    cardGame.StartGame();
 }
 
-if (typeof window === 'undefined')
-{
-   main();
-}
-else
-{
-   window.addEventListener('load', main, false);
-}
+document.addEventListener('deviceready', StartGame, false);
