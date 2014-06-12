@@ -2952,6 +2952,12 @@ function SetDirEntry(entry) {
       dirEntries.activeGamesDir = entry;
       alert("set: " + dirEntries.activeGamesDir.name);
    }
+
+   if((dirEntries.gamesDefsDir !== undefined) &&
+      (dirEntries.deckDefsDir !== undefined) &&
+      (dirEntries.activeGamesDir !== undefined)){
+      SetFileSystemReady();
+   }
 }
 
 
