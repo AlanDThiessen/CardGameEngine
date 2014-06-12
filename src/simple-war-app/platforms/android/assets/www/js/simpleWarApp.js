@@ -3,7 +3,7 @@
  * NodeJS stuff
  ******************************************************************************/
 var State = require("./State.js");
-var log = require("./Logger.js");
+var log = require("../utils/Logger.js");
 
 var TOP_STATE = "TOP";
 
@@ -190,7 +190,7 @@ ActiveEntity.prototype.Transition = function(destStateName) {
 
 module.exports = ActiveEntity;
 
-},{"./Logger.js":9,"./State.js":11}],2:[function(require,module,exports){
+},{"../utils/Logger.js":21,"./State.js":10}],2:[function(require,module,exports){
 
 var CGEState = require("./CGEState.js");
 var ActiveEntity = require("./ActiveEntity.js");
@@ -373,7 +373,7 @@ CGEActiveEntity.prototype.ExecuteTransaction = function(transName, cardList, car
 
 module.exports = CGEActiveEntity;
 
-},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":13}],3:[function(require,module,exports){
+},{"./ActiveEntity.js":1,"./CGEState.js":3,"./CardContainer.js":5,"./TransactionDefinition.js":12}],3:[function(require,module,exports){
 var State = require("./State.js");
 
 /*******************************************************************************
@@ -433,8 +433,8 @@ CGEState.prototype.IsTransactionValid = function(transDefName) {
 
 module.exports = CGEState;
 
-},{"./State.js":11}],4:[function(require,module,exports){
-var log = require('./Logger.js');
+},{"./State.js":10}],4:[function(require,module,exports){
+var log = require('../utils/Logger.js');
 
 /*******************************************************************************
  * 
@@ -461,7 +461,7 @@ Card.prototype.Print = function() {
 
 module.exports = Card;
 
-},{"./Logger.js":9}],5:[function(require,module,exports){
+},{"../utils/Logger.js":21}],5:[function(require,module,exports){
 var Card = require("./Card.js");
 var CardGroup = require("./CardGroup.js");
 
@@ -653,7 +653,7 @@ var TRANSACTION_TYPE_OUTBOUND = transDef.TRANSACTION_TYPE_OUTBOUND;
 var CGE_DEALER = "Dealer";
 var CGE_TABLE = "Table";
 
-var log = require("./Logger.js");
+var log = require("../utils/Logger.js");
 
 // Outgoing Transactions
 AddTransactionDefinition("CGE_DEAL", CGE_DEALER, TRANSACTION_TYPE_OUTBOUND, 1, 1, "TOP");
@@ -1198,7 +1198,7 @@ CardGame.prototype.GetPlayerStatus = function(playerId) {
 
 module.exports = CardGame;
 
-},{"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Logger.js":9,"./Status.js":12,"./TransactionDefinition.js":13,"events":22}],7:[function(require,module,exports){
+},{"../utils/Logger.js":21,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":24}],7:[function(require,module,exports){
 
 
 var CGE_CONSTANTS = {
@@ -1220,7 +1220,7 @@ var CGE_CONSTANTS = {
 module.exports = CGE_CONSTANTS;
 
 },{}],8:[function(require,module,exports){
-var log = require('./Logger.js');
+var log = require('../utils/Logger.js');
 
 /*******************************************************************************
  * 
@@ -1410,87 +1410,9 @@ CardGroup.prototype.Shuffle = function() {
 
 module.exports = CardGroup;
 
-},{"./Logger.js":9}],9:[function(require,module,exports){
-log = { };
-
-log.DEBUG   = 0x01;
-log.INFO    = 0x02;
-log.WARN    = 0x04;
-log.ERROR   = 0x08;
-
-log.mask = 0xFF;
-
-log.debug = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.DEBUG);
-
-   if (log.mask & log.DEBUG) {
-      log._out.apply(this, args);
-   }
-};
-
-log.info = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.INFO);
-
-   if (log.mask & log.INFO) {
-      log._out.apply(this, args);
-   }
-};
-
-log.warn = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.WARN);
-
-   if (log.mask & log.WARN) {
-      log._out.apply(this, args);
-   }
-};
-
-log.error = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.ERROR);
-
-   if (log.mask & log.ERROR) {
-      log._out.apply(this, args);
-   }
-};
-
-log._out = function (level, format) {
-   var i = -1;
-   var args = Array.prototype.slice.call(arguments, 2);
-
-   format = "" + format;
-
-   var str = format.replace(/\%[sd]/g, function () {
-      i++;  
-      return args[i];
-   });
-
-   switch (level) {
-      case log.DEBUG:
-         console.log("DEBUG: " + str);
-         break;
-
-      case log.INFO:
-         console.log(" INFO: " + str);
-         break;
-
-      case log.WARN:
-         console.warn(" WARN: " + str);
-         break;
-
-      case log.ERROR:
-         console.error("ERROR: " + str);
-         break;
-   }
-};
-
-module.exports = log;
-
-},{}],10:[function(require,module,exports){
+},{"../utils/Logger.js":21}],9:[function(require,module,exports){
 var CGEActiveEntity = require("./CGEActiveEntity.js");
-var log = require("./Logger.js");
+var log = require("../utils/Logger.js");
 
 /*******************************************************************************
  * 
@@ -1525,11 +1447,11 @@ Player.prototype.GetScore = function() {
 
 module.exports = Player;
 
-},{"./CGEActiveEntity.js":2,"./Logger.js":9}],11:[function(require,module,exports){
+},{"../utils/Logger.js":21,"./CGEActiveEntity.js":2}],10:[function(require,module,exports){
 /*******************************************************************************
  * NodeJS stuff
  ******************************************************************************/
-var log = require('./Logger.js');
+var log = require('../utils/Logger.js');
 
 /*******************************************************************************
  * CLASS: State
@@ -1736,7 +1658,7 @@ State.prototype.FindState = function(name, goDeep) {
 
 module.exports = State;
 
-},{"./Logger.js":9}],12:[function(require,module,exports){
+},{"../utils/Logger.js":21}],11:[function(require,module,exports){
 
 
 function PlayerStatus()
@@ -1757,7 +1679,7 @@ module.exports = {
                   PlayerStatus: PlayerStatus,
                   CardGameStatus: CardGameStatus };
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 
 /******************************************************************************
  * Global array of Transaction Definitions
@@ -1825,7 +1747,7 @@ module.exports = {
  TRANSACTION_TYPE_OUTBOUND: TRANSACTION_TYPE_OUTBOUND
 };
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 
 
 var SWG_CONSTANTS = {
@@ -1849,17 +1771,17 @@ var SWG_CONSTANTS = {
 
 module.exports = SWG_CONSTANTS;
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = SimpleWarGame;
 
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SimpleWarPlayerAI = require("./SimpleWarPlayerAI.js");
-var CardGame = require("../../CardGame.js");
-var transDef = require("../../TransactionDefinition.js");
-var CGE = require("../../CardGameDefs.js");
+var CardGame = require("../../engine/CardGame.js");
+var transDef = require("../../engine/TransactionDefinition.js");
+var CGE = require("../../engine/CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
 var SimpleWarUI = require("./SimpleWarUI.js");
-var log = require("../../Logger.js");
+var log = require("../../utils/Logger.js");
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -2240,15 +2162,15 @@ SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
    }
 };
 
-},{"../../CardGame.js":6,"../../CardGameDefs.js":7,"../../Logger.js":9,"../../TransactionDefinition.js":13,"./SimpleWarDefs.js":14,"./SimpleWarPlayer.js":16,"./SimpleWarPlayerAI.js":17,"./SimpleWarUI.js":19}],16:[function(require,module,exports){
+},{"../../engine/CardGame.js":6,"../../engine/CardGameDefs.js":7,"../../engine/TransactionDefinition.js":12,"../../utils/Logger.js":21,"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15,"./SimpleWarPlayerAI.js":16,"./SimpleWarUI.js":18}],15:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
-var CGE = require("../../CardGameDefs.js");
+var CGE = require("../../engine/CardGameDefs.js");
 var SWGC = require("./SimpleWarDefs.js");
-var Player = require("../../Player.js");
-var transDef = require("../../TransactionDefinition.js");
+var Player = require("../../engine/Player.js");
+var transDef = require("../../engine/TransactionDefinition.js");
 var PlayerStatus = require("./SimpleWarStatus.js").SimpleWarPlayerStatus;
-var log = require("../../Logger.js");
+var log = require("../../utils/Logger.js");
 
 var TransactionDefinition = transDef.TransactionDefinition;
 var AddTransactionDefinition = transDef.AddTransactionDefinition;
@@ -2549,7 +2471,7 @@ SimpleWarPlayer.prototype.UpdateStatus = function() {
    this.parentGame.UpdatePlayerStatus(this.id, this.status);
 };
 
-},{"../../CardGameDefs.js":7,"../../Logger.js":9,"../../Player.js":10,"../../TransactionDefinition.js":13,"./SimpleWarDefs.js":14,"./SimpleWarStatus.js":18}],17:[function(require,module,exports){
+},{"../../engine/CardGameDefs.js":7,"../../engine/Player.js":9,"../../engine/TransactionDefinition.js":12,"../../utils/Logger.js":21,"./SimpleWarDefs.js":13,"./SimpleWarStatus.js":17}],16:[function(require,module,exports){
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SWGC = require("./SimpleWarDefs.js");
 
@@ -2608,9 +2530,9 @@ SimpleWarPlayerAI.prototype.BattleEnter = function() {
 
 module.exports = SimpleWarPlayerAI;
 
-},{"./SimpleWarDefs.js":14,"./SimpleWarPlayer.js":16}],18:[function(require,module,exports){
+},{"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15}],17:[function(require,module,exports){
 
-var Status = require("../../Status.js");
+var Status = require("../../engine/Status.js");
 
 
 function SimpleWarPlayerStatus()
@@ -2629,9 +2551,9 @@ module.exports = {
                   SimpleWarPlayerStatus: SimpleWarPlayerStatus,
                   };
 
-},{"../../Status.js":12}],19:[function(require,module,exports){
-var CGEActiveEntity = require ('../../CGEActiveEntity.js');
-var CGE = require("../../CardGameDefs.js");
+},{"../../engine/Status.js":11}],18:[function(require,module,exports){
+var CGEActiveEntity = require ('../../engine/CGEActiveEntity.js');
+var CGE = require("../../engine/CardGameDefs.js");
 var SWGC = require('./SimpleWarDefs.js');
 
 var MAIN_STATE = "MAIN_STATE";
@@ -2866,11 +2788,346 @@ SimpleWarUI.prototype.setCardFace = function (element, rank) {
 
 module.exports = SimpleWarUI;
 
-},{"../../CGEActiveEntity.js":2,"../../CardGameDefs.js":7,"./SimpleWarDefs.js":14}],20:[function(require,module,exports){
+},{"../../engine/CGEActiveEntity.js":2,"../../engine/CardGameDefs.js":7,"./SimpleWarDefs.js":13}],19:[function(require,module,exports){
+/*******************************************************************************
+ * 
+ * main.js
+ * 
+ * This file provides the main entry point for the application!
+ * 
+ ******************************************************************************/
+
+var FS = require('./utils/FileSystem.js');
+
+
+function main ()
+{
+   document.addEventListener('deviceready', OnDeviceReady, false);
+}
+
+
+function OnDeviceReady() {
+   FS.InitFileSystem();
+}
+
+function BrowserMain() {
+	FS.InitFileSystem();
+}
+
+
+if (typeof window === 'undefined') {
+   main();
+}
+else {
+   window.addEventListener('load', BrowserMain, false);
+}
+
+},{"./utils/FileSystem.js":20}],20:[function(require,module,exports){
+/*******************************************************************************
+ * 
+ * FileSystem.js
+ * 
+ * This file provides the following functionality:
+ *    - Initializes the filesystem for the application
+ *    - Provides the interface for storing game data from from the filesystem.
+ *    - Provides the interface for retrieving game data from the filesystem.
+ * 
+ * Usage:
+ *    var FS = require('FileSystem.js');
+ * 
+ *    document.addEventListener("deviceready", function(){
+ *       FS.InitFileSystem();
+ *       }, false);
+ * 
+ ******************************************************************************/
+
+var log = require('./Logger.js');
+
+var STORAGE_SIZE_BYTES = 512;
+var GAME_DEFS_DIR      = "gameDefs";
+var DECK_DEFS_DIR      = "deckDefs";
+var ACTIVE_GAMES_DIR   = "games";
+
+var fileSystemGo    = false;       // Whether the fileSystem is usable
+
+// Variable holding the directory entries
+var dirEntries = {appStorageDir: undefined,
+                  gamesDefsDir: undefined,
+                  deckDefsDir: undefined,
+                  activeGamesDir: undefined
+                  };
+
+// InitFileSystem() should always be called once at app startup
+// Note: This function cannot be called until after the Device Ready event.
+function InitFileSystem() {
+   fileSystemGo = false;
+   RequestFileSystem();
+}
+
+
+function RequestFileSystem() {
+   log.info("Requesting file system");
+   window.requestFileSystem(LocalFileSystem.PERSISTENT,
+                            STORAGE_SIZE_BYTES,
+                            InitDirectories,                                       // Success
+                            function(error){FSError(error, 'RequestFileSystem');} // Error
+                            );
+}
+
+
+function InitDirectories(fileSystem) {
+   // First, retrieve the application storage location using Cordova libraries
+   dirEntries.appStorageDir = fileSystem.root;
+ 
+   if((dirEntries.gamesDefsDir === undefined) ||
+      (dirEntries.deckDefsDir === undefined) ||
+      (dirEntries.activeGamesDir === undefined)){
+      // Attempt to read the dir entries
+      log.info("Retrieving game directories");
+      dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
+      dirReader.readEntries(CheckIfGameDirsExist, function(error){FSError(error, 'Read Directory');});
+   }
+   else {
+      alert("game dirs exist");
+      log.info("Game directory objects already exist");
+      SetFileSystemReady();
+   }
+}
+
+
+function CheckIfGameDirsExist(entries){
+   // Go through looking for our entries
+   alert("There are " + entries.length + "entries");
+   for(cntr = 0; cntr < entries.length; cntr++) {
+      SetDirEntry(entries[cntr]);
+   }
+   
+   // Create directories if they don't exist
+   if(dirEntries.gamesDefsDir === undefined) {
+      log.info("Creating directory: " + GAME_DEFS_DIR );
+      alert("Creating directory: " + GAME_DEFS_DIR );
+      dirEntries.appStorageDir.getDirectory(GAME_DEFS_DIR,
+                                            {create: true, exclusive: false},
+                                            DirectoryCreated,
+                                            function(error){FSError(error, "Create dir '" + GAME_DEFS_DIR + "'");}
+                                            );
+   }
+   
+   if(dirEntries.deckDefsDir === undefined) {
+      log.info("Creating directory: " + DECK_DEFS_DIR );
+      alert("Creating directory: " + DECK_DEFS_DIR );
+      dirEntries.appStorageDir.getDirectory(DECK_DEFS_DIR,
+                                            {create: true, exclusive: false},
+                                            DirectoryCreated,
+                                            function(error){FSError(error, "Create dir '" + DECK_DEFS_DIR + "'");}
+                                            );
+   }
+   
+   if(dirEntries.activeGamesDir === undefined) {
+      log.info("Creating directory: " + ACTIVE_GAMES_DIR );
+      alert("Creating directory: " + ACTIVE_GAMES_DIR );
+      dirEntries.appStorageDir.getDirectory(ACTIVE_GAMES_DIR,
+                                            {create: true, exclusive: false},
+                                            DirectoryCreated,
+                                            function(error){FSError(error, "Create dir '" + ACTIVE_GAMES_DIR + "'");}
+                                            );
+   }
+}
+
+
+function SetDirEntry(entry) {
+   log.info("Setting directory object for " + entry.name);
+   //alert("Set: '" + entry.name + "'; dir: " + entry.isDirectory + "; path: '" + entry.fullPath + "'");
+   if(entry.name == GAME_DEFS_DIR) {
+      dirEntries.gamesDefsDir = entry;
+      alert("set: " + dirEntries.gamesDefsDir.name);
+   }
+   
+   if(entry.name == DECK_DEFS_DIR){
+      dirEntries.deckDefsDir = entry;
+      alert("set: " + dirEntries.deckDefsDir.name);
+   }
+   
+   if(entry.name == ACTIVE_GAMES_DIR){
+      dirEntries.activeGamesDir = entry;
+      alert("set: " + dirEntries.activeGamesDir.name);
+   }
+}
+
+
+function DirectoryCreated(entry) {
+   SetDirEntry(entry);
+
+   if((dirEntries.gamesDefsDir !== undefined) &&
+      (dirEntries.deckDefsDir !== undefined) &&
+      (dirEntries.activeGamesDir !== undefined)){
+      SetFileSystemReady();
+   }
+}
+
+
+function SetFileSystemReady() {
+   log.info("Filesystem is ready to go!");
+   alert("Filesystem is ready to go!");
+   fileSystemGo = true;
+}
+
+
+
+function FSError(error, location) {
+   var errorStr = "FS: ";
+   
+   switch(error.code) {
+   case 1:
+      errorStr += "Not Found Error";
+      break;
+      
+   case 2:
+      errorStr += "Security Error";
+      break;
+      
+   case 3:
+      errorStr += "Abort Error";
+      break;
+      
+   case 4:
+      errorStr += "Not Readable Error";
+      break;
+      
+   case 5:
+      errorStr += "Encoding Error";
+      break;
+      
+   case 6:
+      errorStr += "No Modification Allowed Error";
+      break;
+      
+   case 7:
+      errorStr += "Invalid State Error";
+      break;
+      
+   case 8:
+      errorStr += "Syntax Error";
+      break;
+      
+   case 9:
+      errorStr += "Invalid Modification Error";
+      break;
+      
+   case 10:
+      errorStr += "Quota Exceeded Error";
+      break;
+      
+   case 11:
+      errorStr += "Type Mismatch Error";
+      break;
+      
+   case 12:
+      errorStr += "Path Exists Error";
+      break;
+      
+   default:
+      errorStr += "Unknown Error";
+      break;
+   }
+   
+   errorStr += " in " + location;
+   
+   log.error(errorStr);
+   
+   alert(errorStr);
+}
+
+
+module.exports = {
+                  InitFileSystem: InitFileSystem
+                  };
+
+
+},{"./Logger.js":21}],21:[function(require,module,exports){
+log = { };
+
+log.DEBUG   = 0x01;
+log.INFO    = 0x02;
+log.WARN    = 0x04;
+log.ERROR   = 0x08;
+
+log.mask = 0xFF;
+
+log.debug = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.DEBUG);
+
+   if (log.mask & log.DEBUG) {
+      log._out.apply(this, args);
+   }
+};
+
+log.info = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.INFO);
+
+   if (log.mask & log.INFO) {
+      log._out.apply(this, args);
+   }
+};
+
+log.warn = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.WARN);
+
+   if (log.mask & log.WARN) {
+      log._out.apply(this, args);
+   }
+};
+
+log.error = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.ERROR);
+
+   if (log.mask & log.ERROR) {
+      log._out.apply(this, args);
+   }
+};
+
+log._out = function (level, format) {
+   var i = -1;
+   var args = Array.prototype.slice.call(arguments, 2);
+
+   format = "" + format;
+
+   var str = format.replace(/\%[sd]/g, function () {
+      i++;  
+      return args[i];
+   });
+
+   switch (level) {
+      case log.DEBUG:
+         console.log("DEBUG: " + str);
+         break;
+
+      case log.INFO:
+         console.log(" INFO: " + str);
+         break;
+
+      case log.WARN:
+         console.warn(" WARN: " + str);
+         break;
+
+      case log.ERROR:
+         console.error("ERROR: " + str);
+         break;
+   }
+};
+
+module.exports = log;
+
+},{}],22:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
-var log = require ("../../src/js/Logger.js");
+var log = require ("../../src/js/utils/Logger.js");
+var main = require("../../src/js/main.js");
 
 log.mask = 0x08;
 
@@ -3041,7 +3298,7 @@ var deckSpec =
 };
 
 
-function main ()
+function StartGame()
 {
    log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
@@ -3050,18 +3307,11 @@ function main ()
    cardGame.StartGame();
 }
 
-if (typeof window === 'undefined')
-{
-   main();
-}
-else
-{
-   window.addEventListener('load', main, false);
-}
+document.addEventListener('deviceready', StartGame, false);
 
-},{"../../src/js/Logger.js":9,"../../src/js/games/SimpleWar/SimpleWarGame.js":15,"readline":21}],21:[function(require,module,exports){
+},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":21,"readline":23}],23:[function(require,module,exports){
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3363,4 +3613,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[20])
+},{}]},{},[22])
