@@ -1,3 +1,5 @@
+var config = require("./config.js");
+
 log = { };
 
 log.DEBUG   = 0x01;
@@ -6,6 +8,7 @@ log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
 log.mask = 0xFF;
+log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -50,7 +53,7 @@ log._out = function (level, format) {
    format = "" + format;
 
    var str = format.replace(/\%[sd]/g, function () {
-      i++;  
+      i++;
       return args[i];
    });
 
