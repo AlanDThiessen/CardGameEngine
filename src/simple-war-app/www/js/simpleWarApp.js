@@ -2798,6 +2798,7 @@ module.exports = SimpleWarUI;
  ******************************************************************************/
 
 var FS = require('./utils/FileSystem.js');
+//var config = require('./utils/config.js');
 
 
 function main ()
@@ -2807,11 +2808,25 @@ function main ()
 
 
 function OnDeviceReady() {
-   FS.InitFileSystem();
+   FS.InitFileSystem(FileSystemReady);
 }
 
 function BrowserMain() {
-	FS.InitFileSystem();
+   FS.InitFileSystem(FileSystemReady);
+}
+
+
+function FileSystemReady() {
+   alert("WooHoo! FileSystem is Ready");
+   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+}
+
+function LogFileReady(ready) {
+   alert("LogFileReady: " + ready);
+}
+
+function LogFileWriteComplete() {
+   alert("LogFileWriteComplete");
 }
 
 
@@ -2843,12 +2858,22 @@ else {
 
 var log = require('./Logger.js');
 
+/*******************************************************************************
+ * Constants
+ ******************************************************************************/
 var STORAGE_SIZE_BYTES = 512;
 var GAME_DEFS_DIR      = "gameDefs";
 var DECK_DEFS_DIR      = "deckDefs";
 var ACTIVE_GAMES_DIR   = "games";
 
+var LOG_FILE_NAME          = "cge.log";
+var GAME_SUMMARY_FILE_NAME   = "gameSummary";
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
 var fileSystemGo    = false;       // Whether the fileSystem is usable
+var onReadyCallback = undefined;
 
 // Variable holding the directory entries
 var dirEntries = {appStorageDir: undefined,
@@ -2857,10 +2882,32 @@ var dirEntries = {appStorageDir: undefined,
                   activeGamesDir: undefined
                   };
 
+// File Object
+function FileEntity(name, onReady, onWriteEnd, fileEntry) {
+   this.name = name;
+   this.entry = fileEntry;
+   this.writer = undefined;
+   this.onReady = onReady;          // Callback when ready to write
+   this.onWriteEnd = onWriteEnd;    // Callback when finished writing
+}
+
+// Array to hold the FileEntry objects that are open
+var fileEntries = {log: undefined,
+                   gameSummary: undefined,
+                   gameDefs: [],
+                   deckDefs: [],
+                   games: []
+                   };
+
+
+/*******************************************************************************
+ * Initialization Methods
+ ******************************************************************************/
 // InitFileSystem() should always be called once at app startup
 // Note: This function cannot be called until after the Device Ready event.
-function InitFileSystem() {
+function InitFileSystem(onReady) {
    fileSystemGo = false;
+   onReadyCallback = onReady;
    RequestFileSystem();
 }
 
@@ -2885,7 +2932,7 @@ function InitDirectories(fileSystem) {
       // Attempt to read the dir entries
       log.info("Retrieving game directories");
       dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
-      dirReader.readEntries(CheckIfGameDirsExist, function(error){FSError(error, 'Read Directory');});
+      dirReader.readEntries(ReadRootDir, function(error){FSError(error, 'Read Directory');});
    }
    else {
       alert("game dirs exist");
@@ -2895,17 +2942,34 @@ function InitDirectories(fileSystem) {
 }
 
 
-function CheckIfGameDirsExist(entries){
+function ReadRootDir(entries){
    // Go through looking for our entries
-   alert("There are " + entries.length + "entries");
+   alert("There are " + entries.length + " entries");
    for(cntr = 0; cntr < entries.length; cntr++) {
-      SetDirEntry(entries[cntr]);
+      if(entries[cntr].isDirectory) {
+         SetRootDirEntry(entries[cntr]);
+      }
+      else if(entries[cntr].isFile) {
+         if(entries[cntr].name == LOG_FILE_NAME) {
+            alert('Found log file!');
+            fileEntries.log = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
+         }
+         
+         if(entries[cntr].name == GAME_SUMMARY_FILE_NAME) {
+            alert('Found game summary file!');
+            fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
+         }
+      }
    }
+
+   CheckRootDirEntries();
+}
    
+  
+function CheckRootDirEntries() {
    // Create directories if they don't exist
    if(dirEntries.gamesDefsDir === undefined) {
       log.info("Creating directory: " + GAME_DEFS_DIR );
-      alert("Creating directory: " + GAME_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(GAME_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -2915,7 +2979,6 @@ function CheckIfGameDirsExist(entries){
    
    if(dirEntries.deckDefsDir === undefined) {
       log.info("Creating directory: " + DECK_DEFS_DIR );
-      alert("Creating directory: " + DECK_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(DECK_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -2925,7 +2988,6 @@ function CheckIfGameDirsExist(entries){
    
    if(dirEntries.activeGamesDir === undefined) {
       log.info("Creating directory: " + ACTIVE_GAMES_DIR );
-      alert("Creating directory: " + ACTIVE_GAMES_DIR );
       dirEntries.appStorageDir.getDirectory(ACTIVE_GAMES_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -2935,22 +2997,18 @@ function CheckIfGameDirsExist(entries){
 }
 
 
-function SetDirEntry(entry) {
+function SetRootDirEntry(entry) {
    log.info("Setting directory object for " + entry.name);
-   //alert("Set: '" + entry.name + "'; dir: " + entry.isDirectory + "; path: '" + entry.fullPath + "'");
    if(entry.name == GAME_DEFS_DIR) {
       dirEntries.gamesDefsDir = entry;
-      alert("set: " + dirEntries.gamesDefsDir.name);
    }
    
    if(entry.name == DECK_DEFS_DIR){
       dirEntries.deckDefsDir = entry;
-      alert("set: " + dirEntries.deckDefsDir.name);
    }
    
    if(entry.name == ACTIVE_GAMES_DIR){
       dirEntries.activeGamesDir = entry;
-      alert("set: " + dirEntries.activeGamesDir.name);
    }
 
    if((dirEntries.gamesDefsDir !== undefined) &&
@@ -2962,7 +3020,7 @@ function SetDirEntry(entry) {
 
 
 function DirectoryCreated(entry) {
-   SetDirEntry(entry);
+   SetRootDirEntry(entry);
 
    if((dirEntries.gamesDefsDir !== undefined) &&
       (dirEntries.deckDefsDir !== undefined) &&
@@ -2974,12 +3032,92 @@ function DirectoryCreated(entry) {
 
 function SetFileSystemReady() {
    log.info("Filesystem is ready to go!");
-   alert("Filesystem is ready to go!");
    fileSystemGo = true;
+   
+   if(typeof onReadyCallback === "function") {
+      onReadyCallback();
+   }
 }
 
 
+/*******************************************************************************
+ * File Entity Methods
+ ******************************************************************************/
+function OpenFileEntity(entity) {
+   // If the file entry is undefined, then we need to get the file
+   if(entity.entry === undefined) {
+      alert("Open entity: " + entity.name);
+      if(dirEntries.appStorageDir !== undefined) {
+         dirEntries.appStorageDir.getFile(LOG_FILE_NAME,
+                                          {create: true, exclusive: false},
+                                          function(entry){entity.entry = entry; FileEntityCreateWriter(entity);},
+                                          function(error){FSError(error, 'Open log file');}
+                                         );
+      }
+      else {
+         log.warn("App storage not defined. Cannot create log file");
+         alert("App storage not defined. Cannot create log file");
+      }
+   }
+   else {
+      if(entity.writer === undefined) {
+         FileEntityCreateWriter(entity);
+      }
+      else {
+         entity.writer.onwriteend = entity.onWriteEnd;
+         FileEntityReady(entity, true);
+      }
+   }
+}
 
+
+function FileEntityCreateWriter(entity) {
+   if((entity !== undefined) && (entity.entry !== undefined)) {
+      alert("CreateWriter: " + entity.name);
+      entity.entry.createWriter(function(writer){FileEntitySetWriter(entity, writer);},
+                                function(error){FSError(error, "GetLogFileWriter");}
+                                );
+   }
+}
+
+
+function FileEntitySetWriter(entity, writer) {
+   if(entity !== undefined) {
+      alert("SetWriter: " + entity.name);
+      entity.writer = writer;
+      entity.writer.onwriteend = entity.onWriteEnd;
+      FileEntityReady(entity, true);
+   }
+   else {
+      FileEntityReady(entity, false);
+   }
+}
+
+   
+function FileEntityReady(entity, ready) {
+   if((entity !== undefined) && (typeof entity.onReady === "function")) {
+      alert("FileEntityReady: " + entity.name);
+      entity.onReady(ready);
+   }
+}
+
+
+/*******************************************************************************
+ * File Methods
+ ******************************************************************************/
+function OpenLogFile(onReady, onWriteEnd) {
+   // If the entry is undefined, then create one
+   if(fileEntries.log === undefined) {
+      fileEntries.log = new FileEntity("logFile", onReady, onWriteEnd, undefined);
+   }
+
+   OpenFileEntity(fileEntries.log);
+}
+
+
+/*******************************************************************************
+ * Error Handler
+ ******************************************************************************/
 function FSError(error, location) {
    var errorStr = "FS: ";
    
@@ -3046,11 +3184,14 @@ function FSError(error, location) {
 
 
 module.exports = {
-                  InitFileSystem: InitFileSystem
+                  InitFileSystem: InitFileSystem,
+                  OpenLogFile:    OpenLogFile
                   };
 
 
 },{"./Logger.js":21}],21:[function(require,module,exports){
+//var config = require("./config.js");
+
 log = { };
 
 log.DEBUG   = 0x01;
@@ -3059,6 +3200,8 @@ log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
 log.mask = 0xFF;
+//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+log.mask = (log.WARN | log.ERROR);
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -3103,7 +3246,7 @@ log._out = function (level, format) {
    format = "" + format;
 
    var str = format.replace(/\%[sd]/g, function () {
-      i++;  
+      i++;
       return args[i];
    });
 
