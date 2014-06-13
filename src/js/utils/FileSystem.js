@@ -27,12 +27,13 @@ var DECK_DEFS_DIR      = "deckDefs";
 var ACTIVE_GAMES_DIR   = "games";
 
 var LOG_FILE_NAME          = "cge.log";
-var GAME_SUMMARY_FILE_NAME	= "gameSummary";
+var GAME_SUMMARY_FILE_NAME   = "gameSummary";
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 var fileSystemGo    = false;       // Whether the fileSystem is usable
+var onReadyCallback = undefined;
 
 // Variable holding the directory entries
 var dirEntries = {appStorageDir: undefined,
@@ -40,6 +41,14 @@ var dirEntries = {appStorageDir: undefined,
                   deckDefsDir: undefined,
                   activeGamesDir: undefined
                   };
+
+// File Object
+function FileEntity(onReady, onWriteEnd, fileEntry) {
+   this.entry = fileEntry;
+   this.writer = undefined;
+   this.onReady = onReady;          // Callback when ready to write
+   this.onWriteEnd = onWriteEnd;    // Callback when finished writing
+}
 
 // Array to hold the FileEntry objects that are open
 var fileEntries = {log: undefined,
@@ -50,14 +59,14 @@ var fileEntries = {log: undefined,
                    };
 
 
-
 /*******************************************************************************
  * Initialization Methods
  ******************************************************************************/
 // InitFileSystem() should always be called once at app startup
 // Note: This function cannot be called until after the Device Ready event.
-function InitFileSystem() {
+function InitFileSystem(onReady) {
    fileSystemGo = false;
+   onReadyCallback = onReady;
    RequestFileSystem();
 }
 
@@ -96,18 +105,18 @@ function ReadRootDir(entries){
    // Go through looking for our entries
    alert("There are " + entries.length + " entries");
    for(cntr = 0; cntr < entries.length; cntr++) {
-      if(entry[cntr].isDirectory) {
+      if(entries[cntr].isDirectory) {
          SetRootDirEntry(entries[cntr]);
       }
-      else if(entry[cntr].isFile) {
-         if(entry[cntr].name == LOG_FILE_NAME) {
+      else if(entries[cntr].isFile) {
+         if(entries[cntr].name == LOG_FILE_NAME) {
             alert('Found log file!');
-            fileEntries.log = entry[cntr];
+            fileEntries.log = new FileEntity(undefined, undefined, entries[cntr]);
          }
          
-         if(entry[cntr].name == GAME_SUMMARY_FILE_NAME) {
+         if(entries[cntr].name == GAME_SUMMARY_FILE_NAME) {
             alert('Found game summary file!');
-            fileEntries.gameSummary = entry[cntr];
+            fileEntries.gameSummary = new FileEntity(undefined, undefined, entries[cntr]);
          }
       }
    }
@@ -149,20 +158,16 @@ function CheckRootDirEntries() {
 
 function SetRootDirEntry(entry) {
    log.info("Setting directory object for " + entry.name);
-   //alert("Set: '" + entry.name + "'; dir: " + entry.isDirectory + "; path: '" + entry.fullPath + "'");
    if(entry.name == GAME_DEFS_DIR) {
       dirEntries.gamesDefsDir = entry;
-      alert("set: " + dirEntries.gamesDefsDir.name);
    }
    
    if(entry.name == DECK_DEFS_DIR){
       dirEntries.deckDefsDir = entry;
-      alert("set: " + dirEntries.deckDefsDir.name);
    }
    
    if(entry.name == ACTIVE_GAMES_DIR){
       dirEntries.activeGamesDir = entry;
-      alert("set: " + dirEntries.activeGamesDir.name);
    }
 
    if((dirEntries.gamesDefsDir !== undefined) &&
@@ -186,30 +191,84 @@ function DirectoryCreated(entry) {
 
 function SetFileSystemReady() {
    log.info("Filesystem is ready to go!");
-   alert("Filesystem is ready to go!");
    fileSystemGo = true;
+   
+   if(typeof onReadyCallback === "function") {
+      onReadyCallback();
+   }
+}
+
+
+/*******************************************************************************
+ * File Entity Methods
+ ******************************************************************************/
+function OpenFileEntity(entity) {
+   // If the file entry is undefined, then we need to get the file
+   if(entity.entry === undefined) {
+      if(dirEntries.appStorageDir !== undefined) {
+         dirEntries.appStorageDir.getFile(LOG_FILE_NAME,
+                                          {create: true, exclusive: false},
+                                          function(entry){entity.entry = entry; FileEntityCreateWriter(entity);},
+                                          function(error){FSError(error, 'Open log file');}
+                                         );
+      }
+      else {
+         log.warn("App storage not defined. Cannot create log file");
+      }
+   }
+   else {
+      if(entity.writer === undefined) {
+         FileEntityCreateWriter(entity);
+      }
+      else {
+         entity.writer.onwriteend = entity.onWriteEnd;
+         FileEntityReady(entity, true);
+      }
+   }
+}
+
+
+function FileEntityCreateWriter(entity) {
+   if((entity !== undefined) && (entity.entry !== undefined)) {
+      entity.entry.createWriter(function(writer){FileEntitySetWriter(entity, writer);},
+                                function(error){FSError(error, "GetLogFileWriter");}
+                                );
+   }
+}
+
+
+function FileEntitySetWriter(entity, writer) {
+   if(entity !== undefined) {
+      entity.writer = writer;
+      entity.writer.onwriteend = entity.onWriteEnd;
+      FileEntityReady(entity, true);
+   }
+   else {
+      FileEntityReady(entity, false);
+   }
+}
+
+   
+function FileEntityReady(entity, ready) {
+   if((entity !== undefined) && (typeof entity.onReady === "function")) {
+      entity.onReady(ready);
+   }
 }
 
 
 /*******************************************************************************
  * File Methods
  ******************************************************************************/
-function OpenLogFile() {
+function OpenLogFile(onReady, onWriteEnd) {
+   // If the entry is undefined, then create one
    if(fileEntries.log === undefined) {
-      if(dirEntries.appStorageDir !== undefined) {
-         dirEntries.appStorageDir.getFile(LOG_FILE_NAME,
-        		 										{create: true, exclusive: false},
-        		 										function(entry){fileEntries.log = entry;},
-        		 										function(error){FSError(error, 'Open log file');}
-        		 										);
-      }
-      else {
-         log.warn("App storage not defined. Cannot create log file");
-      }
+      fileEntries.log = new FileEntity(onReady, onWriteEnd, undefined);
    }
+   
+   OpenFileEntity(fileEntries.log);
 }
 
-   
+
 /*******************************************************************************
  * Error Handler
  ******************************************************************************/
@@ -280,6 +339,6 @@ function FSError(error, location) {
 
 module.exports = {
                   InitFileSystem: InitFileSystem,
-                  OpenLogFile:	 OpenLogFile
+                  OpenLogFile:    OpenLogFile
                   };
 

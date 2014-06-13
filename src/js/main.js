@@ -17,11 +17,25 @@ function main ()
 
 
 function OnDeviceReady() {
-   FS.InitFileSystem();
+   FS.InitFileSystem(FileSystemReady);
 }
 
 function BrowserMain() {
-   FS.InitFileSystem();
+   FS.InitFileSystem(FileSystemReady);
+}
+
+
+function FileSystemReady() {
+   alert("WooHoo! FileSystem is Ready");
+   //FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+}
+
+function LogFileReady(ready) {
+   alert("LogFileReady: " + ready);
+}
+
+function LogFileWriteComplete() {
+   alert("LogFileWriteComplete");
 }
 
 
