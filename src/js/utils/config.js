@@ -16,12 +16,12 @@ function SetPassword(value) {
    localStorage.setItem('password', value);
 }
 
-function GetLogLevel() {
-   return localStorage.logLevel;
+function GetLogMask() {
+   return localStorage.logMask;
 }
 
-function SetLogLevel(value) {
-   localStorage.setItem('logLevel', value);
+function SetLogMask(value) {
+   localStorage.setItem('logMask', value);
 }
 
 function GetLogToConsole() {
