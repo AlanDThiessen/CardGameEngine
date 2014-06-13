@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 var FS = require('./utils/FileSystem.js');
-var config = require('./utils/config.js');
+//var config = require('./utils/config.js');
 
 
 function main ()
