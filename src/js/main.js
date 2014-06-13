@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 var FS = require('./utils/FileSystem.js');
-var FS = require('./utils/config.js');
+var config = require('./utils/config.js');
 
 
 function main ()
@@ -21,7 +21,7 @@ function OnDeviceReady() {
 }
 
 function BrowserMain() {
-	FS.InitFileSystem();
+   FS.InitFileSystem();
 }
 
 
