@@ -1,7 +1,7 @@
 
 
 function GetUserName() {
-   localStorage.getItem('username');
+   return localStorage.username;
 }
 
 function SetUserName(value) {
@@ -9,7 +9,7 @@ function SetUserName(value) {
 }
 
 function GetPassword() {
-   localStorage.getItem('password');
+   return localStorage.password;
 }
 
 function SetPassword(value) {
@@ -17,7 +17,7 @@ function SetPassword(value) {
 }
 
 function GetLogLevel() {
-   localStorage.getItem('logLevel');
+   return localStorage.logLevel;
 }
 
 function SetLogLevel(value) {
@@ -25,7 +25,7 @@ function SetLogLevel(value) {
 }
 
 function GetLogToConsole() {
-   localStorage.getItem('logToConsole');
+   return localStorage.logToConsole;
 }
 
 function SetLogToConsole(value) {
@@ -33,7 +33,7 @@ function SetLogToConsole(value) {
 }
 
 function GetLogToFile() {
-   localStorage.getItem('logToFile');
+   return localStorage.logToFile;
 }
 
 function SetLogToFile(value) {
