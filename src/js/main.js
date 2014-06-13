@@ -27,11 +27,11 @@ function BrowserMain() {
 
 function FileSystemReady() {
    alert("WooHoo! FileSystem is Ready");
-   //FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
 }
 
 function LogFileReady(ready) {
-   alert("LogFileReady: " + ready);
+   WriteLogFile("This is the CGE Log file!");
 }
 
 function LogFileWriteComplete() {

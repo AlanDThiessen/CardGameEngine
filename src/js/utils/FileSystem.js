@@ -43,7 +43,8 @@ var dirEntries = {appStorageDir: undefined,
                   };
 
 // File Object
-function FileEntity(onReady, onWriteEnd, fileEntry) {
+function FileEntity(name, onReady, onWriteEnd, fileEntry) {
+   this.name = name;
    this.entry = fileEntry;
    this.writer = undefined;
    this.onReady = onReady;          // Callback when ready to write
@@ -111,12 +112,12 @@ function ReadRootDir(entries){
       else if(entries[cntr].isFile) {
          if(entries[cntr].name == LOG_FILE_NAME) {
             alert('Found log file!');
-            fileEntries.log = new FileEntity(undefined, undefined, entries[cntr]);
+            fileEntries.log = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
          }
          
          if(entries[cntr].name == GAME_SUMMARY_FILE_NAME) {
             alert('Found game summary file!');
-            fileEntries.gameSummary = new FileEntity(undefined, undefined, entries[cntr]);
+            fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
          }
       }
    }
@@ -205,6 +206,7 @@ function SetFileSystemReady() {
 function OpenFileEntity(entity) {
    // If the file entry is undefined, then we need to get the file
    if(entity.entry === undefined) {
+      alert("Open entity: " + entity.name);
       if(dirEntries.appStorageDir !== undefined) {
          dirEntries.appStorageDir.getFile(LOG_FILE_NAME,
                                           {create: true, exclusive: false},
@@ -214,6 +216,7 @@ function OpenFileEntity(entity) {
       }
       else {
          log.warn("App storage not defined. Cannot create log file");
+         alert("App storage not defined. Cannot create log file");
       }
    }
    else {
@@ -230,6 +233,7 @@ function OpenFileEntity(entity) {
 
 function FileEntityCreateWriter(entity) {
    if((entity !== undefined) && (entity.entry !== undefined)) {
+      alert("CreateWriter: " + entity.name);
       entity.entry.createWriter(function(writer){FileEntitySetWriter(entity, writer);},
                                 function(error){FSError(error, "GetLogFileWriter");}
                                 );
@@ -239,6 +243,7 @@ function FileEntityCreateWriter(entity) {
 
 function FileEntitySetWriter(entity, writer) {
    if(entity !== undefined) {
+      alert("SetWriter: " + entity.name);
       entity.writer = writer;
       entity.writer.onwriteend = entity.onWriteEnd;
       FileEntityReady(entity, true);
@@ -251,6 +256,7 @@ function FileEntitySetWriter(entity, writer) {
    
 function FileEntityReady(entity, ready) {
    if((entity !== undefined) && (typeof entity.onReady === "function")) {
+      alert("FileEntityReady: " + entity.name);
       entity.onReady(ready);
    }
 }
@@ -262,11 +268,19 @@ function FileEntityReady(entity, ready) {
 function OpenLogFile(onReady, onWriteEnd) {
    // If the entry is undefined, then create one
    if(fileEntries.log === undefined) {
-      fileEntries.log = new FileEntity(onReady, onWriteEnd, undefined);
+      fileEntries.log = new FileEntity("logFile", onReady, onWriteEnd, undefined);
    }
-   
+
    OpenFileEntity(fileEntries.log);
 }
+
+
+function WriteLogFile(data) {
+   if((fileEntries.log !== undefined) && (fileEntries.log.writer !== undefiend)) {
+      fileEntries.log.writer.write(data);
+   }
+}
+
 
 
 /*******************************************************************************
@@ -339,6 +353,7 @@ function FSError(error, location) {
 
 module.exports = {
                   InitFileSystem: InitFileSystem,
-                  OpenLogFile:    OpenLogFile
+                  OpenLogFile:    OpenLogFile,
+                  WriteLogFile:   WriteLogFile
                   };
 
