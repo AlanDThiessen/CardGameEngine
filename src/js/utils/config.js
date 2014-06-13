@@ -24,6 +24,14 @@ function SetLogLevel(value) {
    localStorage.setItem('logLevel', value);
 }
 
+function GetLogToConsole() {
+   localStorage.getItem('logToConsole');
+}
+
+function SetLogToConsole(value) {
+   localStorage.setItem('logToConsole', value);
+}
+
 function GetLogToFile() {
    localStorage.getItem('logToFile');
 }
@@ -39,6 +47,8 @@ module.exports = {
                   SetPassword: SetPassword,
                   GetLogLevel: GetLogLevel,
                   SetLogLevel: SetLogLevel,
+                  GetLogToConsole: GetLogToConsole,
+                  SetLogToConsole: SetLogToConsole,
                   GetLogToFile: GetLogToFile,
                   SetLogToFile: SetLogToFile
 };
