@@ -26,16 +26,19 @@ function BrowserMain() {
 
 
 function FileSystemReady() {
-   alert("WooHoo! FileSystem is Ready");
    FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
 }
 
 function LogFileReady(ready) {
-   WriteLogFile("This is the CGE Log file!");
+   var date = new Date();
+   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+   var logEntry = "[" + dateStr + "] First Entry in the log\n";
+   FS.WriteLogFile("This is the CGE Log file!\n" + logEntry);
 }
 
 function LogFileWriteComplete() {
-   alert("LogFileWriteComplete");
+   alert("Write to log file success!");
 }
 
 
