@@ -269,9 +269,16 @@ function OpenLogFile(onReady, onWriteEnd) {
 }
 
 
-function WriteLogFile(data) {
+function WriteLogFile(append, data) {
    if((fileEntries.log !== undefined) &&
       (fileEntries.log.writer !== undefined)) {
+      if(append) {
+         fileEntries.log.writer.seek(fileEntries.log.writer.length);
+      }
+      else {
+         fileEntries.log.writer.seek(0);
+      }
+      
       fileEntries.log.writer.write(data);
    }
 }

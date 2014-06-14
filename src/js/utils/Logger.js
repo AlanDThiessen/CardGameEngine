@@ -1,4 +1,4 @@
-//var config = require("./config.js");
+var config = require("./config.js");
 
 log = { };
 
@@ -8,8 +8,7 @@ log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
 log.mask = 0xFF;
-//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
-log.mask = (log.WARN | log.ERROR);
+log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);

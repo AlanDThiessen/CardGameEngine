@@ -1,43 +1,43 @@
 
 
 function GetUserName() {
-   return localStorage.username;
+   return window.localStorage.username;
 }
 
 function SetUserName(value) {
-   localStorage.setItem('username', value);
+   window.localStorage.setItem('username', value);
 }
 
 function GetPassword() {
-   return localStorage.password;
+   return window.localStorage.password;
 }
 
 function SetPassword(value) {
-   localStorage.setItem('password', value);
+   window.localStorage.setItem('password', value);
 }
 
 function GetLogMask() {
-   return localStorage.logMask;
+   return window.localStorage.logMask;
 }
 
 function SetLogMask(value) {
-   localStorage.setItem('logMask', value);
+   window.localStorage.setItem('logMask', value);
 }
 
 function GetLogToConsole() {
-   return localStorage.logToConsole;
+   return window.localStorage.logToConsole;
 }
 
 function SetLogToConsole(value) {
-   localStorage.setItem('logToConsole', value);
+   window.localStorage.setItem('logToConsole', value);
 }
 
 function GetLogToFile() {
-   return localStorage.logToFile;
+   return window.localStorage.logToFile;
 }
 
 function SetLogToFile(value) {
-   localStorage.setItem('logToFile', value);
+   window.localStorage.setItem('logToFile', value);
 }
 
 module.exports = {
@@ -45,8 +45,8 @@ module.exports = {
                   SetUserName: SetUserName,
                   GetPassword: GetPassword,
                   SetPassword: SetPassword,
-                  GetLogLevel: GetLogLevel,
-                  SetLogLevel: SetLogLevel,
+                  GetLogMask: GetLogMask,
+                  SetLogMask: SetLogMask,
                   GetLogToConsole: GetLogToConsole,
                   SetLogToConsole: SetLogToConsole,
                   GetLogToFile: GetLogToFile,

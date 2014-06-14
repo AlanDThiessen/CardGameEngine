@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 var FS = require('./utils/FileSystem.js');
-//var config = require('./utils/config.js');
+var config = require('./utils/config.js');
 
 
 function main ()
@@ -33,8 +33,8 @@ function LogFileReady(ready) {
    var date = new Date();
    dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
    dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-   var logEntry = "[" + dateStr + "] First Entry in the log\n";
-   FS.WriteLogFile("This is the CGE Log file!\n" + logEntry);
+   var logEntry = "[" + dateStr + "] Entry in the log\n";
+   FS.WriteLogFile(true, logEntry);
 }
 
 function LogFileWriteComplete() {

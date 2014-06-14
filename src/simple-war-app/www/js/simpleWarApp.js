@@ -1198,7 +1198,7 @@ CardGame.prototype.GetPlayerStatus = function(playerId) {
 
 module.exports = CardGame;
 
-},{"../utils/Logger.js":21,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":24}],7:[function(require,module,exports){
+},{"../utils/Logger.js":21,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":25}],7:[function(require,module,exports){
 
 
 var CGE_CONSTANTS = {
@@ -2798,7 +2798,7 @@ module.exports = SimpleWarUI;
  ******************************************************************************/
 
 var FS = require('./utils/FileSystem.js');
-//var config = require('./utils/config.js');
+var config = require('./utils/config.js');
 
 
 function main ()
@@ -2824,8 +2824,8 @@ function LogFileReady(ready) {
    var date = new Date();
    dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
    dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-   var logEntry = "[" + dateStr + "] First Entry in the log\n";
-   FS.WriteLogFile("This is the CGE Log file!\n" + logEntry);
+   var logEntry = "[" + dateStr + "] Entry in the log\n";
+   FS.WriteLogFile(true, logEntry);
 }
 
 function LogFileWriteComplete() {
@@ -2840,7 +2840,7 @@ else {
    window.addEventListener('load', BrowserMain, false);
 }
 
-},{"./utils/FileSystem.js":20}],20:[function(require,module,exports){
+},{"./utils/FileSystem.js":20,"./utils/config.js":22}],20:[function(require,module,exports){
 /*******************************************************************************
  * 
  * FileSystem.js
@@ -3112,9 +3112,16 @@ function OpenLogFile(onReady, onWriteEnd) {
 }
 
 
-function WriteLogFile(data) {
+function WriteLogFile(append, data) {
    if((fileEntries.log !== undefined) &&
       (fileEntries.log.writer !== undefined)) {
+      if(append) {
+         fileEntries.log.writer.seek(fileEntries.log.writer.length);
+      }
+      else {
+         fileEntries.log.writer.seek(0);
+      }
+      
       fileEntries.log.writer.write(data);
    }
 }
@@ -3197,7 +3204,7 @@ module.exports = {
 
 
 },{"./Logger.js":21}],21:[function(require,module,exports){
-//var config = require("./config.js");
+var config = require("./config.js");
 
 log = { };
 
@@ -3207,8 +3214,7 @@ log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
 log.mask = 0xFF;
-//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
-log.mask = (log.WARN | log.ERROR);
+log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -3278,7 +3284,63 @@ log._out = function (level, format) {
 
 module.exports = log;
 
-},{}],22:[function(require,module,exports){
+},{"./config.js":22}],22:[function(require,module,exports){
+
+
+function GetUserName() {
+   return window.localStorage.username;
+}
+
+function SetUserName(value) {
+   window.localStorage.setItem('username', value);
+}
+
+function GetPassword() {
+   return window.localStorage.password;
+}
+
+function SetPassword(value) {
+   window.localStorage.setItem('password', value);
+}
+
+function GetLogMask() {
+   return window.localStorage.logMask;
+}
+
+function SetLogMask(value) {
+   window.localStorage.setItem('logMask', value);
+}
+
+function GetLogToConsole() {
+   return window.localStorage.logToConsole;
+}
+
+function SetLogToConsole(value) {
+   window.localStorage.setItem('logToConsole', value);
+}
+
+function GetLogToFile() {
+   return window.localStorage.logToFile;
+}
+
+function SetLogToFile(value) {
+   window.localStorage.setItem('logToFile', value);
+}
+
+module.exports = {
+                  GetUserName: GetUserName,
+                  SetUserName: SetUserName,
+                  GetPassword: GetPassword,
+                  SetPassword: SetPassword,
+                  GetLogMask: GetLogMask,
+                  SetLogMask: SetLogMask,
+                  GetLogToConsole: GetLogToConsole,
+                  SetLogToConsole: SetLogToConsole,
+                  GetLogToFile: GetLogToFile,
+                  SetLogToFile: SetLogToFile
+};
+
+},{}],23:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var readLine = require( 'readline' );
@@ -3465,9 +3527,9 @@ function StartGame()
 
 document.addEventListener('deviceready', StartGame, false);
 
-},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":21,"readline":23}],23:[function(require,module,exports){
+},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":21,"readline":24}],24:[function(require,module,exports){
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3769,4 +3831,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[22])
+},{}]},{},[23])
