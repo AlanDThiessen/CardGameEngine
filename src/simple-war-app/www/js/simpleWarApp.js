@@ -2817,19 +2817,9 @@ function BrowserMain() {
 
 
 function FileSystemReady() {
-   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
-}
-
-function LogFileReady(ready) {
-   var date = new Date();
-   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-   var logEntry = "[" + dateStr + "] Entry in the log\n";
-   FS.WriteLogFile(true, logEntry);
-}
-
-function LogFileWriteComplete() {
-   alert("Write to log file success!");
+   alert("Filesystem ready!");
+//   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+   log.FileSystemReady();
 }
 
 
@@ -2859,7 +2849,7 @@ else {
  * 
  ******************************************************************************/
 
-var log = require('./Logger.js');
+//var log = require('./Logger.js');
 
 /*******************************************************************************
  * Constants
@@ -2916,7 +2906,7 @@ function InitFileSystem(onReady) {
 
 
 function RequestFileSystem() {
-   log.info("Requesting file system");
+   //log.info("Requesting file system");
    window.requestFileSystem(LocalFileSystem.PERSISTENT,
                             STORAGE_SIZE_BYTES,
                             InitDirectories,                                       // Success
@@ -2933,12 +2923,12 @@ function InitDirectories(fileSystem) {
       (dirEntries.deckDefsDir === undefined) ||
       (dirEntries.activeGamesDir === undefined)){
       // Attempt to read the dir entries
-      log.info("Retrieving game directories");
+      //log.info("Retrieving game directories");
       dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
       dirReader.readEntries(ReadRootDir, function(error){FSError(error, 'Read Directory');});
    }
    else {
-      log.info("Game directory objects already exist");
+      //log.info("Game directory objects already exist");
       SetFileSystemReady();
    }
 }
@@ -2970,7 +2960,7 @@ function ReadRootDir(entries){
 function CheckRootDirEntries() {
    // Create directories if they don't exist
    if(dirEntries.gamesDefsDir === undefined) {
-      log.info("Creating directory: " + GAME_DEFS_DIR );
+      //log.info("Creating directory: " + GAME_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(GAME_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -2979,7 +2969,7 @@ function CheckRootDirEntries() {
    }
    
    if(dirEntries.deckDefsDir === undefined) {
-      log.info("Creating directory: " + DECK_DEFS_DIR );
+      //log.info("Creating directory: " + DECK_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(DECK_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -2988,7 +2978,7 @@ function CheckRootDirEntries() {
    }
    
    if(dirEntries.activeGamesDir === undefined) {
-      log.info("Creating directory: " + ACTIVE_GAMES_DIR );
+      //log.info("Creating directory: " + ACTIVE_GAMES_DIR );
       dirEntries.appStorageDir.getDirectory(ACTIVE_GAMES_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -2999,7 +2989,7 @@ function CheckRootDirEntries() {
 
 
 function SetRootDirEntry(entry) {
-   log.info("Setting directory object for " + entry.name);
+   //log.info("Setting directory object for " + entry.name);
    if(entry.name == GAME_DEFS_DIR) {
       dirEntries.gamesDefsDir = entry;
    }
@@ -3032,7 +3022,7 @@ function DirectoryCreated(entry) {
 
 
 function SetFileSystemReady() {
-   log.info("Filesystem is ready to go!");
+   //log.info("Filesystem is ready to go!");
    fileSystemGo = true;
    
    if(typeof onReadyCallback === "function") {
@@ -3055,7 +3045,7 @@ function OpenFileEntity(entity) {
                                          );
       }
       else {
-         log.warn("App storage not defined. Cannot create log file");
+         //log.warn("App storage not defined. Cannot create log file");
       }
    }
    else {
@@ -3190,7 +3180,7 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   log.error(errorStr);
+   //log.error(errorStr);
    
    alert(errorStr);
 }
@@ -3203,8 +3193,9 @@ module.exports = {
                   };
 
 
-},{"./Logger.js":21}],21:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var config = require("./config.js");
+var FS = require("./FileSystem.js");
 
 log = { };
 
@@ -3215,6 +3206,25 @@ log.ERROR   = 0x08;
 
 log.mask = 0xFF;
 log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+
+
+log.FileSystemReady = function() {
+   FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
+}
+
+
+log.LogFileReady = function(ready) {
+   var date = new Date();
+   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+   var logEntry = "[" + dateStr + "] Entry in the log\n";
+   FS.WriteLogFile(true, logEntry);
+}
+
+log.LogFileWriteComplete = function() {
+   alert("Write to log file success!");
+}
+
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -3284,7 +3294,7 @@ log._out = function (level, format) {
 
 module.exports = log;
 
-},{"./config.js":22}],22:[function(require,module,exports){
+},{"./FileSystem.js":20,"./config.js":22}],22:[function(require,module,exports){
 
 
 function GetUserName() {

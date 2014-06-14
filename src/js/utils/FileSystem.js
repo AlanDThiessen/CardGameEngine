@@ -16,7 +16,7 @@
  * 
  ******************************************************************************/
 
-var log = require('./Logger.js');
+//var log = require('./Logger.js');
 
 /*******************************************************************************
  * Constants
@@ -73,7 +73,7 @@ function InitFileSystem(onReady) {
 
 
 function RequestFileSystem() {
-   log.info("Requesting file system");
+   //log.info("Requesting file system");
    window.requestFileSystem(LocalFileSystem.PERSISTENT,
                             STORAGE_SIZE_BYTES,
                             InitDirectories,                                       // Success
@@ -90,12 +90,12 @@ function InitDirectories(fileSystem) {
       (dirEntries.deckDefsDir === undefined) ||
       (dirEntries.activeGamesDir === undefined)){
       // Attempt to read the dir entries
-      log.info("Retrieving game directories");
+      //log.info("Retrieving game directories");
       dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
       dirReader.readEntries(ReadRootDir, function(error){FSError(error, 'Read Directory');});
    }
    else {
-      log.info("Game directory objects already exist");
+      //log.info("Game directory objects already exist");
       SetFileSystemReady();
    }
 }
@@ -127,7 +127,7 @@ function ReadRootDir(entries){
 function CheckRootDirEntries() {
    // Create directories if they don't exist
    if(dirEntries.gamesDefsDir === undefined) {
-      log.info("Creating directory: " + GAME_DEFS_DIR );
+      //log.info("Creating directory: " + GAME_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(GAME_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -136,7 +136,7 @@ function CheckRootDirEntries() {
    }
    
    if(dirEntries.deckDefsDir === undefined) {
-      log.info("Creating directory: " + DECK_DEFS_DIR );
+      //log.info("Creating directory: " + DECK_DEFS_DIR );
       dirEntries.appStorageDir.getDirectory(DECK_DEFS_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -145,7 +145,7 @@ function CheckRootDirEntries() {
    }
    
    if(dirEntries.activeGamesDir === undefined) {
-      log.info("Creating directory: " + ACTIVE_GAMES_DIR );
+      //log.info("Creating directory: " + ACTIVE_GAMES_DIR );
       dirEntries.appStorageDir.getDirectory(ACTIVE_GAMES_DIR,
                                             {create: true, exclusive: false},
                                             DirectoryCreated,
@@ -156,7 +156,7 @@ function CheckRootDirEntries() {
 
 
 function SetRootDirEntry(entry) {
-   log.info("Setting directory object for " + entry.name);
+   //log.info("Setting directory object for " + entry.name);
    if(entry.name == GAME_DEFS_DIR) {
       dirEntries.gamesDefsDir = entry;
    }
@@ -189,7 +189,7 @@ function DirectoryCreated(entry) {
 
 
 function SetFileSystemReady() {
-   log.info("Filesystem is ready to go!");
+   //log.info("Filesystem is ready to go!");
    fileSystemGo = true;
    
    if(typeof onReadyCallback === "function") {
@@ -212,7 +212,7 @@ function OpenFileEntity(entity) {
                                          );
       }
       else {
-         log.warn("App storage not defined. Cannot create log file");
+         //log.warn("App storage not defined. Cannot create log file");
       }
    }
    else {
@@ -347,7 +347,7 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   log.error(errorStr);
+   //log.error(errorStr);
    
    alert(errorStr);
 }

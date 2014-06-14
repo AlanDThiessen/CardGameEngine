@@ -1,4 +1,5 @@
 var config = require("./config.js");
+var FS = require("./FileSystem.js");
 
 log = { };
 
@@ -9,6 +10,25 @@ log.ERROR   = 0x08;
 
 log.mask = 0xFF;
 log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+
+
+log.FileSystemReady = function() {
+   FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
+}
+
+
+log.LogFileReady = function(ready) {
+   var date = new Date();
+   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+   var logEntry = "[" + dateStr + "] Entry in the log\n";
+   FS.WriteLogFile(true, logEntry);
+}
+
+log.LogFileWriteComplete = function() {
+   alert("Write to log file success!");
+}
+
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);

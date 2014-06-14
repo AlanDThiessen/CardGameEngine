@@ -26,19 +26,9 @@ function BrowserMain() {
 
 
 function FileSystemReady() {
-   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
-}
-
-function LogFileReady(ready) {
-   var date = new Date();
-   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-   var logEntry = "[" + dateStr + "] Entry in the log\n";
-   FS.WriteLogFile(true, logEntry);
-}
-
-function LogFileWriteComplete() {
-   alert("Write to log file success!");
+   alert("Filesystem ready!");
+//   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+   log.FileSystemReady();
 }
 
 
