@@ -8,6 +8,7 @@
 
 var FS = require('./utils/FileSystem.js');
 var config = require('./utils/config.js');
+var log = require('./utils/Logger.js');
 
 
 function main ()
@@ -26,8 +27,8 @@ function BrowserMain() {
 
 
 function FileSystemReady() {
-   alert("Filesystem ready!");
-//   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+   //alert("Filesystem ready!");
+   log.SetMask(0xFF);
    log.FileSystemReady();
 }
 

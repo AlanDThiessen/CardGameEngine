@@ -1198,7 +1198,7 @@ CardGame.prototype.GetPlayerStatus = function(playerId) {
 
 module.exports = CardGame;
 
-},{"../utils/Logger.js":21,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":25}],7:[function(require,module,exports){
+},{"../utils/Logger.js":21,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":24}],7:[function(require,module,exports){
 
 
 var CGE_CONSTANTS = {
@@ -2799,6 +2799,7 @@ module.exports = SimpleWarUI;
 
 var FS = require('./utils/FileSystem.js');
 var config = require('./utils/config.js');
+var log = require('./utils/Logger.js');
 
 
 function main ()
@@ -2817,8 +2818,8 @@ function BrowserMain() {
 
 
 function FileSystemReady() {
-   alert("Filesystem ready!");
-//   FS.OpenLogFile(LogFileReady, LogFileWriteComplete);
+   //alert("Filesystem ready!");
+   log.SetMask(0xFF);
    log.FileSystemReady();
 }
 
@@ -2830,7 +2831,7 @@ else {
    window.addEventListener('load', BrowserMain, false);
 }
 
-},{"./utils/FileSystem.js":20,"./utils/config.js":22}],20:[function(require,module,exports){
+},{"./utils/FileSystem.js":20,"./utils/Logger.js":21,"./utils/config.js":22}],20:[function(require,module,exports){
 /*******************************************************************************
  * 
  * FileSystem.js
@@ -3204,8 +3205,15 @@ log.INFO    = 0x02;
 log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
+log.toFile = true;
+log.toConcole = false;
+log.fileReady = false;
 log.mask = 0xFF;
 log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+
+log.SetMask = function(value) {
+   log.mask = value;
+}
 
 
 log.FileSystemReady = function() {
@@ -3214,26 +3222,34 @@ log.FileSystemReady = function() {
 
 
 log.LogFileReady = function(ready) {
-   var date = new Date();
-   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-   var logEntry = "[" + dateStr + "] Entry in the log\n";
-   FS.WriteLogFile(true, logEntry);
+   log.fileReady = true;
+   //log.mask = 0xFF;
+   log.info("App Log Startup");
 }
 
 log.LogFileWriteComplete = function() {
-   alert("Write to log file success!");
+   log.fileReady = true;
+}
+
+
+log.GetDate = function() {
+   var date = new Date();
+   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds().toPrecision(3);
+   return dateStr;
 }
 
 
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
    args.unshift(log.DEBUG);
+   var args = [];
 
    if (log.mask & log.DEBUG) {
       log._out.apply(this, args);
    }
 };
+
 
 log.info = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
@@ -3265,32 +3281,49 @@ log.error = function (format) {
 log._out = function (level, format) {
    var i = -1;
    var args = Array.prototype.slice.call(arguments, 2);
+   var str;
 
+   var dateStr = log.GetDate();
+   dateStr = "[" + dateStr + "] ";
    format = "" + format;
 
-   var str = format.replace(/\%[sd]/g, function () {
+   str = format.replace(/\%[sd]/g, function () {
       i++;
       return args[i];
    });
 
    switch (level) {
       case log.DEBUG:
-         console.log("DEBUG: " + str);
+         console.log(dateStr + "DEBUG: " + str);
+         log._ToFile(dateStr + "DEBUG: " + str);
          break;
 
       case log.INFO:
-         console.log(" INFO: " + str);
+         console.log(dateStr + " INFO: " + str);
+         log._ToFile(dateStr + " INFO: " + str);
          break;
 
       case log.WARN:
-         console.warn(" WARN: " + str);
+         console.warn(dateStr + " WARN: " + str);
+         log._ToFile(dateStr + " WARN: " + str);
          break;
 
       case log.ERROR:
-         console.error("ERROR: " + str);
+         console.error(dateStr + "ERROR: " + str);
+         log._ToFile(dateStr + "ERROR: " + str);
          break;
    }
 };
+
+
+log._ToFile = function(str) {
+   if(log.fileReady) {
+      log.fileReady = false;
+      str += '\n';
+      FS.WriteLogFile(true, str);
+   }
+}
+
 
 module.exports = log;
 
@@ -3353,11 +3386,10 @@ module.exports = {
 },{}],23:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
-var readLine = require( 'readline' );
 var log = require ("../../src/js/utils/Logger.js");
 var main = require("../../src/js/main.js");
 
-log.mask = 0x08;
+//log.mask = 0x08;
 
 var gameSpec = 
 {
@@ -3528,6 +3560,7 @@ var deckSpec =
 
 function StartGame()
 {
+   //alert("Start Game!");
    log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
    cardGame = new SimpleWarGame();
@@ -3537,9 +3570,7 @@ function StartGame()
 
 document.addEventListener('deviceready', StartGame, false);
 
-},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":21,"readline":24}],24:[function(require,module,exports){
-
-},{}],25:[function(require,module,exports){
+},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":21}],24:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

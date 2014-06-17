@@ -1,10 +1,9 @@
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
-var readLine = require( 'readline' );
 var log = require ("../../src/js/utils/Logger.js");
 var main = require("../../src/js/main.js");
 
-log.mask = 0x08;
+//log.mask = 0x08;
 
 var gameSpec = 
 {
@@ -175,6 +174,7 @@ var deckSpec =
 
 function StartGame()
 {
+   //alert("Start Game!");
    log.info('Launching game of ' + gameSpec.name + ' with deck type ' + deckSpec.name );
 
    cardGame = new SimpleWarGame();
