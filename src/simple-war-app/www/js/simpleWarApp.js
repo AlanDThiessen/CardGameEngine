@@ -2819,7 +2819,7 @@ function BrowserMain() {
 
 function FileSystemReady() {
    //alert("Filesystem ready!");
-   log.SetMask(0xFF);
+   log.SetMask(0xFE);
    log.FileSystemReady();
 }
 
@@ -3235,7 +3235,7 @@ log.LogFileWriteComplete = function() {
 log.GetDate = function() {
    var date = new Date();
    dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds().toPrecision(3);
+   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
    return dateStr;
 }
 
@@ -3243,7 +3243,6 @@ log.GetDate = function() {
 log.debug = function (format) {
    var args = Array.prototype.slice.call(arguments, 0);
    args.unshift(log.DEBUG);
-   var args = [];
 
    if (log.mask & log.DEBUG) {
       log._out.apply(this, args);

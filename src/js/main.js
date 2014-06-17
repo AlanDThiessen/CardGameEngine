@@ -28,7 +28,7 @@ function BrowserMain() {
 
 function FileSystemReady() {
    //alert("Filesystem ready!");
-   log.SetMask(0xFF);
+   log.SetMask(0xFE);
    log.FileSystemReady();
 }
 
