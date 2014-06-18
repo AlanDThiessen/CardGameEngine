@@ -9,6 +9,7 @@
 var FS = require('./utils/FileSystem.js');
 var config = require('./utils/config.js');
 var log = require('./utils/Logger.js');
+var server = require('./utils/Server.js');
 
 
 function main ()
@@ -30,7 +31,14 @@ function FileSystemReady() {
    //alert("Filesystem ready!");
    log.SetMask(0xFE);
    log.FileSystemReady();
+  
+   setTimeout(LoginToServer, 1000);
 }
+
+function LoginToServer() {
+   server.LoginUser('athiessen', 'hello');
+}
+
 
 
 if (typeof window === 'undefined') {

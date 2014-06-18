@@ -190,7 +190,7 @@ ActiveEntity.prototype.Transition = function(destStateName) {
 
 module.exports = ActiveEntity;
 
-},{"../utils/Logger.js":21,"./State.js":10}],2:[function(require,module,exports){
+},{"../utils/Logger.js":22,"./State.js":10}],2:[function(require,module,exports){
 
 var CGEState = require("./CGEState.js");
 var ActiveEntity = require("./ActiveEntity.js");
@@ -461,7 +461,7 @@ Card.prototype.Print = function() {
 
 module.exports = Card;
 
-},{"../utils/Logger.js":21}],5:[function(require,module,exports){
+},{"../utils/Logger.js":22}],5:[function(require,module,exports){
 var Card = require("./Card.js");
 var CardGroup = require("./CardGroup.js");
 
@@ -1198,7 +1198,7 @@ CardGame.prototype.GetPlayerStatus = function(playerId) {
 
 module.exports = CardGame;
 
-},{"../utils/Logger.js":21,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":24}],7:[function(require,module,exports){
+},{"../utils/Logger.js":22,"./ActiveEntity.js":1,"./CGEActiveEntity.js":2,"./Card.js":4,"./CardGameDefs.js":7,"./Status.js":11,"./TransactionDefinition.js":12,"events":26}],7:[function(require,module,exports){
 
 
 var CGE_CONSTANTS = {
@@ -1410,7 +1410,7 @@ CardGroup.prototype.Shuffle = function() {
 
 module.exports = CardGroup;
 
-},{"../utils/Logger.js":21}],9:[function(require,module,exports){
+},{"../utils/Logger.js":22}],9:[function(require,module,exports){
 var CGEActiveEntity = require("./CGEActiveEntity.js");
 var log = require("../utils/Logger.js");
 
@@ -1447,7 +1447,7 @@ Player.prototype.GetScore = function() {
 
 module.exports = Player;
 
-},{"../utils/Logger.js":21,"./CGEActiveEntity.js":2}],10:[function(require,module,exports){
+},{"../utils/Logger.js":22,"./CGEActiveEntity.js":2}],10:[function(require,module,exports){
 /*******************************************************************************
  * NodeJS stuff
  ******************************************************************************/
@@ -1658,7 +1658,7 @@ State.prototype.FindState = function(name, goDeep) {
 
 module.exports = State;
 
-},{"../utils/Logger.js":21}],11:[function(require,module,exports){
+},{"../utils/Logger.js":22}],11:[function(require,module,exports){
 
 
 function PlayerStatus()
@@ -2162,7 +2162,7 @@ SimpleWarGame.prototype.LogPlayerStatus = function(playerId) {
    }
 };
 
-},{"../../engine/CardGame.js":6,"../../engine/CardGameDefs.js":7,"../../engine/TransactionDefinition.js":12,"../../utils/Logger.js":21,"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15,"./SimpleWarPlayerAI.js":16,"./SimpleWarUI.js":18}],15:[function(require,module,exports){
+},{"../../engine/CardGame.js":6,"../../engine/CardGameDefs.js":7,"../../engine/TransactionDefinition.js":12,"../../utils/Logger.js":22,"./SimpleWarDefs.js":13,"./SimpleWarPlayer.js":15,"./SimpleWarPlayerAI.js":16,"./SimpleWarUI.js":18}],15:[function(require,module,exports){
 module.exports = SimpleWarPlayer;
 
 var CGE = require("../../engine/CardGameDefs.js");
@@ -2471,7 +2471,7 @@ SimpleWarPlayer.prototype.UpdateStatus = function() {
    this.parentGame.UpdatePlayerStatus(this.id, this.status);
 };
 
-},{"../../engine/CardGameDefs.js":7,"../../engine/Player.js":9,"../../engine/TransactionDefinition.js":12,"../../utils/Logger.js":21,"./SimpleWarDefs.js":13,"./SimpleWarStatus.js":17}],16:[function(require,module,exports){
+},{"../../engine/CardGameDefs.js":7,"../../engine/Player.js":9,"../../engine/TransactionDefinition.js":12,"../../utils/Logger.js":22,"./SimpleWarDefs.js":13,"./SimpleWarStatus.js":17}],16:[function(require,module,exports){
 var SimpleWarPlayer = require("./SimpleWarPlayer.js");
 var SWGC = require("./SimpleWarDefs.js");
 
@@ -2800,6 +2800,7 @@ module.exports = SimpleWarUI;
 var FS = require('./utils/FileSystem.js');
 var config = require('./utils/config.js');
 var log = require('./utils/Logger.js');
+var server = require('./utils/Server.js');
 
 
 function main ()
@@ -2821,7 +2822,14 @@ function FileSystemReady() {
    //alert("Filesystem ready!");
    log.SetMask(0xFE);
    log.FileSystemReady();
+  
+   setTimeout(LoginToServer, 1000);
 }
+
+function LoginToServer() {
+   server.LoginUser('athiessen', 'hello');
+}
+
 
 
 if (typeof window === 'undefined') {
@@ -2831,7 +2839,56 @@ else {
    window.addEventListener('load', BrowserMain, false);
 }
 
-},{"./utils/FileSystem.js":20,"./utils/Logger.js":21,"./utils/config.js":22}],20:[function(require,module,exports){
+},{"./utils/FileSystem.js":21,"./utils/Logger.js":22,"./utils/Server.js":23,"./utils/config.js":24}],20:[function(require,module,exports){
+
+log = require("./Logger.js");
+
+ajax = {};
+
+ajax.server = {
+                 hostname:   'gator4021.hostgator.com',
+                 port:       443,
+                 path:       '/~thiessea/TheThiessens.net/cge/cge.php'
+              };
+
+
+
+ajax.ServerPost = function(postData, success, failure) {
+   var url = 'https://' + ajax.server.hostname + ajax.server.path;
+   var formData = new FormData();
+   var request = new XMLHttpRequest();
+ 
+	for(var key in postData) {
+	   if(postData.hasOwnProperty(key)) {
+	      formData.append(key, postData[key]);
+	   }
+	}
+  
+   request.open("POST", url, true );
+   request.responseType = 'text';
+   request.onreadystatechange = function(e){ajax.HandleResponse(e, this, success, failure);};
+   request.send(formData);
+}
+
+
+ajax.HandleResponse = function(event, resp, success, failure) {
+   if(resp.readyState == resp.DONE) {
+      if(resp.status == 200) {
+         if(typeof success === 'function') {
+            success(JSON.parse(resp.responseText));
+         }
+      }
+      else {
+         if(typeof failure === 'function') {
+            failure();
+         }
+      }
+   }
+}
+
+module.exports = ajax;
+
+},{"./Logger.js":22}],21:[function(require,module,exports){
 /*******************************************************************************
  * 
  * FileSystem.js
@@ -3194,7 +3251,7 @@ module.exports = {
                   };
 
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var config = require("./config.js");
 var FS = require("./FileSystem.js");
 
@@ -3326,7 +3383,39 @@ log._ToFile = function(str) {
 
 module.exports = log;
 
-},{"./FileSystem.js":20,"./config.js":22}],22:[function(require,module,exports){
+},{"./FileSystem.js":21,"./config.js":24}],23:[function(require,module,exports){
+
+ajax = require("./Ajax.js");
+log = require("./Logger.js");
+
+server = {};
+
+server.LoginUser = function(username, password) {
+   var postData = {
+      'action': 'cge_login_user',
+      'username': username,
+      'password': password
+   };
+
+   ajax.ServerPost(postData, server.LogResponse, server.Failure);
+}
+
+
+server.LogResponse = function(response) {
+   alert("Loged in as: " + response.display_name);
+   log.info("Loged in as: " + response.display_name);
+}
+
+server.Failure = function() {
+   log.info("Request Failed");
+   alert("Request Failed");
+}
+
+
+
+
+module.exports = server;
+},{"./Ajax.js":20,"./Logger.js":22}],24:[function(require,module,exports){
 
 
 function GetUserName() {
@@ -3382,7 +3471,7 @@ module.exports = {
                   SetLogToFile: SetLogToFile
 };
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 
 var SimpleWarGame = require( "../../src/js/games/SimpleWar/SimpleWarGame.js" );
 var log = require ("../../src/js/utils/Logger.js");
@@ -3569,7 +3658,7 @@ function StartGame()
 
 document.addEventListener('deviceready', StartGame, false);
 
-},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":21}],24:[function(require,module,exports){
+},{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":22}],26:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3871,4 +3960,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[23])
+},{}]},{},[25])
