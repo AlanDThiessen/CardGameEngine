@@ -2875,6 +2875,7 @@ ajax.HandleResponse = function(event, resp, success, failure) {
    if(resp.readyState == resp.DONE) {
       if(resp.status == 200) {
          if(typeof success === 'function') {
+            log.info(resp.responseText);
             success(JSON.parse(resp.responseText));
          }
       }
@@ -3397,18 +3398,46 @@ server.LoginUser = function(username, password) {
       'password': password
    };
 
-   ajax.ServerPost(postData, server.LogResponse, server.Failure);
+   ajax.ServerPost(postData, server.LoginSuccess, server.Failure);
 }
 
 
-server.LogResponse = function(response) {
-   alert("Loged in as: " + response.display_name);
-   log.info("Loged in as: " + response.display_name);
+server.GetUserGames = function(userId) {
+   var postData = {
+      'action': 'cge_get_my_games',
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.GameSuccess, server.Failure);
 }
+
+
+
+server.LoginSuccess = function(user) {
+   alert("Logged in as: " + user.display_name);
+   log.info("Logged in as: " + user.display_name);
+   
+   // Now, get the user's games.
+   server.GetUserGames(user.id);
+}
+
+
+server.GameSuccess = function(games) {
+   var cntr;
+   var gameNames = "";
+   
+   for(cntr = 0; cntr < games.length; cntr++) {
+      gameNames += '"' + games[cntr].game_name + '", ';
+   }
+   
+   alert("There are " + games.length + " games: " + gameNames);
+   log.info("There are " + games.length + " games: " + gameNames);
+}
+
 
 server.Failure = function() {
-   log.info("Request Failed");
-   alert("Request Failed");
+   log.warn("Ajax Request Failed");
+   alert("Ajax Request Failed");
 }
 
 

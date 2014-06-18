@@ -33,6 +33,7 @@ ajax.HandleResponse = function(event, resp, success, failure) {
    if(resp.readyState == resp.DONE) {
       if(resp.status == 200) {
          if(typeof success === 'function') {
+            log.info(resp.responseText);
             success(JSON.parse(resp.responseText));
          }
       }
