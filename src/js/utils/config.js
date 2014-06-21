@@ -1,54 +1,45 @@
 
+config = {}
 
-function GetUserName() {
+
+config.GetUserName = function() {
    return window.localStorage.username;
-}
-
-function SetUserName(value) {
-   window.localStorage.setItem('username', value);
-}
-
-function GetPassword() {
-   return window.localStorage.password;
-}
-
-function SetPassword(value) {
-   window.localStorage.setItem('password', value);
-}
-
-function GetLogMask() {
-   return window.localStorage.logMask;
-}
-
-function SetLogMask(value) {
-   window.localStorage.setItem('logMask', value);
-}
-
-function GetLogToConsole() {
-   return window.localStorage.logToConsole;
-}
-
-function SetLogToConsole(value) {
-   window.localStorage.setItem('logToConsole', value);
-}
-
-function GetLogToFile() {
-   return window.localStorage.logToFile;
-}
-
-function SetLogToFile(value) {
-   window.localStorage.setItem('logToFile', value);
-}
-
-module.exports = {
-                  GetUserName: GetUserName,
-                  SetUserName: SetUserName,
-                  GetPassword: GetPassword,
-                  SetPassword: SetPassword,
-                  GetLogMask: GetLogMask,
-                  SetLogMask: SetLogMask,
-                  GetLogToConsole: GetLogToConsole,
-                  SetLogToConsole: SetLogToConsole,
-                  GetLogToFile: GetLogToFile,
-                  SetLogToFile: SetLogToFile
 };
+
+config.SetUserName = function(value) {
+   window.localStorage.setItem('username', value);
+};
+
+config.GetPassword = function() {
+   return window.localStorage.password;
+};
+
+config.SetPassword = function(value) {
+   window.localStorage.setItem('password', value);
+};
+
+config.GetLogMask = function() {
+   return window.localStorage.logMask;
+};
+
+config.SetLogMask = function(value) {
+   window.localStorage.setItem('logMask', value);
+};
+
+config.GetLogToConsole = function() {
+   return window.localStorage.logToConsole === 'true';
+};
+
+config.SetLogToConsole = function(value) {
+   window.localStorage.setItem('logToConsole', value.toString());
+};
+
+config.GetLogToFile = function() {
+   return window.localStorage.logToFile === 'true';
+};
+
+config.SetLogToFile = function(value) {
+   window.localStorage.setItem('logToFile', value.toString());
+};
+
+module.exports = config;

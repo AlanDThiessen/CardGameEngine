@@ -1,7 +1,6 @@
 angular.module('starter.controllers', [])
-
-.controller('AppCtrl', function($scope) {
-})
+   .controller('AppCtrl', function($scope) {
+   })
 
 /*
 .controller('PlaylistCtrl', function($scope) {
@@ -19,13 +18,14 @@ angular.module('starter.controllers', [])
 .controller('PlaylistCtrl', function($scope, $stateParams) {
 */
 
-.controller('TestsCtrl', function($scope) {
-  $scope.tests = [
-    { title: 'Register User', id: 1 },
-    { title: 'Login', id: 2 },
-    { title: 'Get Games', id: 3 }
-  ];
-})
+   .controller('TestsCtrl', function($scope) {
+     $scope.tests = [
+       { title: 'Register User', id: 1 },
+       { title: 'Login', id: 2 },
+       { title: 'Get Games', id: 3 }
+     ];
+   })
 
 .controller('TestsCtrl', function($scope, $stateParams) {
 })
+
