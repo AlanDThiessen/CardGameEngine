@@ -67,6 +67,28 @@
                   </li>
                </ul>
             </div>
+
+            <div class="item item-divider">
+               Test Server Options
+            </div>
+            <label class="item item-input item-select">
+               <div class="input-label">
+                  Protocol
+               </div>
+               <select ng-model="config.server.protocol" ng-change="config.UpdateServer();">
+                  <option>http</option>
+                  <option selected>https</option>
+               </select>
+            </label>
+            <label class="item item-input">
+               <span class="input-label">Host</span>
+               <input type="text" ng-model="config.server.host" ng-change="config.UpdateServer();">
+            </label>
+            <label class="item item-input">
+               <span class="input-label">Path</span>
+               <input type="text" ng-model="config.server.path" ng-change="config.UpdateServer();">
+            </label>
+
       </div>
   </ion-content>
 </ion-view>

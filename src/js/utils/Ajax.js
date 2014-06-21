@@ -4,6 +4,7 @@ log = require("./Logger.js");
 ajax = {};
 
 ajax.server = {
+                 protocol:   'https',
                  hostname:   'gator4021.hostgator.com',
                  port:       443,
                  path:       '/~thiessea/TheThiessens.net/cge/cge.php'
@@ -12,7 +13,7 @@ ajax.server = {
 
 
 ajax.ServerPost = function(postData, success, failure) {
-   var url = 'https://' + ajax.server.hostname + ajax.server.path;
+   var url = ajax.server.protocol + '://' + ajax.server.hostname + ajax.server.path;
    var formData = new FormData();
    var request = new XMLHttpRequest();
  

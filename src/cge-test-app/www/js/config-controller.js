@@ -13,12 +13,38 @@ configCtrl.controller('ConfigCtrl', function() {
    this.logMask.warn  = ((this.logMask.value & log.WARN ) == log.WARN );
    this.logMask.error = ((this.logMask.value & log.ERROR) == log.ERROR);
 
+   // Server settings will be local to this app, so no need to call config
+   this.server = {};
+   if(window.localStorage.serverProtocol) {
+      this.server.protocol = window.localStorage.serverProtocol;
+   }
+   else {
+      this.server.protocol = 'https';
+   }
+
+   if(window.localStorage.serverHost) {
+      this.server.host = window.localStorage.serverHost;
+   }
+   else {
+      this.server.host = 'gator4021.hostgator.com';
+   }
+
+   if(window.localStorage.serverPath) {
+      this.server.path = window.localStorage.serverPath;
+   }
+   else {
+      this.server.path = '/~thiessea/TheThiessens.net/cge/cge.php';
+   }
 
    // Update the logger with what we read out of configuration.
    log.SetLogToConsole(this.logToConsole);
    log.SetLogToFile(this.logToFile);
    log.SetMask(config.GetLogMask());
-   console.log('log mask: ' + this.logMask.value);
+
+   // Update Ajax object
+   ajax.server.protocol = this.server.protocol;
+   ajax.server.hostname = this.server.host;
+   ajax.server.path = this.server.path;
 
    this.UpdateUserName = function() {
       config.SetUserName(this.userName);
@@ -57,10 +83,18 @@ configCtrl.controller('ConfigCtrl', function() {
          this.logMask.value |= log.ERROR;
       }
 
-
       log.SetMask(this.logMask.value);
       config.SetLogMask(this.logMask.value);
-      console.log('log mask: ' + this.logMask.value);
+   };
+
+   this.UpdateServer = function() {
+      ajax.server.protocol = this.server.protocol;
+      ajax.server.hostname = this.server.host;
+      ajax.server.path = this.server.path;
+
+      window.localStorage.serverProtocol = this.server.protocol;
+      window.localStorage.serverHost = this.server.host;
+      window.localStorage.serverPath = this.server.path;
    };
 });
 
