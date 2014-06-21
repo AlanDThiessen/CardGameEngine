@@ -23,22 +23,21 @@ function OnDeviceReady() {
 }
 
 function BrowserMain() {
-   FS.InitFileSystem(FileSystemReady);
+//   FS.InitFileSystem(FileSystemReady);
+   FileSystemReady();   // Not really
 }
 
 
 function FileSystemReady() {
    //alert("Filesystem ready!");
-   log.SetMask(0xFE);
    log.FileSystemReady();
   
    setTimeout(LoginToServer, 1000);
 }
 
 function LoginToServer() {
-   server.LoginUser('athiessen', 'hello');
+   server.LoginUser(config.GetUserName(), config.GetPassword());
 }
-
 
 
 if (typeof window === 'undefined') {

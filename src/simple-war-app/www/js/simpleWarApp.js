@@ -2588,19 +2588,11 @@ SimpleWarUI.prototype.MainEnter = function ()
       eventStr = 'mouseup';
    }
 
-   window.addEventListener(eventStr, function () {
-      if (that.playerId)
-      {
-         that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,
-                                          undefined,	undefined,
-                                          ["TOP:1"] );
-      }
-   });
-
    var   gameDiv,
          noteDiv,
          playerIds,
          playerStatus,
+         playerAlais,
          playerStack,
          discardStack;
 
@@ -2638,8 +2630,19 @@ SimpleWarUI.prototype.MainEnter = function ()
       if (playerStatus.type !== 'AI')
       {
          this.playerId = playerStatus.id;
+         this.playerAlias = playerStatus.alias;
       }
    }
+
+//   window.addEventListener(eventStr, function () {
+   document.getElementById(this.playerAlias + '-stack').addEventListener(eventStr, function () {
+      if (that.playerId)
+      {
+         that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,
+                                          undefined,	undefined,
+                                          ["TOP:1"] );
+      }
+   });
 
    noteDiv = document.createElement('div');
    noteDiv.id = 'note';
@@ -2814,22 +2817,21 @@ function OnDeviceReady() {
 }
 
 function BrowserMain() {
-   FS.InitFileSystem(FileSystemReady);
+//   FS.InitFileSystem(FileSystemReady);
+   FileSystemReady();   // Not really
 }
 
 
 function FileSystemReady() {
    //alert("Filesystem ready!");
-   log.SetMask(0xFE);
    log.FileSystemReady();
   
    setTimeout(LoginToServer, 1000);
 }
 
 function LoginToServer() {
-   server.LoginUser('athiessen', 'hello');
+   server.LoginUser(config.GetUserName(), config.GetPassword());
 }
-
 
 
 if (typeof window === 'undefined') {
@@ -2846,6 +2848,7 @@ log = require("./Logger.js");
 ajax = {};
 
 ajax.server = {
+                 protocol:   'https',
                  hostname:   'gator4021.hostgator.com',
                  port:       443,
                  path:       '/~thiessea/TheThiessens.net/cge/cge.php'
@@ -2854,7 +2857,7 @@ ajax.server = {
 
 
 ajax.ServerPost = function(postData, success, failure) {
-   var url = 'https://' + ajax.server.hostname + ajax.server.path;
+   var url = ajax.server.protocol + '://' + ajax.server.hostname + ajax.server.path;
    var formData = new FormData();
    var request = new XMLHttpRequest();
  
@@ -3263,16 +3266,23 @@ log.INFO    = 0x02;
 log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
-log.toFile = true;
-log.toConcole = false;
+log.toFile = false;
+log.toConsole = false;
 log.fileReady = false;
 log.mask = 0xFF;
-log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.SetMask = function(value) {
    log.mask = value;
 }
 
+log.SetLogToConsole = function(value) {
+   log.toConsole = value;
+};
+
+log.SetLogToFile = function(value) {
+   log.toFile = value;
+};
 
 log.FileSystemReady = function() {
    FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
@@ -3671,59 +3681,56 @@ module.exports = server;
 
 },{"./Ajax.js":20,"./Logger.js":22}],24:[function(require,module,exports){
 
+config = {}
 
-function GetUserName() {
+
+config.GetUserName = function() {
    return window.localStorage.username;
-}
-
-function SetUserName(value) {
-   window.localStorage.setItem('username', value);
-}
-
-function GetPassword() {
-   return window.localStorage.password;
-}
-
-function SetPassword(value) {
-   window.localStorage.setItem('password', value);
-}
-
-function GetLogMask() {
-   return window.localStorage.logMask;
-}
-
-function SetLogMask(value) {
-   window.localStorage.setItem('logMask', value);
-}
-
-function GetLogToConsole() {
-   return window.localStorage.logToConsole;
-}
-
-function SetLogToConsole(value) {
-   window.localStorage.setItem('logToConsole', value);
-}
-
-function GetLogToFile() {
-   return window.localStorage.logToFile;
-}
-
-function SetLogToFile(value) {
-   window.localStorage.setItem('logToFile', value);
-}
-
-module.exports = {
-                  GetUserName: GetUserName,
-                  SetUserName: SetUserName,
-                  GetPassword: GetPassword,
-                  SetPassword: SetPassword,
-                  GetLogMask: GetLogMask,
-                  SetLogMask: SetLogMask,
-                  GetLogToConsole: GetLogToConsole,
-                  SetLogToConsole: SetLogToConsole,
-                  GetLogToFile: GetLogToFile,
-                  SetLogToFile: SetLogToFile
 };
+
+config.SetUserName = function(value) {
+   window.localStorage.setItem('username', value);
+};
+
+config.GetPassword = function() {
+   return window.localStorage.password;
+};
+
+config.SetPassword = function(value) {
+   window.localStorage.setItem('password', value);
+};
+
+config.GetLogMask = function() {
+   var value = 0;
+
+   if(window.localStorage.logMask) {
+      value = parseInt(window.localStorage.logMask);
+   }
+   
+   return value;
+};
+
+config.SetLogMask = function(value) {
+   window.localStorage.setItem('logMask', value.toString());
+};
+
+config.GetLogToConsole = function() {
+   return window.localStorage.logToConsole === 'true';
+};
+
+config.SetLogToConsole = function(value) {
+   window.localStorage.setItem('logToConsole', value.toString());
+};
+
+config.GetLogToFile = function() {
+   return window.localStorage.logToFile === 'true';
+};
+
+config.SetLogToFile = function(value) {
+   window.localStorage.setItem('logToFile', value.toString());
+};
+
+module.exports = config;
 
 },{}],25:[function(require,module,exports){
 
@@ -3911,6 +3918,7 @@ function StartGame()
 }
 
 document.addEventListener('deviceready', StartGame, false);
+
 
 },{"../../src/js/games/SimpleWar/SimpleWarGame.js":14,"../../src/js/main.js":19,"../../src/js/utils/Logger.js":22}],26:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.

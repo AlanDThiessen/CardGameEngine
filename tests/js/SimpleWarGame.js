@@ -183,3 +183,4 @@ function StartGame()
 }
 
 document.addEventListener('deviceready', StartGame, false);
+

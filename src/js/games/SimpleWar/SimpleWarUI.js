@@ -34,19 +34,11 @@ SimpleWarUI.prototype.MainEnter = function ()
       eventStr = 'mouseup';
    }
 
-   window.addEventListener(eventStr, function () {
-      if (that.playerId)
-      {
-         that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,
-                                          undefined,	undefined,
-                                          ["TOP:1"] );
-      }
-   });
-
    var   gameDiv,
          noteDiv,
          playerIds,
          playerStatus,
+         playerAlais,
          playerStack,
          discardStack;
 
@@ -84,8 +76,19 @@ SimpleWarUI.prototype.MainEnter = function ()
       if (playerStatus.type !== 'AI')
       {
          this.playerId = playerStatus.id;
+         this.playerAlias = playerStatus.alias;
       }
    }
+
+//   window.addEventListener(eventStr, function () {
+   document.getElementById(this.playerAlias + '-stack').addEventListener(eventStr, function () {
+      if (that.playerId)
+      {
+         that.parentGame.EventTransaction(that.playerId,   SWGC.SWP_TRANSACTION_BATTLE,
+                                          undefined,	undefined,
+                                          ["TOP:1"] );
+      }
+   });
 
    noteDiv = document.createElement('div');
    noteDiv.id = 'note';
