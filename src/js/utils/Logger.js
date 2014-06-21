@@ -8,16 +8,23 @@ log.INFO    = 0x02;
 log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
-log.toFile = true;
-log.toConcole = false;
+log.toFile = false;
+log.toConsole = false;
 log.fileReady = false;
 log.mask = 0xFF;
-log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.SetMask = function(value) {
    log.mask = value;
 }
 
+log.SetLogToConsole = function(value) {
+   log.toConsole = value;
+};
+
+log.SetLogToFile = function(value) {
+   log.toFile = value;
+};
 
 log.FileSystemReady = function() {
    FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);

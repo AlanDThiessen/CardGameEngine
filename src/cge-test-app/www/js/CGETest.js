@@ -56,6 +56,7 @@ log = require("./Logger.js");
 ajax = {};
 
 ajax.server = {
+                 protocol:   'https',
                  hostname:   'gator4021.hostgator.com',
                  port:       443,
                  path:       '/~thiessea/TheThiessens.net/cge/cge.php'
@@ -64,7 +65,7 @@ ajax.server = {
 
 
 ajax.ServerPost = function(postData, success, failure) {
-   var url = 'https://' + ajax.server.hostname + ajax.server.path;
+   var url = ajax.server.protocol + '://' + ajax.server.hostname + ajax.server.path;
    var formData = new FormData();
    var request = new XMLHttpRequest();
  
@@ -473,16 +474,23 @@ log.INFO    = 0x02;
 log.WARN    = 0x04;
 log.ERROR   = 0x08;
 
-log.toFile = true;
-log.toConcole = false;
+log.toFile = false;
+log.toConsole = false;
 log.fileReady = false;
 log.mask = 0xFF;
-log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.SetMask = function(value) {
    log.mask = value;
 }
 
+log.SetLogToConsole = function(value) {
+   log.toConsole = value;
+};
+
+log.SetLogToFile = function(value) {
+   log.toFile = value;
+};
 
 log.FileSystemReady = function() {
    FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
@@ -901,11 +909,17 @@ config.SetPassword = function(value) {
 };
 
 config.GetLogMask = function() {
-   return window.localStorage.logMask;
+   var value = 0;
+
+   if(window.localStorage.logMask) {
+      value = parseInt(window.localStorage.logMask);
+   }
+   
+   return value;
 };
 
 config.SetLogMask = function(value) {
-   window.localStorage.setItem('logMask', value);
+   window.localStorage.setItem('logMask', value.toString());
 };
 
 config.GetLogToConsole = function() {

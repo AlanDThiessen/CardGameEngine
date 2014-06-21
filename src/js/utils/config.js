@@ -19,11 +19,17 @@ config.SetPassword = function(value) {
 };
 
 config.GetLogMask = function() {
-   return window.localStorage.logMask;
+   var value = 0;
+
+   if(window.localStorage.logMask) {
+      value = parseInt(window.localStorage.logMask);
+   }
+   
+   return value;
 };
 
 config.SetLogMask = function(value) {
-   window.localStorage.setItem('logMask', value);
+   window.localStorage.setItem('logMask', value.toString());
 };
 
 config.GetLogToConsole = function() {
