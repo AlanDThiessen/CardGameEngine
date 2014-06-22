@@ -73,12 +73,16 @@ function InitFileSystem(onReady) {
 
 
 function RequestFileSystem() {
-   //log.info("Requesting file system");
-   window.requestFileSystem(LocalFileSystem.PERSISTENT,
-                            STORAGE_SIZE_BYTES,
-                            InitDirectories,                                       // Success
-                            function(error){FSError(error, 'RequestFileSystem');} // Error
-                            );
+   if(typeof LocalFileSystem !== "undefined") {
+      window.requestFileSystem(LocalFileSystem.PERSISTENT,
+                               STORAGE_SIZE_BYTES,
+                               InitDirectories,                                       // Success
+                               function(error){FSError(error, 'RequestFileSystem');} // Error
+                               );
+   }
+   else if(typeof onReadyCallback === "function") {
+      onReadyCallback(false);
+   }
 }
 
 
@@ -193,7 +197,7 @@ function SetFileSystemReady() {
    fileSystemGo = true;
    
    if(typeof onReadyCallback === "function") {
-      onReadyCallback();
+      onReadyCallback(true);
    }
 }
 

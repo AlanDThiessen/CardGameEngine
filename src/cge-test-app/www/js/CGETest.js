@@ -28,18 +28,18 @@ function BrowserMain() {
 }
 
 
-function FileSystemReady() {
-   //alert("Filesystem ready!");
-   log.SetMask(0xFE);
-   log.FileSystemReady();
-  
+function FileSystemReady(ready) {
+
+   if(ready) {
+      log.FileSystemReady();
+   }
+
    setTimeout(LoginToServer, 1000);
 }
 
 function LoginToServer() {
-   server.LoginUser('athiessen', 'hello');
+   server.LoginUser(config.GetUserName(), config.GetPassword());
 }
-
 
 
 if (typeof window === 'undefined') {
@@ -176,12 +176,16 @@ function InitFileSystem(onReady) {
 
 
 function RequestFileSystem() {
-   //log.info("Requesting file system");
-   window.requestFileSystem(LocalFileSystem.PERSISTENT,
-                            STORAGE_SIZE_BYTES,
-                            InitDirectories,                                       // Success
-                            function(error){FSError(error, 'RequestFileSystem');} // Error
-                            );
+   if(typeof LocalFileSystem !== "undefined") {
+      window.requestFileSystem(LocalFileSystem.PERSISTENT,
+                               STORAGE_SIZE_BYTES,
+                               InitDirectories,                                       // Success
+                               function(error){FSError(error, 'RequestFileSystem');} // Error
+                               );
+   }
+   else if(typeof onReadyCallback === "function") {
+      onReadyCallback(false);
+   }
 }
 
 
@@ -296,7 +300,7 @@ function SetFileSystemReady() {
    fileSystemGo = true;
    
    if(typeof onReadyCallback === "function") {
-      onReadyCallback();
+      onReadyCallback(true);
    }
 }
 

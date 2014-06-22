@@ -23,15 +23,16 @@ function OnDeviceReady() {
 }
 
 function BrowserMain() {
-//   FS.InitFileSystem(FileSystemReady);
-   FileSystemReady();   // Not really
+   FS.InitFileSystem(FileSystemReady);
 }
 
 
-function FileSystemReady() {
-   //alert("Filesystem ready!");
-   log.FileSystemReady();
-  
+function FileSystemReady(ready) {
+
+   if(ready) {
+      log.FileSystemReady();
+   }
+
    setTimeout(LoginToServer, 1000);
 }
 
