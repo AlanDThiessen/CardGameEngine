@@ -5,7 +5,33 @@
    <ion-content class="has-header">
       <h1>Test Results</h1>
       <div ng-controller="JasmineCtrl as jasmineCtrl">
-         <div id='jasmineDiv'>
+         <div ng-switch on="{{jasmineCtrl.testsComplete}}">
+            <div ng-switch-when="false">
+               Waiting for tests to complete...
+            </div>
+            <div id='jasmineDiv' class="html-reporter" ng-switch-when="true">
+
+               <div class="banner">
+                  <span class="title">{{jasmineCtrl.title}}</span>
+                  <span class="version">{{jasmineCtrl.version}}</span>
+                  <span class="duration">{{jasmineCtrl.duration}}</span>
+               </div>
+
+               <ul class="symbol-summary">
+                  <li ng-repeat="spec in jasmineCtrl.specs" id="spec_{{spec.id}}" class="{{spec.status}}" title="{{spec.fullName}}"></li>
+               </ul>
+
+               <div class="alert">
+                  <!-- TODO: Implement exception reporting: 
+                  <span class="exceptions">
+                     <label class="label" for="raise-exceptions">raise exceptions</label>
+                     <input id="raise-exceptions" class="raise" type="checkbox">
+                  </span>
+                  -->
+                  <span class="bar {{jasmineCtrl.specStats.status}}">{{jasmineCtrl.specStats.total}} specs, {{jasmineCtrl.specStats.numFailed}} failures</span>
+               </div>
+
+            </div>
          </div>
       </div>
    </ion-content>

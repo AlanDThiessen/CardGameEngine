@@ -4,7 +4,37 @@ require("./PlayerSpec.js");
 require("./SpecHelper.js");
 
 
-},{"./PlayerSpec.js":2,"./SpecHelper.js":3}],2:[function(require,module,exports){
+},{"./PlayerSpec.js":3,"./SpecHelper.js":5}],2:[function(require,module,exports){
+function Player() {
+}
+Player.prototype.play = function(song) {
+  this.currentlyPlayingSong = song;
+  this.isPlaying = true;
+};
+
+Player.prototype.pause = function() {
+  this.isPlaying = false;
+};
+
+Player.prototype.resume = function() {
+  if (this.isPlaying) {
+    throw new Error("song is already playing");
+  }
+
+  //this.isPlaying = true;
+};
+
+Player.prototype.makeFavorite = function() {
+  this.currentlyPlayingSong.persistFavoriteStatus(true);
+};
+
+module.exports = Player;
+
+
+},{}],3:[function(require,module,exports){
+var Player = require("./Player.js");
+var Song = require("./Song.js");
+
 describe("Player", function() {
   var player;
   var song;
@@ -64,7 +94,19 @@ describe("Player", function() {
   });
 });
 
-},{}],3:[function(require,module,exports){
+},{"./Player.js":2,"./Song.js":4}],4:[function(require,module,exports){
+function Song() {
+}
+
+Song.prototype.persistFavoriteStatus = function(value) {
+  // something complicated
+  throw new Error("not yet implemented");
+};
+
+module.exports = Song;
+
+
+},{}],5:[function(require,module,exports){
 beforeEach(function () {
   jasmine.addMatchers({
     toBePlaying: function () {

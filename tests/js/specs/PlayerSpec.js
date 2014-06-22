@@ -1,3 +1,6 @@
+var Player = require("./Player.js");
+var Song = require("./Song.js");
+
 describe("Player", function() {
   var player;
   var song;
