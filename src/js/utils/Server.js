@@ -275,7 +275,7 @@ server.AckEventSuccess = function(game) {
  ******************************************************************************/ 
 server.Failure = function() {
    log.warn("Ajax Request Failed");
-   alert("Ajax Request Failed");
+//   alert("Ajax Request Failed");
 };
 
 

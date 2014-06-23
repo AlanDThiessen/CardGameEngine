@@ -353,7 +353,7 @@ function FSError(error, location) {
    
    //log.error(errorStr);
    
-   alert(errorStr);
+   //alert(errorStr);
 }
 
 

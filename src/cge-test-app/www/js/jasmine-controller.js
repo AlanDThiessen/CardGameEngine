@@ -5,7 +5,7 @@ jasmineCtrl.controller('JasmineCtrl', function() {
    this.title = "Jasmine";
    this.version = jasmine.version;
    this.duration = 0;
-   this.state = 1;
+   this.state = 'ready';
    this.testsComplete = false;
    this.specs = jsApiReporter.specs();
    this.specStats  = {};
@@ -14,10 +14,19 @@ jasmineCtrl.controller('JasmineCtrl', function() {
    this.specStats.numFailed = 0;
    this.specStats.status = "failed";
 
+   this.ShowDiv = function(div) {
+      var show = false;
+      if(div === this.state){
+         show = true;
+      }
+
+      return show;
+   };
+
    this.RunJasmine = function() {
       var env = jasmine.getEnv();
       env.execute();
-      this.state = 2;
+      this.state = 'running';
       console.log("running jasmine: " + this.state);
       this.CheckComplete();
    };
@@ -25,6 +34,7 @@ jasmineCtrl.controller('JasmineCtrl', function() {
    this.JasmineComplete = function() {
       console.log("Jasmine is now complete");
       this.testsComplete = true;
+      this.state = 'complete';
       this.specStats.total = this.specs.length;
       this.specStats.numPassed = 
       this.specStats.numPassed = this.NumPassed();

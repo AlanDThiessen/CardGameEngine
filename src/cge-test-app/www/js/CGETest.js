@@ -456,7 +456,7 @@ function FSError(error, location) {
    
    //log.error(errorStr);
    
-   alert(errorStr);
+   //alert(errorStr);
 }
 
 
@@ -884,7 +884,7 @@ server.AckEventSuccess = function(game) {
  ******************************************************************************/ 
 server.Failure = function() {
    log.warn("Ajax Request Failed");
-   alert("Ajax Request Failed");
+//   alert("Ajax Request Failed");
 };
 
 

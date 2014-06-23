@@ -5,37 +5,51 @@
    <ion-content class="has-header">
       <h1>Test Results</h1>
       <div ng-controller="JasmineCtrl as jasmineCtrl">
-            <div>
+         <div class="banner">
+            <span class="title">{{jasmineCtrl.title}}</span>
+            <span class="version">v{{jasmineCtrl.version}}</span>
+         </div>
+         <div class="list">
+            <div class="item item-button-right"  ng-show="jasmineCtrl.ShowDiv('ready')">
+               Run Tests:
                <button class="button" ng-click="jasmineCtrl.RunJasmine();">
-                  Run Tests
+                  <i class="icon ion-play"></i>
                </button>
             </div>
-            <div>
-               Waiting for tests to complete...
+
+            <div class="item" ng-show="jasmineCtrl.ShowDiv('running')">
+               <i class="icon ion-loading-c"></i> Waiting for tests to complete...
             </div>
-            <div id='jasmineDiv' class="html-reporter">
-
-               <div class="banner">
-                  <span class="title">{{jasmineCtrl.title}}</span>
-                  <span class="version">{{jasmineCtrl.version}}</span>
-                  <span class="duration">{{jasmineCtrl.duration}}</span>
+         </div>
+         <div id='jasmineDiv' class="html-reporter" ng-show="jasmineCtrl.ShowDiv('complete')">
+            <div class="list">
+               <div class="item item-icon-left">
+                  <i class="icon ion-beaker"></i>
+                  Total Tests:
+                  <span class="badge badge-stable">{{jasmineCtrl.specStats.total}}</span>
                </div>
-
-               <ul class="symbol-summary">
-                  <li ng-repeat="spec in jasmineCtrl.specs" id="spec_{{spec.id}}" class="{{spec.status}}" title="{{spec.fullName}}"></li>
-               </ul>
-
-               <div class="alert">
-                  <!-- TODO: Implement exception reporting: 
-                  <span class="exceptions">
-                     <label class="label" for="raise-exceptions">raise exceptions</label>
-                     <input id="raise-exceptions" class="raise" type="checkbox">
-                  </span>
-                  -->
-                  <span class="bar {{jasmineCtrl.specStats.status}}">{{jasmineCtrl.specStats.total}} specs, {{jasmineCtrl.specStats.numFailed}} failures</span>
+               <div class="item item-icon-left">
+                  <i class="icon ion-ribbon-b"></i>
+                  Tests Passed:
+                  <span class="badge badge-balanced">{{jasmineCtrl.specStats.numPassed}}</span>
                </div>
-
+               <a class="item item-icon-left" href="#">
+                  <i class="icon ion-alert-circled"></i>
+                  Tests Failed:
+                  <span class="badge badge-assertive">{{jasmineCtrl.specStats.numFailed}}</span>
+               </a>
             </div>
+
+<!--
+            <ul class="symbol-summary">
+               <li ng-repeat="spec in jasmineCtrl.specs" id="spec_{{spec.id}}" class="{{spec.status}}" title="{{spec.fullName}}"></li>
+            </ul>
+
+            <div class="alert">
+               <span class="bar {{jasmineCtrl.specStats.status}}">{{jasmineCtrl.specStats.total}} specs, {{jasmineCtrl.specStats.numFailed}} failures</span>
+            </div>
+-->
+
          </div>
       </div>
    </ion-content>
