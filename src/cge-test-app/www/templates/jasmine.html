@@ -5,11 +5,15 @@
    <ion-content class="has-header">
       <h1>Test Results</h1>
       <div ng-controller="JasmineCtrl as jasmineCtrl">
-         <div ng-switch on="{{jasmineCtrl.testsComplete}}">
-            <div ng-switch-when="false">
+            <div>
+               <button class="button" ng-click="jasmineCtrl.RunJasmine();">
+                  Run Tests
+               </button>
+            </div>
+            <div>
                Waiting for tests to complete...
             </div>
-            <div id='jasmineDiv' class="html-reporter" ng-switch-when="true">
+            <div id='jasmineDiv' class="html-reporter">
 
                <div class="banner">
                   <span class="title">{{jasmineCtrl.title}}</span>

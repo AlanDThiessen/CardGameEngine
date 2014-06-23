@@ -4,8 +4,9 @@ var jasmineCtrl = angular.module('jasmine_controller', []);
 jasmineCtrl.controller('JasmineCtrl', function() {
    this.title = "Jasmine";
    this.version = jasmine.version;
-   this.duration = jsApiReporter.executionTime();
-   this.testsComplete = jsApiReporter.finished;
+   this.duration = 0;
+   this.state = 1;
+   this.testsComplete = false;
    this.specs = jsApiReporter.specs();
    this.specStats  = {};
    this.specStats.total = 0;
@@ -13,12 +14,22 @@ jasmineCtrl.controller('JasmineCtrl', function() {
    this.specStats.numFailed = 0;
    this.specStats.status = "failed";
 
+   this.RunJasmine = function() {
+      var env = jasmine.getEnv();
+      env.execute();
+      this.state = 2;
+      console.log("running jasmine: " + this.state);
+      this.CheckComplete();
+   };
+
    this.JasmineComplete = function() {
       console.log("Jasmine is now complete");
+      this.testsComplete = true;
       this.specStats.total = this.specs.length;
       this.specStats.numPassed = 
       this.specStats.numPassed = this.NumPassed();
       this.specStats.numFailed = this.NumFailed();
+      this.duration = jsApiReporter.executionTime();
 
       if(this.specStats.numFailed == 0) {
          this.specStats.status = "passed";
@@ -32,9 +43,11 @@ jasmineCtrl.controller('JasmineCtrl', function() {
       var cntr;
       var numPassed = 0;
 
-      for(cntr = 0; cntr < this.specs.length; cntr++){
-         if(this.specs[cntr].status === "passed") {
-            numPassed += 1;
+      if(this.testsComplete) {
+         for(cntr = 0; cntr < this.specs.length; cntr++){
+            if(this.specs[cntr].status === "passed") {
+               numPassed += 1;
+            }
          }
       }
 
@@ -45,20 +58,30 @@ jasmineCtrl.controller('JasmineCtrl', function() {
       var cntr;
       var numFailed = 0;
 
-      for(cntr = 0; cntr < this.specs.length; cntr++){
-         if(this.specs[cntr].status === "failed") {
-            numFailed += 1;
+      if(this.testsComplete) {
+         for(cntr = 0; cntr < this.specs.length; cntr++){
+            if(this.specs[cntr].status === "failed") {
+               numFailed += 1;
+            }
          }
       }
 
       return numFailed;
    };
 
-   if(jsApiReporter.finished == true) {
-      console.log("Jasmine already complete");
-      this.JasmineComplete();
-   }
-   else {
-      console.log("Jasmine not already complete");
-   }
+   this.CheckComplete = function() {
+      if(jsApiReporter.finished == true) {
+         console.log("Jasmine already complete");
+         this.JasmineComplete();
+      }
+      else {
+         console.log("Jasmine not already complete");
+         this.Reschedule();
+      }
+   };
+
+   this.Reschedule = function() {
+      setTimeout(this.CheckComplete, 1000);
+   };
+
 });
