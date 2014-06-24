@@ -1,0 +1,54 @@
+<ion-view title="Tester">
+   <ion-nav-buttons side="left">
+      <button menu-toggle="left"class="button button-icon icon ion-navicon"></button>
+   </ion-nav-buttons>
+   <ion-content class="has-header" ng-controller="tester.summary">
+      <div class="list">
+         <div class="item item-divider">
+         {{title}} v{{version}}
+         </div>
+         <div class="item item-button-right" ng-show="state==='ready';">
+            Run Tests:
+            <button class="button" start-tester-button>
+               <i class="icon ion-play"></i>
+            </button>
+         </div>
+
+         <div class="item" ng-show="state==='running';">
+            <i class="icon ion-loading-c"></i> Waiting for tests to complete...
+         </div>
+         <div ng-show="state==='complete';">
+            <div class="item item-icon-left">
+               <i class="icon ion-beaker"></i>
+               Total Tests:
+               <span class="badge badge-stable">{{testsTotal}}</span>
+            </div>
+            <div class="item item-icon-left">
+               <i class="icon ion-ribbon-b"></i>
+               Tests Passed:
+               <span class="badge badge-balanced">{{testsPassed}}</span>
+            </div>
+            <div class="item item-icon-left">
+               <i class="icon ion-alert-circled"></i>
+               Tests Failed:
+               <span class="badge badge-assertive">{{testsFailed}}</span>
+            </div>
+            <div class="item item-icon-left">
+               <i class="icon ion-android-clock"></i>
+               Execution Duration:
+               {{duration}}
+            </div>
+         
+<!--
+            <ul class="symbol-summary">
+               <li ng-repeat="spec in testCtrl.specs" id="spec_{{spec.id}}" class="{{spec.status}}" title="{{spec.fullName}}"></li>
+            </ul>
+
+            <div class="alert">
+               <span class="bar {{testCtrl.specStats.status}}">{{testCtrl.specStats.total}} specs, {{testCtrl.specStats.numFailed}} failures</span>
+            </div>
+-->
+
+      </div>
+   </ion-content>
+</ion-view>
