@@ -112,10 +112,10 @@ var testCtrl = ['$scope', 'Tester', function(scope, Tester) {
    scope.title = Tester.title;
    scope.version = Tester.version;
    scope.state = Tester.state;
-   scope.testsTotal = 0;
-   scope.testsPassed = 0;
-   scope.testsFailed = 0;
-   scope.duration = 0;
+   scope.testsTotal = Tester.testStats.total;
+   scope.testsPassed = Tester.testStats.numPassed;
+   scope.testsFailed = Tester.testStats.numFailed;
+   scope.duration = Tester.duration;
 
    scope.DurationString = function() {
       var ms2hrs = (1000 * 60 * 60);
