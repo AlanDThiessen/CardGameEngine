@@ -117,6 +117,15 @@ var testCtrl = ['$scope', 'Tester', function(scope, Tester) {
    scope.testsFailed = 0;
    scope.duration = 0;
 
+   scope.DurationString = function() {
+      var ms2hrs = (1000 * 60 * 60);
+      var ms2mins = (1000 * 60);
+      var hours = Math.floor(scope.duration / ms2hrs);
+      var minutes = Math.floor((scope.duration - (hours * ms2hrs)) / ms2mins);
+      var seconds = (scope.duration - (hours * ms2hrs) - (minutes * ms2mins)) / 1000;
+      return(hours + ':' + minutes + ':' + seconds.toFixed(3));
+   };
+
    scope.$on('tester.started', function(event) {
       scope.state = Tester.state;
       scope.$apply();
