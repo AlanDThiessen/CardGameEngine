@@ -22,7 +22,7 @@
             <div class="bar bar-header bar-balanced" ng-if="testsFailed===0">
                <h1 class="title">Tests Passed</h1>
             </div>
-            <div class="bar bar-header bar-assertive" ng-if="  testsFailed!==0">
+            <div class="bar bar-header bar-assertive" ng-if="testsFailed!==0">
                <h1 class="title">There are Failures</h1>
             </div>
 
@@ -39,7 +39,8 @@
             <div class="item item-icon-left">
                <i class="icon ion-alert-circled"></i>
                Tests Failed:
-               <span class="badge badge-assertive">{{testsFailed}}</span>
+               <span class="badge badge-assertive" ng-if="testsFailed!==0">{{testsFailed}}</span>
+               <span class="badge badge-stable" ng-if="testsFailed===0">{{testsFailed}}</span>
             </div>
             <div class="item item-icon-left">
                <i class="icon ion-android-clock"></i>
