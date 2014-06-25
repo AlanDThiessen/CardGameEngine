@@ -17,7 +17,15 @@
          <div class="item" ng-show="state==='running';">
             <i class="icon ion-loading-c"></i> Waiting for tests to complete...
          </div>
+
          <div ng-show="state==='complete';">
+            <div class="bar bar-header bar-balanced" ng-if="testsFailed===0">
+               <h1 class="title">Tests Passed</h1>
+            </div>
+            <div class="bar bar-header bar-assertive" ng-if="  testsFailed!==0">
+               <h1 class="title">There are Failures</h1>
+            </div>
+
             <div class="item item-icon-left">
                <i class="icon ion-beaker"></i>
                Total Tests:
@@ -38,7 +46,27 @@
                Execution Duration:
                {{DurationString();}}
             </div>
-         
+            <div class="item item-divider">
+            Summary
+            </div>
+            <label class="item item-input item-select">
+               <div class="input-label">
+                  Filter
+               </div>
+               <select ng-model="filterResults">
+                  <option selected value="">All</option>
+                  <option value="passed">Passed</option>
+                  <option value="failed">Failed</option>
+               </select>
+            </label>
+            <div class="card" ng-repeat="result in results | filter:filterResults">
+               <div class="item item-text-wrap">
+                  <i class="icon ion-android-checkmark balanced" ng-if="result.status==='passed'"></i>
+                  <i class="icon ion-android-close assertive" ng-if="result.status==='failed'"></i>
+                  {{result.fullName}}
+               </div>
+            </div>
+            
 <!--
             <ul class="symbol-summary">
                <li ng-repeat="spec in testCtrl.specs" id="spec_{{spec.id}}" class="{{spec.status}}" title="{{spec.fullName}}"></li>
