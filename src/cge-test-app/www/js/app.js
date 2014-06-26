@@ -39,16 +39,27 @@ angular.module('starter', ['ionic', 'starter.controllers', 'config_controller', 
       }
     })
 
-    .state('app.tests', {
-      url: "/tests",
+    .state('app.tester', {
+      url: "/tester",
       views: {
         'menuContent' :{
-          templateUrl: "templates/tester.html"
+          templateUrl: "templates/tester.html",
+          controller: 'tester.summary'
+        }
+      }
+    })
+
+    .state('app.testresult', {
+      url: "/tester/testId/:testId",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/test-result.html",
+          controller: 'tester.detail'
         }
       }
     });
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/tests');
+  $urlRouterProvider.otherwise('/app/tester');
 });
 

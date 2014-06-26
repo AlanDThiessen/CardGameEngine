@@ -1,0 +1,35 @@
+<ion-view title="Test Result">
+   <ion-content class="has-header">
+      <div class="list">
+         <div class="item item-text-wrap">
+            <i class="icon ion-android-checkmark balanced" ng-if="result.status==='passed'"></i>
+            <i class="icon ion-android-close assertive" ng-if="result.status==='failed'"></i>
+            {{result.name}}
+         </div>
+         <div class="item item-text-wrap">
+            Description: {{result.description}}
+         </div>
+
+         <div ng-if="result.status==='failed'">
+            <div class="item item-divider">
+               Failures
+            </div>
+            <div class="card" ng-repeat="failure in result.failures">
+               <div class="item item-text-wrap">
+                  Expected: {{failure.expected}}
+               </div>
+               <div class="item item-text-wrap">
+                  Actual: {{failure.actual}}
+               </div>
+               <div class="item item-text-wrap">
+                  Message: {{failure.message}}
+               </div>
+               <div class="item item-text-wrap">
+                  Trace: {{failure.trace}}
+               </div>
+            </div>
+         </div>
+
+      </div>
+  </ion-content>
+</ion-view>
