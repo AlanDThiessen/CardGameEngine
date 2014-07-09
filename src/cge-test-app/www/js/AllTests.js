@@ -35,6 +35,7 @@ var GAME_SUMMARY_FILE_NAME   = "gameSummary";
  ******************************************************************************/
 var fileSystemGo    = false;       // Whether the fileSystem is usable
 var onReadyCallback = undefined;
+var onErrorCallback = undefined;
 
 // Variable holding the directory entries
 var dirEntries = {appStorageDir: undefined,
@@ -66,9 +67,10 @@ var fileEntries = {log: undefined,
  ******************************************************************************/
 // InitFileSystem() should always be called once at app startup
 // Note: This function cannot be called until after the Device Ready event.
-function InitFileSystem(onReady) {
+function InitFileSystem(onReady, onError) {
    fileSystemGo = false;
    onReadyCallback = onReady;
+   onErrorCallback = onError;
    RequestFileSystem();
 }
 
@@ -353,8 +355,11 @@ function FSError(error, location) {
    errorStr += " in " + location;
    
    //log.error(errorStr);
-   
    //alert(errorStr);
+
+   if(typeof onErrorCallback === "function") {
+      onErrorCallback(error.code, errorStr);
+   }
 }
 
 
@@ -379,21 +384,24 @@ var fileSystem = require("../../../src/js/utils/FileSystem.js");
 
 
 describe( "FileModule", function() {
-
-   var whichTest = "init";
-   var testSuccess = false;
+   var fileStatus = false;
 
    beforeEach(function(done) {
-      setTimeout(function() {
+      var Success = function(status) {
+         fileStatus = status;
          done();
-      }, jasmine.DEFAULT_TIMEOUT_INTERVAL);
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         alert(errorStr);
+         done();
+      };
+
+      fileSystem.InitFileSystem(Success, Failure);
    });
 
    it("initializes the file system", function(done) {
-      fileSystem.InitFileSystem(function(status) {
-         expect(status).toBeTruthy();
-         done();
-      });
+      expect(fileStatus).toBeTruthy();
    });
 
    xit("writes a log file", function() {

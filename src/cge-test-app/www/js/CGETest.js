@@ -137,6 +137,7 @@ var GAME_SUMMARY_FILE_NAME   = "gameSummary";
  ******************************************************************************/
 var fileSystemGo    = false;       // Whether the fileSystem is usable
 var onReadyCallback = undefined;
+var onErrorCallback = undefined;
 
 // Variable holding the directory entries
 var dirEntries = {appStorageDir: undefined,
@@ -168,9 +169,10 @@ var fileEntries = {log: undefined,
  ******************************************************************************/
 // InitFileSystem() should always be called once at app startup
 // Note: This function cannot be called until after the Device Ready event.
-function InitFileSystem(onReady) {
+function InitFileSystem(onReady, onError) {
    fileSystemGo = false;
    onReadyCallback = onReady;
+   onErrorCallback = onError;
    RequestFileSystem();
 }
 
@@ -455,8 +457,11 @@ function FSError(error, location) {
    errorStr += " in " + location;
    
    //log.error(errorStr);
-   
    //alert(errorStr);
+
+   if(typeof onErrorCallback === "function") {
+      onErrorCallback(error.code, errorStr);
+   }
 }
 
 

@@ -6,18 +6,24 @@ var fileSystem = require("../../../src/js/utils/FileSystem.js");
 
 
 describe( "FileModule", function() {
+   var fileStatus = false;
 
    beforeEach(function(done) {
-      setTimeout(function() {
+      var Success = function(status) {
+         fileStatus = status;
          done();
-      }, jasmine.DEFAULT_TIMEOUT_INTERVAL);
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         alert(errorStr);
+         done();
+      };
+
+      fileSystem.InitFileSystem(Success, Failure);
    });
 
    it("initializes the file system", function(done) {
-      fileSystem.InitFileSystem(function(status) {
-         expect(status).toBeTruthy();
-         done();
-      });
+      expect(fileStatus).toBeTruthy();
    });
 
    xit("writes a log file", function() {
