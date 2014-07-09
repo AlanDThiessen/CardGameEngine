@@ -8,7 +8,7 @@ var fileSystem = require("../../../src/js/utils/FileSystem.js");
 describe( "FileModule", function() {
    var fileStatus = false;
 
-   beforeEach(function(done) {
+   it("initializes the file system", function(done) {
       var Success = function(status) {
          fileStatus = status;
          done();
@@ -20,9 +20,7 @@ describe( "FileModule", function() {
       };
 
       fileSystem.InitFileSystem(Success, Failure);
-   });
 
-   it("initializes the file system", function(done) {
       expect(fileStatus).toBeTruthy();
    });
 
