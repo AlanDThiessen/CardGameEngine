@@ -1,4 +1,3 @@
 
-require("./PlayerSpec.js");
-require("./SpecHelper.js");
+require("./TestFileModule.js");
 

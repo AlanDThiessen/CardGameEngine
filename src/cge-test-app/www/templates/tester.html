@@ -45,6 +45,11 @@
                <span class="badge badge-stable" ng-if="testsFailed===0">{{testsFailed}}</span>
             </div>
             <div class="item item-icon-left">
+               <i class="icon ion-help"></i>
+               Tests Pending:
+               <span class="badge badge-positive">{{testsPending}}</span>
+            </div>
+            <div class="item item-icon-left">
                <i class="icon ion-android-clock"></i>
                Execution Duration:
                {{DurationString();}}
@@ -59,12 +64,14 @@
                <select ng-model="filterResults">
                   <option value="">All</option>
                   <option value="passed">Passed</option>
+                  <option value="pending">Pending</option>
                   <option value="failed">Failed</option>
                </select>
             </label>
             <div class="card" ng-repeat="result in results | filter:filterResults" ng-click="ShowTest(result.id);">
                <div class="item item-text-wrap">
                   <i class="icon ion-android-checkmark balanced" ng-if="result.status==='passed'"></i>
+                  <i class="icon ion-help positive" ng-if="result.status==='pending'"></i>
                   <i class="icon ion-android-close assertive" ng-if="result.status==='failed'"></i>
                   {{result.name}}
                </div>

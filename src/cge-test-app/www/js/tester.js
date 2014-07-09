@@ -44,6 +44,7 @@ testerMod.service( 'Tester', [ '$rootScope', function($rootScope) {
    service.testStats.total = 0;
    service.testStats.numPassed = 0;
    service.testStats.numFailed = 0;
+   service.testStats.numPending = 0;
 
    service.RunTests = function() {
       if(service.state === "ready") {
@@ -84,6 +85,7 @@ testerMod.service( 'Tester', [ '$rootScope', function($rootScope) {
 
       service.testStats.numPassed = 0;
       service.testStats.numFailed = 0;
+      service.testStats.numPending = 0;
 
       for(cntr = 0; cntr < tests.length; cntr++ ) {
          var thisTest = new TestResult(tests[cntr].id,
@@ -93,6 +95,9 @@ testerMod.service( 'Tester', [ '$rootScope', function($rootScope) {
 
          if(tests[cntr].status === 'passed') {
             service.testStats.numPassed += 1;
+         }
+         else if(tests[cntr].status === 'pending') {
+            service.testStats.numPending += 1;
          }
          else if(tests[cntr].status === 'failed') {
             service.testStats.numFailed += 1;
@@ -165,6 +170,7 @@ var testSummaryCtrl = ['$scope', '$location', 'Tester', function(scope, location
    scope.testsTotal = Tester.testStats.total;
    scope.testsPassed = Tester.testStats.numPassed;
    scope.testsFailed = Tester.testStats.numFailed;
+   scope.testsPending = Tester.testStats.numPending;
    scope.duration = Tester.duration;
    scope.results = Tester.results;
    scope.filterResults = "failed";  // By default, only show failed results.
@@ -192,6 +198,7 @@ var testSummaryCtrl = ['$scope', '$location', 'Tester', function(scope, location
       scope.testsTotal = Tester.testStats.total;
       scope.testsPassed = Tester.testStats.numPassed;
       scope.testsFailed = Tester.testStats.numFailed;
+      scope.testsPending = Tester.testStats.numPending;
       scope.duration = Tester.duration;
       scope.results = Tester.results;
       scope.$apply();
