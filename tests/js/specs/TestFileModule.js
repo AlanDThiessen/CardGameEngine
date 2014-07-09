@@ -7,9 +7,6 @@ var fileSystem = require("../../../src/js/utils/FileSystem.js");
 
 describe( "FileModule", function() {
 
-   var whichTest = "init";
-   var testSuccess = false;
-
    beforeEach(function(done) {
       setTimeout(function() {
          done();
