@@ -9,7 +9,7 @@ describe( "FileModule", function() {
    var fileStatus = false;
 
    it("initializes the file system", function(done) {
-      var Success = function(status) {
+      var OnReady = function(status) {
          fileStatus = status;
          done();
       };
@@ -19,9 +19,10 @@ describe( "FileModule", function() {
          done();
       };
 
-      fileSystem.InitFileSystem(Success, Failure);
+      fileSystem.InitFileSystem(OnReady, Failure);
 
       expect(fileStatus).toBeTruthy();
+      done();
    });
 
    xit("writes a log file", function() {
