@@ -403,22 +403,22 @@ describe( "FileModule", function() {
       fsError = null;
    });
 
-   it("initializes the file system", function(done) {
+   var Expectations = function(doneCallback) {
+      expect(fsError).toBeNull();
+      expect(fsStatus).toBeTruthy();
+      doneCallback();
+   };
 
-      var Expectations = function() {
-         expect(fsError).toBeNull();
-         expect(fsStatus).toBeTruthy();
-         done();
-      };
+   it("initializes the file system", function(done) {
 
       var OnReady = function(status) {
          fsStatus = status;
-         Expectations();
+         Expectations(done);
       };
 
       var Failure = function(errorCode, errorStr) {
          fsError = errorStr;
-         Expectations();
+         Expectations(done);
       };
 
       fileSystem.InitFileSystem(OnReady, Failure);

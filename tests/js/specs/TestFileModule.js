@@ -12,22 +12,21 @@ describe( "FileModule", function() {
       fsError = null;
    });
 
+   var Expectations = function(doneCallback) {
+      expect(fsError).toBeNull();
+      expect(fsStatus).toBeTruthy();
+      doneCallback();
+   };
+
    it("initializes the file system", function(done) {
-
-      var Expectations = function() {
-         expect(fsError).toBeNull();
-         expect(fsStatus).toBeTruthy();
-         done();
-      };
-
       var OnReady = function(status) {
          fsStatus = status;
-         Expectations();
+         Expectations(done);
       };
 
       var Failure = function(errorCode, errorStr) {
          fsError = errorStr;
-         Expectations();
+         Expectations(done);
       };
 
       fileSystem.InitFileSystem(OnReady, Failure);
