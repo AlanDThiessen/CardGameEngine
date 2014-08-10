@@ -1,5 +1,5 @@
 
-all: CGETest.js AllTests.js
+all: AllTests.js
 
 .PHONY: CGETest.js
 CGETest.js:

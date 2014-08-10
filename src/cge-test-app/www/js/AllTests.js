@@ -36,6 +36,7 @@ var GAME_SUMMARY_FILE_NAME   = "gameSummary";
 var fileSystemGo    = false;       // Whether the fileSystem is usable
 var onReadyCallback = undefined;
 var onErrorCallback = undefined;
+var fsError         = "";
 
 // Variable holding the directory entries
 var dirEntries = {appStorageDir: undefined,
@@ -69,6 +70,7 @@ var fileEntries = {log: undefined,
 // Note: This function cannot be called until after the Device Ready event.
 function InitFileSystem(onReady, onError) {
    fileSystemGo = false;
+   fsError = "";
    onReadyCallback = onReady;
    onErrorCallback = onError;
    RequestFileSystem();
@@ -83,8 +85,8 @@ function RequestFileSystem() {
                                function(error){FSError(error, 'RequestFileSystem');} // Error
                                );
    }
-   else if(typeof onReadyCallback === "function") {
-      onReadyCallback(false);
+   else {
+      SetFileSystemReady(false);
    }
 }
 
@@ -99,11 +101,12 @@ function InitDirectories(fileSystem) {
       // Attempt to read the dir entries
       //log.info("Retrieving game directories");
       dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
+//      dirReader = new DirectoryReader(dirEntries.appStorageDir.toInternalURL());
       dirReader.readEntries(ReadRootDir, function(error){FSError(error, 'Read Directory');});
    }
    else {
       //log.info("Game directory objects already exist");
-      SetFileSystemReady();
+      SetFileSystemReady(true);
    }
 }
 
@@ -121,8 +124,8 @@ function ReadRootDir(entries){
          }
          
          if(entries[cntr].name == GAME_SUMMARY_FILE_NAME) {
-            alert('Found game summary file!');
-            fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
+            //alert('Found game summary file!');
+            //fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
          }
       }
    }
@@ -179,7 +182,7 @@ function SetRootDirEntry(entry) {
    if((dirEntries.gamesDefsDir !== undefined) &&
       (dirEntries.deckDefsDir !== undefined) &&
       (dirEntries.activeGamesDir !== undefined)){
-      SetFileSystemReady();
+      SetFileSystemReady(true);
    }
 }
 
@@ -190,15 +193,14 @@ function DirectoryCreated(entry) {
    if((dirEntries.gamesDefsDir !== undefined) &&
       (dirEntries.deckDefsDir !== undefined) &&
       (dirEntries.activeGamesDir !== undefined)){
-      SetFileSystemReady();
+      SetFileSystemReady(true);
    }
 }
 
 
-function SetFileSystemReady() {
-   //log.info("Filesystem is ready to go!");
-   fileSystemGo = true;
-   
+function SetFileSystemReady(status) {
+   fileSystemGo = status;
+
    if(typeof onReadyCallback === "function") {
       onReadyCallback(true);
    }
@@ -254,12 +256,22 @@ function FileEntitySetWriter(entity, writer) {
    }
 }
 
-   
+
 function FileEntityReady(entity, ready) {
    if((entity.entry !== undefined) &&
       (typeof entity.onReady === "function")) {
       entity.onReady(ready);
    }
+}
+
+
+function GetStatus() {
+   return fileSystemGo;
+}
+
+
+function GetError() {
+   return fsError;
 }
 
 
@@ -296,7 +308,7 @@ function WriteLogFile(append, data) {
  * Error Handler
  ******************************************************************************/
 function FSError(error, location) {
-   var errorStr = "FS: ";
+   var errorStr = "FS: " + error.code + " - ";
    
    switch(error.code) {
    case 1:
@@ -354,8 +366,8 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   //log.error(errorStr);
    //alert(errorStr);
+   fsError = errorStr;
 
    if(typeof onErrorCallback === "function") {
       onErrorCallback(error.code, errorStr);
@@ -366,7 +378,9 @@ function FSError(error, location) {
 module.exports = {
                   InitFileSystem: InitFileSystem,
                   OpenLogFile:    OpenLogFile,
-                  WriteLogFile:   WriteLogFile
+                  WriteLogFile:   WriteLogFile,
+                  GetStatus:      GetStatus,
+                  GetError:       GetError
                   };
 
 
@@ -380,26 +394,38 @@ require("./TestFileModule.js");
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
 
-//var fileSystem = undefined;
-
 
 describe( "FileModule", function() {
-   var fileStatus = false;
+   var fsStatus = false;
+   var fsError = null;
+
+   beforeEach(function() {
+      fsStatus = false;
+      fsError = null;
+   });
 
    it("initializes the file system", function(done) {
-      var Success = function(status) {
-         fileStatus = status;
+
+      var Expectations = function() {
+         expect(fsError).toBeNull();
+         expect(fsStatus).toBeTruthy();
          done();
+      };
+
+      var OnReady = function(status) {
+         fsStatus = status;
+         Expectations();
       };
 
       var Failure = function(errorCode, errorStr) {
-         alert(errorStr);
-         done();
+         fsError = errorStr;
+         Expectations();
       };
 
-      fileSystem.InitFileSystem(Success, Failure);
+      fileSystem.InitFileSystem(OnReady, Failure);
+   });
 
-      expect(fileStatus).toBeTruthy();
+   xit("opens a log file", function() {
    });
 
    xit("writes a log file", function() {

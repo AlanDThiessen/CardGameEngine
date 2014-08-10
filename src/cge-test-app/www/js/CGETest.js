@@ -194,7 +194,7 @@ function RequestFileSystem() {
 function InitDirectories(fileSystem) {
    // First, retrieve the application storage location using Cordova libraries
    dirEntries.appStorageDir = fileSystem.root;
- 
+
    if((dirEntries.gamesDefsDir === undefined) ||
       (dirEntries.deckDefsDir === undefined) ||
       (dirEntries.activeGamesDir === undefined)){

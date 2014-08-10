@@ -2,27 +2,38 @@
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
 
-//var fileSystem = undefined;
-
 
 describe( "FileModule", function() {
-   var fileStatus = false;
+   var fsStatus = false;
+   var fsError = null;
+
+   beforeEach(function() {
+      fsStatus = false;
+      fsError = null;
+   });
 
    it("initializes the file system", function(done) {
-      var OnReady = function(status) {
-         fileStatus = status;
+
+      var Expectations = function() {
+         expect(fsError).toBeNull();
+         expect(fsStatus).toBeTruthy();
          done();
+      };
+
+      var OnReady = function(status) {
+         fsStatus = status;
+         Expectations();
       };
 
       var Failure = function(errorCode, errorStr) {
-         alert(errorStr);
-         done();
+         fsError = errorStr;
+         Expectations();
       };
 
       fileSystem.InitFileSystem(OnReady, Failure);
+   });
 
-      expect(fileStatus).toBeTruthy();
-      done();
+   xit("opens a log file", function() {
    });
 
    xit("writes a log file", function() {
