@@ -77,6 +77,10 @@ function InitFileSystem(onReady, onError) {
 }
 
 
+function SetErrorCallback(onError) {
+   onErrorCallback = onError;
+}
+
 function RequestFileSystem() {
    if(typeof LocalFileSystem !== "undefined") {
       window.requestFileSystem(LocalFileSystem.PERSISTENT,
@@ -213,14 +217,11 @@ function OpenFileEntity(entity) {
    // If the file entry is undefined, then we need to get the file
    if(entity.entry === undefined) {
       if(dirEntries.appStorageDir !== undefined) {
-         dirEntries.appStorageDir.getFile(LOG_FILE_NAME,
+         dirEntries.appStorageDir.getFile(entity.name,
                                           {create: true, exclusive: false},
                                           function(entry){entity.entry = entry; FileEntityCreateWriter(entity);},
-                                          function(error){FSError(error, 'Open log file');}
+                                          function(error){FSError(error, 'Open file ' + entity.name);}
                                          );
-      }
-      else {
-         //log.warn("App storage not defined. Cannot create log file");
       }
    }
    else {
@@ -281,6 +282,11 @@ function OpenLogFile(onReady, onWriteEnd) {
    // If the entry is undefined, then create one
    if(fileEntries.log === undefined) {
       fileEntries.log = new FileEntity(LOG_FILE_NAME, onReady, onWriteEnd, undefined);
+   }
+   else {
+      // Just update the onReady and onWriteEnd methods
+      fileEntries.log.onReady = onReady;
+      fileEntries.log.onWriteEnd = onWriteEnd;
    }
 
    OpenFileEntity(fileEntries.log);
@@ -375,11 +381,12 @@ function FSError(error, location) {
 
 
 module.exports = {
-                  InitFileSystem: InitFileSystem,
-                  OpenLogFile:    OpenLogFile,
-                  WriteLogFile:   WriteLogFile,
-                  GetStatus:      GetStatus,
-                  GetError:       GetError
+                  InitFileSystem:   InitFileSystem,
+                  SetErrorCallback: SetErrorCallback,
+                  OpenLogFile:      OpenLogFile,
+                  WriteLogFile:     WriteLogFile,
+                  GetStatus:        GetStatus,
+                  GetError:         GetError
                   };
 
 
@@ -397,20 +404,11 @@ var fileSystem = require("../../../src/js/utils/FileSystem.js");
 describe( "FileModule", function() {
    var fsStatus = false;
    var fsError = null;
-   var callBack = null;    // Each Spec must set this to its respective done callback
 
    beforeEach(function() {
       fsStatus = false;
       fsError = null;
-      callBack = null;
    });
-
-   // This is the global FileSystem error routine for all tests.  When it
-   // encounters an error, it calls the specified callBack routine.
-   var Failure = function(errorCode, errorStr) {
-      fsError = errorStr;
-      Expectations(callBack);
-   };
 
    var Expectations = function(doneCallback) {
       expect(fsError).toBeNull();
@@ -424,11 +422,31 @@ describe( "FileModule", function() {
          Expectations(done);
       };
 
-      callBack = done;
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         Expectations(done);
+      };
+
       fileSystem.InitFileSystem(OnReady, Failure);
    });
 
-   xit("opens a log file", function(done) {
+   it("opens a log file", function(done) {
+      var OnReady = function(status) {
+         fsStatus = status;
+         Expectations(done);
+      };
+
+      var OnWriteEnd = function() {
+         // Do nothing here.
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         Expectations(done);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      fileSystem.OpenLogFile(OnReady, OnWriteEnd);
    });
 
    xit("writes a log file", function() {

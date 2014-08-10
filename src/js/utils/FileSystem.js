@@ -76,6 +76,10 @@ function InitFileSystem(onReady, onError) {
 }
 
 
+function SetErrorCallback(onError) {
+   onErrorCallback = onError;
+}
+
 function RequestFileSystem() {
    if(typeof LocalFileSystem !== "undefined") {
       window.requestFileSystem(LocalFileSystem.PERSISTENT,
@@ -212,14 +216,11 @@ function OpenFileEntity(entity) {
    // If the file entry is undefined, then we need to get the file
    if(entity.entry === undefined) {
       if(dirEntries.appStorageDir !== undefined) {
-         dirEntries.appStorageDir.getFile(LOG_FILE_NAME,
+         dirEntries.appStorageDir.getFile(entity.name,
                                           {create: true, exclusive: false},
                                           function(entry){entity.entry = entry; FileEntityCreateWriter(entity);},
-                                          function(error){FSError(error, 'Open log file');}
+                                          function(error){FSError(error, 'Open file ' + entity.name);}
                                          );
-      }
-      else {
-         //log.warn("App storage not defined. Cannot create log file");
       }
    }
    else {
@@ -280,6 +281,11 @@ function OpenLogFile(onReady, onWriteEnd) {
    // If the entry is undefined, then create one
    if(fileEntries.log === undefined) {
       fileEntries.log = new FileEntity(LOG_FILE_NAME, onReady, onWriteEnd, undefined);
+   }
+   else {
+      // Just update the onReady and onWriteEnd methods
+      fileEntries.log.onReady = onReady;
+      fileEntries.log.onWriteEnd = onWriteEnd;
    }
 
    OpenFileEntity(fileEntries.log);
@@ -374,10 +380,11 @@ function FSError(error, location) {
 
 
 module.exports = {
-                  InitFileSystem: InitFileSystem,
-                  OpenLogFile:    OpenLogFile,
-                  WriteLogFile:   WriteLogFile,
-                  GetStatus:      GetStatus,
-                  GetError:       GetError
+                  InitFileSystem:   InitFileSystem,
+                  SetErrorCallback: SetErrorCallback,
+                  OpenLogFile:      OpenLogFile,
+                  WriteLogFile:     WriteLogFile,
+                  GetStatus:        GetStatus,
+                  GetError:         GetError
                   };
 
