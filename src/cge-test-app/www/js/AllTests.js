@@ -100,8 +100,7 @@ function InitDirectories(fileSystem) {
       (dirEntries.activeGamesDir === undefined)){
       // Attempt to read the dir entries
       //log.info("Retrieving game directories");
-      dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
-//      dirReader = new DirectoryReader(dirEntries.appStorageDir.toInternalURL());
+      dirReader = new DirectoryReader(dirEntries.appStorageDir.toInternalURL());
       dirReader.readEntries(ReadRootDir, function(error){FSError(error, 'Read Directory');});
    }
    else {

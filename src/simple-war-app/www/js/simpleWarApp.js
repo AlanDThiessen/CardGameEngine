@@ -2817,15 +2817,16 @@ function OnDeviceReady() {
 }
 
 function BrowserMain() {
-//   FS.InitFileSystem(FileSystemReady);
-   FileSystemReady();   // Not really
+   FS.InitFileSystem(FileSystemReady);
 }
 
 
-function FileSystemReady() {
-   //alert("Filesystem ready!");
-   log.FileSystemReady();
-  
+function FileSystemReady(ready) {
+
+   if(ready) {
+      log.FileSystemReady();
+   }
+
    setTimeout(LoginToServer, 1000);
 }
 
@@ -2929,6 +2930,8 @@ var GAME_SUMMARY_FILE_NAME   = "gameSummary";
  ******************************************************************************/
 var fileSystemGo    = false;       // Whether the fileSystem is usable
 var onReadyCallback = undefined;
+var onErrorCallback = undefined;
+var fsError         = "";
 
 // Variable holding the directory entries
 var dirEntries = {appStorageDir: undefined,
@@ -2960,38 +2963,44 @@ var fileEntries = {log: undefined,
  ******************************************************************************/
 // InitFileSystem() should always be called once at app startup
 // Note: This function cannot be called until after the Device Ready event.
-function InitFileSystem(onReady) {
+function InitFileSystem(onReady, onError) {
    fileSystemGo = false;
+   fsError = "";
    onReadyCallback = onReady;
+   onErrorCallback = onError;
    RequestFileSystem();
 }
 
 
 function RequestFileSystem() {
-   //log.info("Requesting file system");
-   window.requestFileSystem(LocalFileSystem.PERSISTENT,
-                            STORAGE_SIZE_BYTES,
-                            InitDirectories,                                       // Success
-                            function(error){FSError(error, 'RequestFileSystem');} // Error
-                            );
+   if(typeof LocalFileSystem !== "undefined") {
+      window.requestFileSystem(LocalFileSystem.PERSISTENT,
+                               STORAGE_SIZE_BYTES,
+                               InitDirectories,                                       // Success
+                               function(error){FSError(error, 'RequestFileSystem');} // Error
+                               );
+   }
+   else {
+      SetFileSystemReady(false);
+   }
 }
 
 
 function InitDirectories(fileSystem) {
    // First, retrieve the application storage location using Cordova libraries
    dirEntries.appStorageDir = fileSystem.root;
- 
+
    if((dirEntries.gamesDefsDir === undefined) ||
       (dirEntries.deckDefsDir === undefined) ||
       (dirEntries.activeGamesDir === undefined)){
       // Attempt to read the dir entries
       //log.info("Retrieving game directories");
-      dirReader = new DirectoryReader(dirEntries.appStorageDir.toURL());
+      dirReader = new DirectoryReader(dirEntries.appStorageDir.toInternalURL());
       dirReader.readEntries(ReadRootDir, function(error){FSError(error, 'Read Directory');});
    }
    else {
       //log.info("Game directory objects already exist");
-      SetFileSystemReady();
+      SetFileSystemReady(true);
    }
 }
 
@@ -3009,8 +3018,8 @@ function ReadRootDir(entries){
          }
          
          if(entries[cntr].name == GAME_SUMMARY_FILE_NAME) {
-            alert('Found game summary file!');
-            fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
+            //alert('Found game summary file!');
+            //fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
          }
       }
    }
@@ -3067,7 +3076,7 @@ function SetRootDirEntry(entry) {
    if((dirEntries.gamesDefsDir !== undefined) &&
       (dirEntries.deckDefsDir !== undefined) &&
       (dirEntries.activeGamesDir !== undefined)){
-      SetFileSystemReady();
+      SetFileSystemReady(true);
    }
 }
 
@@ -3078,17 +3087,16 @@ function DirectoryCreated(entry) {
    if((dirEntries.gamesDefsDir !== undefined) &&
       (dirEntries.deckDefsDir !== undefined) &&
       (dirEntries.activeGamesDir !== undefined)){
-      SetFileSystemReady();
+      SetFileSystemReady(true);
    }
 }
 
 
-function SetFileSystemReady() {
-   //log.info("Filesystem is ready to go!");
-   fileSystemGo = true;
-   
+function SetFileSystemReady(status) {
+   fileSystemGo = status;
+
    if(typeof onReadyCallback === "function") {
-      onReadyCallback();
+      onReadyCallback(true);
    }
 }
 
@@ -3142,12 +3150,22 @@ function FileEntitySetWriter(entity, writer) {
    }
 }
 
-   
+
 function FileEntityReady(entity, ready) {
    if((entity.entry !== undefined) &&
       (typeof entity.onReady === "function")) {
       entity.onReady(ready);
    }
+}
+
+
+function GetStatus() {
+   return fileSystemGo;
+}
+
+
+function GetError() {
+   return fsError;
 }
 
 
@@ -3184,7 +3202,7 @@ function WriteLogFile(append, data) {
  * Error Handler
  ******************************************************************************/
 function FSError(error, location) {
-   var errorStr = "FS: ";
+   var errorStr = "FS: " + error.code + " - ";
    
    switch(error.code) {
    case 1:
@@ -3242,16 +3260,21 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   //log.error(errorStr);
-   
-   alert(errorStr);
+   //alert(errorStr);
+   fsError = errorStr;
+
+   if(typeof onErrorCallback === "function") {
+      onErrorCallback(error.code, errorStr);
+   }
 }
 
 
 module.exports = {
                   InitFileSystem: InitFileSystem,
                   OpenLogFile:    OpenLogFile,
-                  WriteLogFile:   WriteLogFile
+                  WriteLogFile:   WriteLogFile,
+                  GetStatus:      GetStatus,
+                  GetError:       GetError
                   };
 
 
@@ -3672,7 +3695,7 @@ server.AckEventSuccess = function(game) {
  ******************************************************************************/ 
 server.Failure = function() {
    log.warn("Ajax Request Failed");
-   alert("Ajax Request Failed");
+//   alert("Ajax Request Failed");
 };
 
 
