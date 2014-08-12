@@ -286,22 +286,24 @@ function OpenLogFile(onReady, onWriteEnd) {
       // Just update the onReady and onWriteEnd methods
       fileEntries.log.onReady = onReady;
       fileEntries.log.onWriteEnd = onWriteEnd;
+      if(fileEntries.log.writer !== undefined) {
+         fileEntries.log.writer.onwriteend = onWriteEnd;
+      }
    }
 
    OpenFileEntity(fileEntries.log);
 }
 
 
+function ClearLogFile() {
+   if((fileEntries.log !== undefined) && (fileEntries.log.writer !== undefined)) {
+      fileEntries.log.writer.truncate(0);
+   }
+}
+
 function WriteLogFile(append, data) {
-   if((fileEntries.log !== undefined) &&
-      (fileEntries.log.writer !== undefined)) {
-      if(append) {
-         fileEntries.log.writer.seek(fileEntries.log.writer.length);
-      }
-      else {
-         fileEntries.log.writer.seek(0);
-      }
-      
+   if((fileEntries.log !== undefined) && (fileEntries.log.writer !== undefined)) {
+      fileEntries.log.writer.seek(fileEntries.log.writer.length);
       fileEntries.log.writer.write(data);
    }
 }
@@ -384,7 +386,10 @@ module.exports = {
                   SetErrorCallback: SetErrorCallback,
                   OpenLogFile:      OpenLogFile,
                   WriteLogFile:     WriteLogFile,
+                  ClearLogFile:     ClearLogFile,
                   GetStatus:        GetStatus,
-                  GetError:         GetError
+                  GetError:         GetError,
+                  dirEntries:       dirEntries,
+                  fileEntries:      fileEntries
                   };
 
