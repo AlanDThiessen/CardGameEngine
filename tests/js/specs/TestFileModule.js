@@ -136,10 +136,30 @@ describe( "FileModule", function() {
       fileSystem.WriteLogFile(false, testStr2);
    });
 
-   xit("reads the log file", function() {
+   it("reads the log file", function(done) {
+      var OnReadComplete = function(data) {
+         fsStatus = true;
+         CommonExpectations();
+         ReadLogExpectations(data);
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var ReadLogExpectations = function(data) {
+         expect(data.length).toEqual(testStr1.length + testStr2.length);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.ReadLogFile(OnReadComplete);
    });
 
-   it("clears the log file", function() {
+   it("clears the log file", function(done) {
       var OnClearReady = function(status) {
          fsStatus = status;
       };
@@ -169,10 +189,33 @@ describe( "FileModule", function() {
       fileSystem.ClearLogFile();
    });
 
-   xit("writes a deck specification file", function() {
+   xit("reads a deck specification file", function() {
+      var OnReadEnd = function(deckSpec) {
+         CommonExpectations();
+         WriteLogExpectations(deckSpec);
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var ReadDeckSpecExpectations = function(deckSpec) {
+         expect(deckSpec).toBeDefined();
+         expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
+         expect(fileSystem.fileEntries.log.writer).toBeDefined();
+         expect(fileSystem.fileEntries.log.writer.length).toEqual(testStr1.length);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.ReadDeckSpec(OnReadEnd, "Standard");
+      fileSystem.WriteLogFile(false, testStr1);
    });
 
-   xit("reads a deck specification file", function() {
+   xit("writes a deck specification file", function() {
    });
 
    xit("writes a game specification file", function() {

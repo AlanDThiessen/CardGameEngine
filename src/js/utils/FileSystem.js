@@ -426,6 +426,7 @@ module.exports = {
                   OpenLogFile:      OpenLogFile,
                   WriteLogFile:     WriteLogFile,
                   ClearLogFile:     ClearLogFile,
+                  ReadLogFile:      ReadLogFile,
                   GetStatus:        GetStatus,
                   GetError:         GetError,
                   dirEntries:       dirEntries,
