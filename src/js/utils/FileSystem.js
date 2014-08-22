@@ -48,8 +48,10 @@ var dirEntries = {appStorageDir: undefined,
 function FileEntity(name, onReady, onWriteEnd, fileEntry) {
    this.name = name;
    this.entry = fileEntry;
+   this.reader = undefined;
    this.writer = undefined;
    this.onReady = onReady;          // Callback when ready to write
+   this.onReadEnd = undefined;      // Callback when done reading the file
    this.onWriteEnd = onWriteEnd;    // Callback when finished writing
 }
 
@@ -210,7 +212,9 @@ function SetFileSystemReady(status) {
 
 
 /*******************************************************************************
+ * 
  * File Entity Methods
+ *
  ******************************************************************************/
 function OpenFileEntity(entity) {
    // If the file entry is undefined, then we need to get the file
@@ -238,7 +242,7 @@ function OpenFileEntity(entity) {
 function FileEntityCreateWriter(entity) {
    if((entity !== undefined) && (entity.entry !== undefined)) {
       entity.entry.createWriter(function(writer){FileEntitySetWriter(entity, writer);},
-                                function(error){FSError(error, "GetLogFileWriter");}
+                                function(error){FSError(error, "CreateFileWriter");}
                                 );
    }
 }
@@ -260,6 +264,34 @@ function FileEntityReady(entity, ready) {
    if((entity.entry !== undefined) &&
       (typeof entity.onReady === "function")) {
       entity.onReady(ready);
+   }
+}
+
+
+function FileEntityRead(entity) {
+   if((entity !== undefined) && (entity.entry !== undefined)) {
+      entity.entry.file(function(file){FileEntityReader(entity, file);},
+                        function(error){FSError(error, "FileEntityRead");}
+                       );
+   }
+}
+
+
+function FileEntityReader(entity, file) {
+   var reader = new FileReader();
+
+   reader.onloadend = function(e) {
+      FileEntityReadComplete(entity, this.result);
+   };
+
+   reader.readAsText(file);
+}
+
+
+function FileEntityReadComplete(entity, data) {
+   if((entity.entry !== undefined) &&
+      (typeof entity.onReadEnd === "function")) {
+      entity.onReadEnd(data);
    }
 }
 
@@ -308,6 +340,13 @@ function WriteLogFile(append, data) {
    }
 }
 
+
+function ReadLogFile(onReadEnd) {
+   if(fileEntries.log !== undefined) {
+      fileEntries.log.onReadEnd = onReadEnd;
+      FileEntityRead(fileEntries.log);
+   }
+}
 
 
 /*******************************************************************************
