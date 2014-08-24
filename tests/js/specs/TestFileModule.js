@@ -1,6 +1,7 @@
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
+var dataDeckSpec = require("./Data-DeckSpec.js");
 
 
 describe( "FileModule", function() {
@@ -189,10 +190,38 @@ describe( "FileModule", function() {
       fileSystem.ClearLogFile();
    });
 
-   xit("reads a deck specification file", function() {
-      var OnReadEnd = function(deckSpec) {
+   it("writes a deck specification file", function(done) {
+      var OnWriteDeck = function() {
+         fsStatus = true;
          CommonExpectations();
-         WriteLogExpectations(deckSpec);
+         WriteDeckSpecExpectations();
+         alert("Made it here");
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var WriteDeckSpecExpectations = function() {
+         expect(fileSystem.fileEntries.deckDefs['standard']).toBeDefined();
+         expect(fileSystem.fileEntries.deckDefs['standard'].entry.isFile).toBeTruthy();
+         expect(fileSystem.fileEntries.deckDefs['standard'].writer).toBeDefined();
+         expect(fileSystem.fileEntries.deckDefs['standard'].writer.length).toEqual(dataDeckSpec.toJSON().length);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.WriteDeckSpec(dataDeckSpec['cge_deck']['id'], dataDeckSpec, OnWriteDeck);
+   });
+
+   it("reads a deck specification file", function(done) {
+      var OnReadDeck = function(deckSpec) {
+         fsStatus = true;
+         CommonExpectations();
+         ReadDeckSpecExpectations(deckSpec);
          done();
       };
 
@@ -204,18 +233,12 @@ describe( "FileModule", function() {
 
       var ReadDeckSpecExpectations = function(deckSpec) {
          expect(deckSpec).toBeDefined();
-         expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.log.writer).toBeDefined();
-         expect(fileSystem.fileEntries.log.writer.length).toEqual(testStr1.length);
+         expect(deckSpec).toEqual(dataDeckSpec);
       };
 
       fileSystem.SetErrorCallback(Failure);
       // Log file should already be open, just change its callbacks
-      fileSystem.ReadDeckSpec(OnReadEnd, "Standard");
-      fileSystem.WriteLogFile(false, testStr1);
-   });
-
-   xit("writes a deck specification file", function() {
+      fileSystem.ReadDeckSpec("standard", OnReadDeck);
    });
 
    xit("writes a game specification file", function() {
