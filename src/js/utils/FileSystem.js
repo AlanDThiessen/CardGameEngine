@@ -252,8 +252,6 @@ function FileEntityCreateWriter(entity) {
 function FileEntitySetWriter(entity, writer) {
    if(entity !== undefined) {
       entity.writer = writer;
-//      entity.writer.onwritestart = function(){alert("Write started " + entity.name);};
-//      entity.writer.onwrite = function(){alert("Written " + entity.name);};
       entity.writer.onerror = function(error){FSError(error, "Write file " + entity.name);};
 
       if(entity.truncate) {
@@ -287,8 +285,7 @@ function FileEntityTruncateAfterWrite(entity) {
       entity.writer.onwriteend = entity.onWriteEnd;
    }
 
-//   entity.writer.truncate(entity.writer.position);
-   entity.writer.truncate(5);
+   entity.writer.truncate(entity.writer.position);
 }
 
 
@@ -397,9 +394,11 @@ function ReadLogFile(onReadEnd) {
  * Deck Spec File Methods
  ******************************************************************************/
 function WriteDeckSpec(specName, data, onWriteEnd) {
+   fileName = specName + ".deck";
+
    // Create a new entity if one does not already exist by this name
    if(fileEntries.deckDefs[specName] === undefined) {
-      fileEntries.deckDefs[specName] = new FileEntity(specName, undefined, onWriteEnd, undefined);
+      fileEntries.deckDefs[specName] = new FileEntity(fileName, undefined, onWriteEnd, undefined);
       fileEntries.deckDefs[specName].type = "JSON";
    }
    else {
@@ -414,8 +413,10 @@ function WriteDeckSpec(specName, data, onWriteEnd) {
 
 
 function ReadDeckSpec(specName, onReadEnd) {
+   fileName = specName + ".deck";
+
    if(fileEntries.deckDefs[specName] === undefined) {
-      fileEntries.deckDefs[specName] = new FileEntity(specName, undefined, undefined, undefined);
+      fileEntries.deckDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
       fileEntries.deckDefs[specName].type = "JSON";
    }
 
@@ -486,7 +487,7 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   alert(errorStr);
+//   alert(errorStr);
    fsError = errorStr;
 
    if(typeof onErrorCallback === "function") {
