@@ -1,22 +1,24 @@
 var config = require("./config.js");
 var FS = require("./FileSystem.js");
 
-log = { };
+log = {
+   DEBUG:      0x01,
+   INFO:       0x02,
+   WARN:       0x04,
+   ERROR:      0x08,
 
-log.DEBUG   = 0x01;
-log.INFO    = 0x02;
-log.WARN    = 0x04;
-log.ERROR   = 0x08;
+   toFile:     false,
+   toConsole:  false,
+   fileReady:  false,
+   mask:       0xFF,
+   pendingStr: null
+};
 
-log.toFile = false;
-log.toConsole = false;
-log.fileReady = false;
-log.mask = 0xFF;
 //log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
 log.SetMask = function(value) {
    log.mask = value;
-}
+};
 
 log.SetLogToConsole = function(value) {
    log.toConsole = value;
@@ -28,18 +30,27 @@ log.SetLogToFile = function(value) {
 
 log.FileSystemReady = function() {
    FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
-}
+};
 
 
 log.LogFileReady = function(ready) {
    log.fileReady = true;
    //log.mask = 0xFF;
    log.info("App Log Startup");
-}
+};
 
 log.LogFileWriteComplete = function() {
-   log.fileReady = true;
-}
+
+   var str = pendingStr;
+
+   pendingStr = null;
+
+   if (str !== null) {
+      FS.WriteLogFile(true, str);
+   } else {
+      log.fileReady = true;
+   }
+};
 
 
 log.GetDate = function() {
@@ -47,7 +58,7 @@ log.GetDate = function() {
    dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
    dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
    return dateStr;
-}
+};
 
 
 log.debug = function (format) {
@@ -131,7 +142,10 @@ log._ToFile = function(str) {
       str += '\n';
       FS.WriteLogFile(true, str);
    }
-}
+   else {
+      log.pendingStr += str + '\n';
+   }
+};
 
 
 module.exports = log;

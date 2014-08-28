@@ -396,11 +396,218 @@ module.exports = {
 
 
 },{}],2:[function(require,module,exports){
+var config = require("./config.js");
+var FS = require("./FileSystem.js");
+
+log = {
+   DEBUG:      0x01,
+   INFO:       0x02,
+   WARN:       0x04,
+   ERROR:      0x08,
+
+   toFile:     false,
+   toConsole:  false,
+   fileReady:  false,
+   mask:       0xFF,
+   pendingStr: null
+};
+
+//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+
+log.SetMask = function(value) {
+   log.mask = value;
+};
+
+log.SetLogToConsole = function(value) {
+   log.toConsole = value;
+};
+
+log.SetLogToFile = function(value) {
+   log.toFile = value;
+};
+
+log.FileSystemReady = function() {
+   FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
+};
+
+
+log.LogFileReady = function(ready) {
+   log.fileReady = true;
+   //log.mask = 0xFF;
+   log.info("App Log Startup");
+};
+
+log.LogFileWriteComplete = function() {
+
+   var str = pendingStr;
+
+   pendingStr = null;
+
+   if (str !== null) {
+      FS.WriteLogFile(true, str);
+   } else {
+      log.fileReady = true;
+   }
+};
+
+
+log.GetDate = function() {
+   var date = new Date();
+   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+   return dateStr;
+};
+
+
+log.debug = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.DEBUG);
+
+   if (log.mask & log.DEBUG) {
+      log._out.apply(this, args);
+   }
+};
+
+
+log.info = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.INFO);
+
+   if (log.mask & log.INFO) {
+      log._out.apply(this, args);
+   }
+};
+
+log.warn = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.WARN);
+
+   if (log.mask & log.WARN) {
+      log._out.apply(this, args);
+   }
+};
+
+log.error = function (format) {
+   var args = Array.prototype.slice.call(arguments, 0);
+   args.unshift(log.ERROR);
+
+   if (log.mask & log.ERROR) {
+      log._out.apply(this, args);
+   }
+};
+
+log._out = function (level, format) {
+   var i = -1;
+   var args = Array.prototype.slice.call(arguments, 2);
+   var str;
+
+   var dateStr = log.GetDate();
+   dateStr = "[" + dateStr + "] ";
+   format = "" + format;
+
+   str = format.replace(/\%[sd]/g, function () {
+      i++;
+      return args[i];
+   });
+
+   switch (level) {
+      case log.DEBUG:
+         console.log(dateStr + "DEBUG: " + str);
+         log._ToFile(dateStr + "DEBUG: " + str);
+         break;
+
+      case log.INFO:
+         console.log(dateStr + " INFO: " + str);
+         log._ToFile(dateStr + " INFO: " + str);
+         break;
+
+      case log.WARN:
+         console.warn(dateStr + " WARN: " + str);
+         log._ToFile(dateStr + " WARN: " + str);
+         break;
+
+      case log.ERROR:
+         console.error(dateStr + "ERROR: " + str);
+         log._ToFile(dateStr + "ERROR: " + str);
+         break;
+   }
+};
+
+
+log._ToFile = function(str) {
+   if(log.fileReady) {
+      log.fileReady = false;
+      str += '\n';
+      FS.WriteLogFile(true, str);
+   }
+   else {
+      log.pendingStr += str + '\n';
+   }
+};
+
+
+module.exports = log;
+
+},{"./FileSystem.js":1,"./config.js":3}],3:[function(require,module,exports){
+
+config = {}
+
+
+config.GetUserName = function() {
+   return window.localStorage.username;
+};
+
+config.SetUserName = function(value) {
+   window.localStorage.setItem('username', value);
+};
+
+config.GetPassword = function() {
+   return window.localStorage.password;
+};
+
+config.SetPassword = function(value) {
+   window.localStorage.setItem('password', value);
+};
+
+config.GetLogMask = function() {
+   var value = 0;
+
+   if(window.localStorage.logMask) {
+      value = parseInt(window.localStorage.logMask);
+   }
+   
+   return value;
+};
+
+config.SetLogMask = function(value) {
+   window.localStorage.setItem('logMask', value.toString());
+};
+
+config.GetLogToConsole = function() {
+   return window.localStorage.logToConsole === 'true';
+};
+
+config.SetLogToConsole = function(value) {
+   window.localStorage.setItem('logToConsole', value.toString());
+};
+
+config.GetLogToFile = function() {
+   return window.localStorage.logToFile === 'true';
+};
+
+config.SetLogToFile = function(value) {
+   window.localStorage.setItem('logToFile', value.toString());
+};
+
+module.exports = config;
+
+},{}],4:[function(require,module,exports){
 
 require("./TestFileModule.js");
+require("./TestLogger.js");
 
 
-},{"./TestFileModule.js":3}],3:[function(require,module,exports){
+},{"./TestFileModule.js":5,"./TestLogger.js":6}],5:[function(require,module,exports){
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
@@ -592,4 +799,43 @@ describe( "FileModule", function() {
 });
 
 
-},{"../../../src/js/utils/FileSystem.js":1}]},{},[2])
+},{"../../../src/js/utils/FileSystem.js":1}],6:[function(require,module,exports){
+
+// Pull in the module we're testing.
+var fileSystem = require("../../../src/js/utils/FileSystem.js");
+var logger = require("../../../src/js/utils/Logger.js");
+
+describe("Logger", function () {
+
+   var fsStatus = false;
+
+   it("should write to the log file", function (done) {
+
+      fileSystem.SetErrorCallback(function (errorCode, errorStr) {
+         expect(errorStr).toBeNull();
+         expect(fsStatus).toBeTruthy();
+         done();
+      });
+
+      fileSystem.OpenLogFile(
+
+         function (status) {
+            fsStatus = status;
+         },
+
+          function () {
+            expect(fileSystem.fileEntries.log).toBeDefined();
+            done();
+             // logger.debug("test");
+
+             // setTimeout(function () {
+             //    expect(fileSystem.fileEntries.log.writer.length).toEqual("test\n".length);
+             //    done();
+             // }, 250);
+          }
+      );
+
+      fileSystem.ClearLogFile();
+   });
+});
+},{"../../../src/js/utils/FileSystem.js":1,"../../../src/js/utils/Logger.js":2}]},{},[4])
