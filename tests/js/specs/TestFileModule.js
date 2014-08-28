@@ -195,7 +195,6 @@ describe( "FileModule", function() {
          fsStatus = true;
          CommonExpectations();
          WriteDeckSpecExpectations();
-         alert("Made it here");
          done();
       };
 

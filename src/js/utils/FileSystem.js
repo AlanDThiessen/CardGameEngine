@@ -252,6 +252,9 @@ function FileEntityCreateWriter(entity) {
 function FileEntitySetWriter(entity, writer) {
    if(entity !== undefined) {
       entity.writer = writer;
+//      entity.writer.onwritestart = function(){alert("Write started " + entity.name);};
+//      entity.writer.onwrite = function(){alert("Written " + entity.name);};
+      entity.writer.onerror = function(error){FSError(error, "Write file " + entity.name);};
 
       if(entity.truncate) {
          entity.writer.onwriteend = function(){FileEntityTruncateAfterWrite(entity)};
@@ -272,6 +275,7 @@ function FileEntitySetWriter(entity, writer) {
 
 function FileEntityWriteData(entity) {
    if((entity !== undefined) && (entity.writer !== undefined)) {
+      entity.writer.seek(0);
       entity.writer.write(entity.data);
       entity.data = undefined;
    }
@@ -283,7 +287,8 @@ function FileEntityTruncateAfterWrite(entity) {
       entity.writer.onwriteend = entity.onWriteEnd;
    }
 
-   entity.writer.truncate(entity.writer.position);
+//   entity.writer.truncate(entity.writer.position);
+   entity.writer.truncate(5);
 }
 
 
@@ -402,7 +407,7 @@ function WriteDeckSpec(specName, data, onWriteEnd) {
       fileEntries.deckDefs[specName].onWriteEnd = onWriteEnd;
    }
 
-   fileEntries.deckDefs[specName].truncate = false;    // Indicate we want this file truncated after write.
+   fileEntries.deckDefs[specName].truncate = true;    // Indicate we want this file truncated after write.
    fileEntries.deckDefs[specName].data = data;        // Indicate we want the data written immediate after open.
    OpenFileEntity(fileEntries.deckDefs[specName], dirEntries.deckDefsDir);
 }
@@ -481,7 +486,7 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   //alert(errorStr);
+   alert(errorStr);
    fsError = errorStr;
 
    if(typeof onErrorCallback === "function") {
