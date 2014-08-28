@@ -47,9 +47,13 @@ var dirEntries = {appStorageDir: undefined,
 // File Object
 function FileEntity(name, onReady, onWriteEnd, fileEntry) {
    this.name = name;
+   this.type = "text";
+   this.data = undefined;           // Data to write to the file after opening
+   this.truncate = false;
    this.entry = fileEntry;
    this.writer = undefined;
    this.onReady = onReady;          // Callback when ready to write
+   this.onReadEnd = undefined;      // Callback when done reading the file
    this.onWriteEnd = onWriteEnd;    // Callback when finished writing
 }
 
@@ -57,7 +61,7 @@ function FileEntity(name, onReady, onWriteEnd, fileEntry) {
 var fileEntries = {log: undefined,
                    gameSummary: undefined,
                    gameDefs: [],
-                   deckDefs: [],
+                   deckDefs: {},
                    games: []
                    };
 
@@ -79,6 +83,7 @@ function InitFileSystem(onReady, onError) {
 function SetErrorCallback(onError) {
    onErrorCallback = onError;
 }
+
 
 function RequestFileSystem() {
    if(typeof LocalFileSystem !== "undefined") {
@@ -212,15 +217,15 @@ function SetFileSystemReady(status) {
 /*******************************************************************************
  * File Entity Methods
  ******************************************************************************/
-function OpenFileEntity(entity) {
+function OpenFileEntity(entity, dirEntry) {
    // If the file entry is undefined, then we need to get the file
    if(entity.entry === undefined) {
-      if(dirEntries.appStorageDir !== undefined) {
-         dirEntries.appStorageDir.getFile(entity.name,
-                                          {create: true, exclusive: false},
-                                          function(entry){entity.entry = entry; FileEntityCreateWriter(entity);},
-                                          function(error){FSError(error, 'Open file ' + entity.name);}
-                                         );
+      if(dirEntry !== undefined) {
+         dirEntry.getFile(entity.name,
+                          {create: true, exclusive: false},
+                          function(entry){entity.entry = entry; FileEntityCreateWriter(entity);},
+                          function(error){FSError(error, 'Open file ' + entity.name);}
+                         );
       }
    }
    else {
@@ -238,7 +243,7 @@ function OpenFileEntity(entity) {
 function FileEntityCreateWriter(entity) {
    if((entity !== undefined) && (entity.entry !== undefined)) {
       entity.entry.createWriter(function(writer){FileEntitySetWriter(entity, writer);},
-                                function(error){FSError(error, "GetLogFileWriter");}
+                                function(error){FSError(error, "CreateFileWriter");}
                                 );
    }
 }
@@ -247,12 +252,38 @@ function FileEntityCreateWriter(entity) {
 function FileEntitySetWriter(entity, writer) {
    if(entity !== undefined) {
       entity.writer = writer;
+
+      if(entity.truncate) {
+         entity.writer.onwriteend = function(){FileEntityTruncateAfterWrite(entity)};
+      }
+      else {
+         entity.writer.onwriteend = entity.onWriteEnd;
+      }
+
+      if(entity.data !== undefined) {
+         FileEntityWriteData(entity);
+      }
+      else {
+         FileEntityReady(entity, true);
+      }
+   }
+}
+
+
+function FileEntityWriteData(entity) {
+   if((entity !== undefined) && (entity.writer !== undefined)) {
+      entity.writer.write(entity.data);
+      entity.data = undefined;
+   }
+}
+
+
+function FileEntityTruncateAfterWrite(entity) {
+   if(typeof entity.onWriteEnd === "function") {
       entity.writer.onwriteend = entity.onWriteEnd;
-      FileEntityReady(entity, true);
    }
-   else {
-      FileEntityReady(entity, false);
-   }
+
+   entity.writer.truncate(entity.writer.position);
 }
 
 
@@ -264,6 +295,44 @@ function FileEntityReady(entity, ready) {
 }
 
 
+function FileEntityRead(entity) {
+   if((entity !== undefined) && (entity.entry !== undefined)) {
+      entity.entry.file(function(file){FileEntityReader(entity, file);},
+                        function(error){FSError(error, "FileEntityRead");}
+                       );
+   }
+}
+
+
+function FileEntityReader(entity, file) {
+   var reader = new FileReader();
+
+   reader.onloadend = function(e) {
+      if(entity.type == "JSON") {
+         data = JSON.parse(this.result);
+      }
+      else {
+         data = this.result;
+      }
+      
+      FileEntityReadComplete(entity, data);
+   };
+
+   reader.readAsText(file);
+}
+
+
+function FileEntityReadComplete(entity, data) {
+   if((entity.entry !== undefined) &&
+      (typeof entity.onReadEnd === "function")) {
+      entity.onReadEnd(data);
+   }
+}
+
+
+/*******************************************************************************
+ * Status Methods
+ ******************************************************************************/
 function GetStatus() {
    return fileSystemGo;
 }
@@ -275,7 +344,7 @@ function GetError() {
 
 
 /*******************************************************************************
- * File Methods
+ * Log File Methods
  ******************************************************************************/
 function OpenLogFile(onReady, onWriteEnd) {
    // If the entry is undefined, then create one
@@ -286,12 +355,13 @@ function OpenLogFile(onReady, onWriteEnd) {
       // Just update the onReady and onWriteEnd methods
       fileEntries.log.onReady = onReady;
       fileEntries.log.onWriteEnd = onWriteEnd;
+
       if(fileEntries.log.writer !== undefined) {
          fileEntries.log.writer.onwriteend = onWriteEnd;
       }
    }
 
-   OpenFileEntity(fileEntries.log);
+   OpenFileEntity(fileEntries.log, dirEntries.appStorageDir);
 }
 
 
@@ -301,6 +371,7 @@ function ClearLogFile() {
    }
 }
 
+
 function WriteLogFile(append, data) {
    if((fileEntries.log !== undefined) && (fileEntries.log.writer !== undefined)) {
       fileEntries.log.writer.seek(fileEntries.log.writer.length);
@@ -308,6 +379,44 @@ function WriteLogFile(append, data) {
    }
 }
 
+
+function ReadLogFile(onReadEnd) {
+   if(fileEntries.log !== undefined) {
+      fileEntries.log.onReadEnd = onReadEnd;
+      FileEntityRead(fileEntries.log);
+   }
+}
+
+
+/*******************************************************************************
+ * Deck Spec File Methods
+ ******************************************************************************/
+function WriteDeckSpec(specName, data, onWriteEnd) {
+   // Create a new entity if one does not already exist by this name
+   if(fileEntries.deckDefs[specName] === undefined) {
+      fileEntries.deckDefs[specName] = new FileEntity(specName, undefined, onWriteEnd, undefined);
+      fileEntries.deckDefs[specName].type = "JSON";
+   }
+   else {
+      // Just update the onWriteEnd method
+      fileEntries.deckDefs[specName].onWriteEnd = onWriteEnd;
+   }
+
+   fileEntries.deckDefs[specName].truncate = false;    // Indicate we want this file truncated after write.
+   fileEntries.deckDefs[specName].data = data;        // Indicate we want the data written immediate after open.
+   OpenFileEntity(fileEntries.deckDefs[specName], dirEntries.deckDefsDir);
+}
+
+
+function ReadDeckSpec(specName, onReadEnd) {
+   if(fileEntries.deckDefs[specName] === undefined) {
+      fileEntries.deckDefs[specName] = new FileEntity(specName, undefined, undefined, undefined);
+      fileEntries.deckDefs[specName].type = "JSON";
+   }
+
+   fileEntries.deckDefs[specName].onReadEnd = onReadEnd;
+   FileEntityRead(fileEntries.deckDefs[specName]);
+}
 
 
 /*******************************************************************************
@@ -382,13 +491,21 @@ function FSError(error, location) {
 
 
 module.exports = {
+                  // Initialization methods
                   InitFileSystem:   InitFileSystem,
                   SetErrorCallback: SetErrorCallback,
+                  // Log file methods
                   OpenLogFile:      OpenLogFile,
                   WriteLogFile:     WriteLogFile,
                   ClearLogFile:     ClearLogFile,
+                  ReadLogFile:      ReadLogFile,
+                  // Deck Spec methods
+                  WriteDeckSpec:    WriteDeckSpec,
+                  ReadDeckSpec:     ReadDeckSpec,
+                  // Status methods
                   GetStatus:        GetStatus,
                   GetError:         GetError,
+                  // Data export (for testing)
                   dirEntries:       dirEntries,
                   fileEntries:      fileEntries
                   };
