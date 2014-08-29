@@ -36,9 +36,8 @@ server.LoginUser = function(username, password) {
 
 
 server.LoginUserSuccess = function(user) {
-   alert("Logged in as: " + user.display_name);
    log.info("Logged in as: " + user.display_name);
-   
+
    // Now, get the user's games.
    server.GetUserGames(user.id);
 };
@@ -129,7 +128,7 @@ server.StartGame = function(userId, gameId) {
       'user_id': userId,
       'game_type_id': gameId
    };
-   
+
    ajax.ServerPost(postData, server.StartGameSuccess, server.Failure);
 };
 

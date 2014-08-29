@@ -1,4 +1,61 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+log = require("./Logger.js");
+
+ajax = {};
+
+ajax.server = {
+                 protocol:   'https',
+                 hostname:   'gator4021.hostgator.com',
+                 port:       443,
+                 path:       '/~thiessea/TheThiessens.net/cge/cge.php'
+              };
+
+
+
+ajax.ServerPost = function(postData, success, failure) {
+   var url = ajax.server.protocol + '://' + ajax.server.hostname + ajax.server.path;
+   var formData = new FormData();
+   var request = new XMLHttpRequest();
+ 
+	for(var key in postData) {
+	   if(postData.hasOwnProperty(key)) {
+	      formData.append(key, postData[key]);
+	   }
+	}
+  
+   request.open("POST", url, true );
+   request.responseType = 'text';
+   request.onreadystatechange = function(e){ajax.HandleResponse(e, this, success, failure);};
+   request.send(formData);
+}
+
+
+ajax.HandleResponse = function(event, resp, success, failure) {
+   if(resp.readyState == resp.DONE) {
+      if(resp.status == 200) {
+         if(typeof success === 'function') {
+            log.info(resp.responseText);
+            success(JSON.parse(resp.responseText));
+         }
+      }
+      else {
+         if(typeof failure === 'function') {
+            failure();
+         }
+      }
+   }
+}
+
+module.exports = ajax;
+
+},{"./Logger.js":4}],2:[function(require,module,exports){
+
+module.exports = {
+};
+
+
+},{}],3:[function(require,module,exports){
 /*******************************************************************************
  * 
  * FileSystem.js
@@ -556,7 +613,7 @@ module.exports = {
                   };
 
 
-},{}],2:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var config = require("./config.js");
 var FS = require("./FileSystem.js");
 
@@ -709,7 +766,291 @@ log._ToFile = function(str) {
 
 module.exports = log;
 
-},{"./FileSystem.js":1,"./config.js":3}],3:[function(require,module,exports){
+},{"./FileSystem.js":3,"./config.js":6}],5:[function(require,module,exports){
+
+ajax = require("./Ajax.js");
+log = require("./Logger.js");
+
+server = {};
+
+
+/******************************************************************************
+ * Register User
+ ******************************************************************************/
+server.RegisterUser = function(username, password) {
+   var postData = {
+      'action': 'cge_register_user',
+      'username': username,
+      'password': password,
+      'display_name': displayName,
+      'email': email
+   };
+
+   ajax.ServerPost(postData, server.LoginUserSuccess, server.Failure);
+};
+
+   
+/******************************************************************************
+ * Login User
+ ******************************************************************************/
+server.LoginUser = function(username, password) {
+   var postData = {
+      'action': 'cge_login_user',
+      'username': username,
+      'password': password
+   };
+
+   ajax.ServerPost(postData, server.LoginUserSuccess, server.Failure);
+};
+
+
+server.LoginUserSuccess = function(user) {
+   log.info("Logged in as: " + user.display_name);
+
+   // Now, get the user's games.
+   server.GetUserGames(user.id);
+};
+
+
+/******************************************************************************
+ * Get User Games
+ ******************************************************************************/
+server.GetUserGames = function(userId) {
+   var postData = {
+      'action': 'cge_get_my_games',
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.GetUserGamesSuccess, server.Failure);
+};
+
+
+server.GetUserGamesSuccess = function(games) {
+   var cntr;
+   var gameNames = "";
+   
+   for(cntr = 0; cntr < games.length; cntr++) {
+      gameNames += '"' + games[cntr].game_name + '", ';
+   }
+   
+   alert("There are " + games.length + " games: " + gameNames);
+   log.info("There are " + games.length + " games: " + gameNames);
+};
+
+/******************************************************************************
+ * Get Game Types
+ ******************************************************************************/ 
+server.GetGameTypes = function() {
+   var postData = {
+      'action': 'cge_get_game_types'
+   };
+   
+   ajax.ServerPost(postData, server.GetGameTypesSuccess, server.Failure);
+};
+
+
+server.GetGameTypesSuccess = function(gameTypes) {
+};
+
+
+/******************************************************************************
+ * Get Joinable Games
+ ******************************************************************************/ 
+server.GetJoinableGames = function(userId) {
+   var postData = {
+      'action': 'cge_get_joinable_games',
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.GetJoinableGamesSuccess, server.Failure);
+};
+
+
+server.GetJoinableGamesSuccess = function(joinableGames) {
+};
+
+   
+/******************************************************************************
+ * Join Game
+ ******************************************************************************/
+server.JoinGame = function(userId, gameId) {
+   var postData = {
+      'action': 'cge_join_game',
+      'game_id': gameId,
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.JoinGameSuccess, server.Failure);
+};
+
+
+server.JoinGameSuccess = function(game) {
+};
+
+
+/******************************************************************************
+ * Start Game
+ ******************************************************************************/ 
+server.StartGame = function(userId, gameId) {
+   var postData = {
+      'action': 'cge_start_game',
+      'user_id': userId,
+      'game_type_id': gameId
+   };
+
+   ajax.ServerPost(postData, server.StartGameSuccess, server.Failure);
+};
+
+
+server.StartGameSuccess = function(game) {
+};
+
+
+/******************************************************************************
+ * Load Deck Spec
+ ******************************************************************************/ 
+server.LoadDeckSpec = function(deckTypeId) {
+   var postData = {
+      'action': 'cge_load_deck_spec',
+      'deck_type_id': deckTypeId
+   };
+   
+   ajax.ServerPost(postData, server.LoadDeckSpecSuccess, server.Failure);
+};
+
+
+server.LoadDeckSpecSuccess = function(game) {
+};
+
+
+/******************************************************************************
+ * 
+ ******************************************************************************/ 
+server.GetNumPlayersInGame = function(gameId) {
+   var postData = {
+      'action': 'cge_get_num_players',
+      'game_id': gameId
+   };
+   
+   ajax.ServerPost(postData, server.GetNumPlayersInGameSuccess, server.Failure);
+};
+
+
+server.GetNumPlayersInGameSuccess = function(game) {
+};
+
+
+/******************************************************************************
+ * Record Transaction
+ ******************************************************************************/ 
+server.RecordTransaction = function(userId,
+                                    gameId,
+                                    fromContainer,
+                                    toContainer,
+                                    cards) {
+   var postData = {
+      'action': 'cge_record_transaction',
+      'game_id': gameId,
+      'user_id': userId,
+      'from_group_id': fromContainer,
+      'to_group_id': toContainer,
+      'items': cards
+   };
+   
+   ajax.ServerPost(postData, server.RecordTransactionSuccess, server.Failure);
+};
+
+
+server.RecordTransactionSuccess = function(response) {
+};
+
+
+/******************************************************************************
+ * Pause Game
+ ******************************************************************************/ 
+server.PauseGame = function(userId, gameId) {
+   var postData = {
+      'action': 'cge_pause_game',
+      'game_id': gameId,
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.PauseGameSuccess, server.Failure);
+};
+
+
+server.PauseGameSuccess = function(success) {
+};
+
+
+/******************************************************************************
+ * Resume Game
+ ******************************************************************************/ 
+server.ResumeGame = function(userId, gameId) {
+   var postData = {
+      'action': 'cge_resume_game',
+      'game_id': gameId,
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.ResumeGameSuccess, server.Failure);
+};
+
+
+server.ResumeGameSuccess = function(success) {
+};
+
+
+/******************************************************************************
+ * End Game
+ ******************************************************************************/ 
+server.EndGame = function(userId, gameId) {
+   var postData = {
+      'action': 'cge_end_game',
+      'game_id': gameId,
+      'user_id': userId
+   };
+   
+   ajax.ServerPost(postData, server.EndGameSuccess, server.Failure);
+};
+
+
+server.EndGameSuccess = function(success) {
+};
+
+   
+/******************************************************************************
+ * Ack Event
+ ******************************************************************************/ 
+server.AckEvent = function(userId, gameId, notificationId) {
+   var postData = {
+      'action': 'cge_ack_event',
+      'game_id': gameId,
+      'user_id': userId,
+      'notif_id': notificationId
+   };
+   
+   ajax.ServerPost(postData, server.AckEventSuccess, server.Failure);
+};
+
+
+server.AckEventSuccess = function(game) {
+};
+
+
+/******************************************************************************
+ * Failure to Send - TODO: Needs some thought
+ ******************************************************************************/ 
+server.Failure = function() {
+   log.warn("Ajax Request Failed");
+//   alert("Ajax Request Failed");
+};
+
+
+
+module.exports = server;
+
+},{"./Ajax.js":1,"./Logger.js":4}],6:[function(require,module,exports){
 
 config = {}
 
@@ -762,13 +1103,14 @@ config.SetLogToFile = function(value) {
 
 module.exports = config;
 
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 require("./TestFileModule.js");
 require("./TestLogger.js");
+require("./TestCGEServer.js");
+require("./TestGameData.js");
 
-
-},{"./TestFileModule.js":7,"./TestLogger.js":8}],5:[function(require,module,exports){
+},{"./TestCGEServer.js":10,"./TestFileModule.js":11,"./TestGameData.js":12,"./TestLogger.js":13}],8:[function(require,module,exports){
 module.exports = {
   "cge_deck": {
     "id": "standard",
@@ -914,7 +1256,7 @@ module.exports = {
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = {
   "cge_game": {
     "id": "simple-war",
@@ -932,7 +1274,58 @@ module.exports = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+
+// Pull in the module we're testing.
+var server = require("../../../src/js/utils/Server.js");
+
+
+describe( "CGEServer", function() {
+
+   xit("registers a user", function(done) {
+   });
+
+   xit("logs-in a user", function(done) {
+   });
+
+   xit("retrieves user's games", function(done) {
+   });
+
+   xit("retrieves game types", function(done) {
+   });
+
+   xit("retrieves a deck specification", function(done) {
+   });
+
+   xit("retrieves joinable games for user", function(done) {
+   });
+
+   // Not sure why this is necessary... ???
+   xit("retrieves number of players in a game", function(done) {
+   });
+
+   xit("joins a game", function(done) {
+   });
+
+   xit("starts a game", function(done) {
+   });
+
+   xit("records a transaction", function(done) {
+   });
+
+   xit("pauses a game", function(done) {
+   });
+
+   xit("resumes a game", function(done) {
+   });
+
+   xit("ends a game", function(done) {
+   });
+
+} );
+
+
+},{"../../../src/js/utils/Server.js":5}],11:[function(require,module,exports){
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
@@ -1234,7 +1627,69 @@ describe( "FileModule", function() {
 });
 
 
-},{"../../../src/js/utils/FileSystem.js":1,"./Data-DeckSpec.js":5,"./Data-GameSpec.js":6}],8:[function(require,module,exports){
+},{"../../../src/js/utils/FileSystem.js":3,"./Data-DeckSpec.js":8,"./Data-GameSpec.js":9}],12:[function(require,module,exports){
+
+// Pull in the module we're testing.
+var gameData = require("../../../src/js/utils/CGEGameData.js");
+
+
+describe("gameData", function() {
+
+   xit("registers callbacks with the server", function() {
+      // spy on the game data to ensure it registers all callbacks with the 
+      // server comms when it is initialized.
+   });
+
+   describe("when no data exists", function() {
+      
+      xit("retrieves game types from the server", function(done) {
+         // Verify game types are retrieved from the server and stored in a file.
+      });
+
+      xit("retrieves a deck specification", function(done) {
+         // Verify deck specifications are retrieved from the server and stored
+         // in files.
+      });
+
+      xit("retrieves user's games from the server", function(done) {
+         // Verify user's games are retrieved from the server and stroed in files.
+      });
+
+      xit("retrieves user's joinable games from the server", function(done) {
+         // These are not stored in a file.
+      });
+
+      // Not sure why this is necessary... ???
+      xit("retrieves number of players in a game from the server", function(done) {
+      });
+
+   });
+
+   describe("when data exists in files", function() {
+      
+      xit("populates game types from the file", function(done) {
+      });
+
+      xit("populates deck specifications from files", function(done) {
+      });
+
+      xit("populates user's games from files", function(done) {
+      });
+
+      xit("syncs game types with the server", function(done) {
+      });
+
+      xit("syncs deck specifications with the server", function(done) {
+      });
+
+      xit("syncs user's games with the server", function(done) {
+      });
+   });
+
+} );
+
+
+},{"../../../src/js/utils/CGEGameData.js":2}],13:[function(require,module,exports){
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
@@ -1308,4 +1763,4 @@ describe("Logger", function () {
       fileSystem.ClearLogFile();
    });
 });
-},{"../../../src/js/utils/FileSystem.js":1,"../../../src/js/utils/Logger.js":2}]},{},[4])
+},{"../../../src/js/utils/FileSystem.js":3,"../../../src/js/utils/Logger.js":4}]},{},[7])
