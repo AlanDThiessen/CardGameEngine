@@ -61,7 +61,7 @@ function FileEntity(name, onReady, onWriteEnd, fileEntry) {
 // Array to hold the FileEntry objects that are open
 var fileEntries = {log: undefined,
                    gameSummary: undefined,
-                   gameDefs: [],
+                   gameDefs: {},
                    deckDefs: {},
                    games: []
                    };
@@ -253,8 +253,6 @@ function FileEntityCreateWriter(entity) {
 function FileEntitySetWriter(entity, writer) {
    if(entity !== undefined) {
       entity.writer = writer;
-//      entity.writer.onwritestart = function(){alert("Write started " + entity.name);};
-//      entity.writer.onwrite = function(){alert("Written " + entity.name);};
       entity.writer.onerror = function(error){FSError(error, "Write file " + entity.name);};
 
       if(entity.truncate) {
@@ -397,7 +395,7 @@ function ReadLogFile(onReadEnd) {
  * Deck Spec File Methods
  ******************************************************************************/
 function WriteDeckSpec(specName, data, onWriteEnd) {
-   fileName = specName + ".deck";
+   fileName = specName + ".deckDef";
 
    // Create a new entity if one does not already exist by this name
    if(fileEntries.deckDefs[specName] === undefined) {
@@ -416,7 +414,7 @@ function WriteDeckSpec(specName, data, onWriteEnd) {
 
 
 function ReadDeckSpec(specName, onReadEnd) {
-   fileName = specName + ".deck";
+   fileName = specName + ".deckDef";
 
    if(fileEntries.deckDefs[specName] === undefined) {
       fileEntries.deckDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
@@ -425,6 +423,41 @@ function ReadDeckSpec(specName, onReadEnd) {
 
    fileEntries.deckDefs[specName].onReadEnd = onReadEnd;
    FileEntityRead(fileEntries.deckDefs[specName]);
+}
+
+
+/*******************************************************************************
+ * Game Spec File Methods
+ ******************************************************************************/
+function WriteGameSpec(specName, data, onWriteEnd) {
+   fileName = specName + ".gameDef";
+
+   // Create a new entity if one does not already exist by this name
+   if(fileEntries.gameDefs[specName] === undefined) {
+      fileEntries.gameDefs[specName] = new FileEntity(fileName, undefined, onWriteEnd, undefined);
+      fileEntries.gameDefs[specName].type = "JSON";
+   }
+   else {
+      // Just update the onWriteEnd method
+      fileEntries.gameDefs[specName].onWriteEnd = onWriteEnd;
+   }
+
+   fileEntries.gameDefs[specName].truncate = true;    // Indicate we want this file truncated after write.
+   fileEntries.gameDefs[specName].data = data;        // Indicate we want the data written immediate after open.
+   OpenFileEntity(fileEntries.gameDefs[specName], dirEntries.gamesDefsDir);
+}
+
+
+function ReadGameSpec(specName, onReadEnd) {
+   fileName = specName + ".gameDef";
+
+   if(fileEntries.gameDefs[specName] === undefined) {
+      fileEntries.gameDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
+      fileEntries.gameDefs[specName].type = "JSON";
+   }
+
+   fileEntries.gameDefs[specName].onReadEnd = onReadEnd;
+   FileEntityRead(fileEntries.gameDefs[specName]);
 }
 
 
@@ -490,7 +523,7 @@ function FSError(error, location) {
    
    errorStr += " in " + location;
    
-   alert(errorStr);
+//   alert(errorStr);
    fsError = errorStr;
 
    if(typeof onErrorCallback === "function") {
@@ -511,6 +544,9 @@ module.exports = {
                   // Deck Spec methods
                   WriteDeckSpec:    WriteDeckSpec,
                   ReadDeckSpec:     ReadDeckSpec,
+                  // Game Spec methods
+                  WriteGameSpec:    WriteGameSpec,
+                  ReadGameSpec:     ReadGameSpec,
                   // Status methods
                   GetStatus:        GetStatus,
                   GetError:         GetError,
@@ -732,7 +768,7 @@ require("./TestFileModule.js");
 require("./TestLogger.js");
 
 
-},{"./TestFileModule.js":6,"./TestLogger.js":7}],5:[function(require,module,exports){
+},{"./TestFileModule.js":7,"./TestLogger.js":8}],5:[function(require,module,exports){
 module.exports = {
   "cge_deck": {
     "id": "standard",
@@ -875,13 +911,33 @@ module.exports = {
       }
     }
   }
-}
+};
+
 
 },{}],6:[function(require,module,exports){
+module.exports = {
+  "cge_game": {
+    "id": "simple-war",
+    "name": "Simple War",
+    "required": {
+      "deck": "standard",
+      "minPlayers": "2",
+      "maxPlayers": "4"
+    },
+    "server": {
+      "isPrimary": "false",
+      "players": ""
+    }
+  }
+};
+
+
+},{}],7:[function(require,module,exports){
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
 var dataDeckSpec = require("./Data-DeckSpec.js");
+var dataGameSpec = require("./Data-GameSpec.js");
 
 
 describe( "FileModule", function() {
@@ -1120,10 +1176,54 @@ describe( "FileModule", function() {
       fileSystem.ReadDeckSpec("standard", OnReadDeck);
    });
 
-   xit("writes a game specification file", function() {
+   it("writes a game specification file", function(done) {
+      var OnWriteGame = function() {
+         fsStatus = true;
+         CommonExpectations();
+         WriteGameSpecExpectations();
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var WriteGameSpecExpectations = function() {
+         expect(fileSystem.fileEntries.gameDefs['simple-war']).toBeDefined();
+         expect(fileSystem.fileEntries.gameDefs['simple-war'].entry.isFile).toBeTruthy();
+         expect(fileSystem.fileEntries.gameDefs['simple-war'].writer).toBeDefined();
+//         expect(fileSystem.fileEntries.deckDefs['standard'].writer.length).toEqual(dataDeckSpec.toJSON().length);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.WriteGameSpec(dataGameSpec['cge_game']['id'], dataGameSpec, OnWriteGame);
    });
 
-   xit("reads a game specification file", function() {
+   it("reads a game specification file", function(done) {
+      var OnReadGame = function(gameSpec) {
+         fsStatus = true;
+         CommonExpectations();
+         ReadGameSpecExpectations(gameSpec);
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var ReadGameSpecExpectations = function(gameSpec) {
+         expect(gameSpec).toBeDefined();
+         expect(gameSpec).toEqual(dataGameSpec);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.ReadGameSpec("simple-war", OnReadGame);
    });
 
    xit("writes a game file for a given user", function() {
@@ -1134,7 +1234,7 @@ describe( "FileModule", function() {
 });
 
 
-},{"../../../src/js/utils/FileSystem.js":1,"./Data-DeckSpec.js":5}],7:[function(require,module,exports){
+},{"../../../src/js/utils/FileSystem.js":1,"./Data-DeckSpec.js":5,"./Data-GameSpec.js":6}],8:[function(require,module,exports){
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");

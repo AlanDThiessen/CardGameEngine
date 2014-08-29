@@ -2,6 +2,7 @@
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/FileSystem.js");
 var dataDeckSpec = require("./Data-DeckSpec.js");
+var dataGameSpec = require("./Data-GameSpec.js");
 
 
 describe( "FileModule", function() {
@@ -240,10 +241,54 @@ describe( "FileModule", function() {
       fileSystem.ReadDeckSpec("standard", OnReadDeck);
    });
 
-   xit("writes a game specification file", function() {
+   it("writes a game specification file", function(done) {
+      var OnWriteGame = function() {
+         fsStatus = true;
+         CommonExpectations();
+         WriteGameSpecExpectations();
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var WriteGameSpecExpectations = function() {
+         expect(fileSystem.fileEntries.gameDefs['simple-war']).toBeDefined();
+         expect(fileSystem.fileEntries.gameDefs['simple-war'].entry.isFile).toBeTruthy();
+         expect(fileSystem.fileEntries.gameDefs['simple-war'].writer).toBeDefined();
+//         expect(fileSystem.fileEntries.deckDefs['standard'].writer.length).toEqual(dataDeckSpec.toJSON().length);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.WriteGameSpec(dataGameSpec['cge_game']['id'], dataGameSpec, OnWriteGame);
    });
 
-   xit("reads a game specification file", function() {
+   it("reads a game specification file", function(done) {
+      var OnReadGame = function(gameSpec) {
+         fsStatus = true;
+         CommonExpectations();
+         ReadGameSpecExpectations(gameSpec);
+         done();
+      };
+
+      var Failure = function(errorCode, errorStr) {
+         fsError = errorStr;
+         CommonExpectations();
+         done();
+      };
+
+      var ReadGameSpecExpectations = function(gameSpec) {
+         expect(gameSpec).toBeDefined();
+         expect(gameSpec).toEqual(dataGameSpec);
+      };
+
+      fileSystem.SetErrorCallback(Failure);
+      // Log file should already be open, just change its callbacks
+      fileSystem.ReadGameSpec("simple-war", OnReadGame);
    });
 
    xit("writes a game file for a given user", function() {

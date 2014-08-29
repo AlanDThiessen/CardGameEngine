@@ -60,7 +60,7 @@ function FileEntity(name, onReady, onWriteEnd, fileEntry) {
 // Array to hold the FileEntry objects that are open
 var fileEntries = {log: undefined,
                    gameSummary: undefined,
-                   gameDefs: [],
+                   gameDefs: {},
                    deckDefs: {},
                    games: []
                    };
@@ -394,7 +394,7 @@ function ReadLogFile(onReadEnd) {
  * Deck Spec File Methods
  ******************************************************************************/
 function WriteDeckSpec(specName, data, onWriteEnd) {
-   fileName = specName + ".deck";
+   fileName = specName + ".deckDef";
 
    // Create a new entity if one does not already exist by this name
    if(fileEntries.deckDefs[specName] === undefined) {
@@ -413,7 +413,7 @@ function WriteDeckSpec(specName, data, onWriteEnd) {
 
 
 function ReadDeckSpec(specName, onReadEnd) {
-   fileName = specName + ".deck";
+   fileName = specName + ".deckDef";
 
    if(fileEntries.deckDefs[specName] === undefined) {
       fileEntries.deckDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
@@ -422,6 +422,41 @@ function ReadDeckSpec(specName, onReadEnd) {
 
    fileEntries.deckDefs[specName].onReadEnd = onReadEnd;
    FileEntityRead(fileEntries.deckDefs[specName]);
+}
+
+
+/*******************************************************************************
+ * Game Spec File Methods
+ ******************************************************************************/
+function WriteGameSpec(specName, data, onWriteEnd) {
+   fileName = specName + ".gameDef";
+
+   // Create a new entity if one does not already exist by this name
+   if(fileEntries.gameDefs[specName] === undefined) {
+      fileEntries.gameDefs[specName] = new FileEntity(fileName, undefined, onWriteEnd, undefined);
+      fileEntries.gameDefs[specName].type = "JSON";
+   }
+   else {
+      // Just update the onWriteEnd method
+      fileEntries.gameDefs[specName].onWriteEnd = onWriteEnd;
+   }
+
+   fileEntries.gameDefs[specName].truncate = true;    // Indicate we want this file truncated after write.
+   fileEntries.gameDefs[specName].data = data;        // Indicate we want the data written immediate after open.
+   OpenFileEntity(fileEntries.gameDefs[specName], dirEntries.gamesDefsDir);
+}
+
+
+function ReadGameSpec(specName, onReadEnd) {
+   fileName = specName + ".gameDef";
+
+   if(fileEntries.gameDefs[specName] === undefined) {
+      fileEntries.gameDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
+      fileEntries.gameDefs[specName].type = "JSON";
+   }
+
+   fileEntries.gameDefs[specName].onReadEnd = onReadEnd;
+   FileEntityRead(fileEntries.gameDefs[specName]);
 }
 
 
@@ -508,6 +543,9 @@ module.exports = {
                   // Deck Spec methods
                   WriteDeckSpec:    WriteDeckSpec,
                   ReadDeckSpec:     ReadDeckSpec,
+                  // Game Spec methods
+                  WriteGameSpec:    WriteGameSpec,
+                  ReadGameSpec:     ReadGameSpec,
                   // Status methods
                   GetStatus:        GetStatus,
                   GetError:         GetError,
