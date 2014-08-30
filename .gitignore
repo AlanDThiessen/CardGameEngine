@@ -3,7 +3,7 @@
 /.settings
 
 # Ignore Cordova build output directories
-**/android/assests/
+**/android/assets/
 **/ant-build/
 **/ant-gen/
 **/.bin/
