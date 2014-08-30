@@ -1,5 +1,8 @@
 
-require("./TestFileModule.js");
+require("./TestFileSystem.js");
 require("./TestLogger.js");
-require("./TestCGEServer.js");
-require("./TestGameData.js");
+require("./TestServerInterface.js");
+require("./TestAuthenticator.js");
+require("./TestGameDataManager.js");
+require("./TestGameManager.js");
+

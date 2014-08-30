@@ -1,9 +1,9 @@
 
 // Pull in the module we're testing.
-var gameData = require("../../../src/js/utils/CGEGameData.js");
+var gameData = require("../../../src/js/utils/GameDataManager.js");
 
 
-describe("gameData", function() {
+describe("GameDataManager", function() {
 
    xit("registers callbacks with the server", function() {
       // spy on the game data to ensure it registers all callbacks with the 
@@ -36,7 +36,7 @@ describe("gameData", function() {
    });
 
    describe("when data exists in files", function() {
-      
+
       xit("populates game types from the file", function(done) {
       });
 

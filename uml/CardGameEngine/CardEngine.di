@@ -13,6 +13,9 @@
     <availablePage>
       <emfPageIdentifier href="CardEngine.notation#_K8WIUKxKEeOti--r-Dk9Cw"/>
     </availablePage>
+    <availablePage>
+      <emfPageIdentifier href="CardEngine.notation#_gUUd8DCNEeShEZanu8Q9Cw"/>
+    </availablePage>
   </pageList>
   <sashModel currentSelection="//@sashModel/@windows.0/@children.0">
     <windows>
@@ -21,10 +24,7 @@
           <emfPageIdentifier href="CardEngine.notation#_LjQVkGcMEeKcWsfOwxtvgg"/>
         </children>
         <children>
-          <emfPageIdentifier href="CardEngine.notation#_qcM24KxJEeOti--r-Dk9Cw"/>
-        </children>
-        <children>
-          <emfPageIdentifier href="CardEngine.notation#_K8WIUKxKEeOti--r-Dk9Cw"/>
+          <emfPageIdentifier href="CardEngine.notation#_gUUd8DCNEeShEZanu8Q9Cw"/>
         </children>
       </children>
     </windows>

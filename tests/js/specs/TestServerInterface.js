@@ -1,9 +1,9 @@
 
 // Pull in the module we're testing.
-var server = require("../../../src/js/utils/Server.js");
+var server = require("../../../src/js/utils/ServerInterface.js");
 
 
-describe( "CGEServer", function() {
+describe( "ServerInterface", function() {
 
    xit("registers a user", function(done) {
    });
