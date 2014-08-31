@@ -51,7 +51,7 @@ server.GetUserGames = function(userId) {
       'action': 'cge_get_my_games',
       'user_id': userId
    };
-   
+
    ajax.ServerPost(postData, server.GetUserGamesSuccess, server.Failure);
 };
 
