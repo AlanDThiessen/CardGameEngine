@@ -10,7 +10,7 @@ describe("GameDataManager", function() {
       // server comms when it is initialized.
    });
 
-   describe("when no data exists", function() {
+   describe("-when no data exists,", function() {
       
       xit("retrieves game types from the server", function(done) {
          // Verify game types are retrieved from the server and stored in a file.
@@ -35,7 +35,7 @@ describe("GameDataManager", function() {
 
    });
 
-   describe("when data exists in files", function() {
+   describe("-when data exists in files,", function() {
 
       xit("populates game types from the file", function(done) {
       });
