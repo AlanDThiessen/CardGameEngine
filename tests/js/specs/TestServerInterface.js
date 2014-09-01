@@ -12,16 +12,16 @@ describe( "ServerInterface", function() {
    // token, certain functionality is not allowed.
    describe("-with no authentication token,", function() {
 
-      xit("retrieves game types", function(done) {
-      });
-
-      xit("retrieves a deck specification", function(done) {
-      });
-
       xit("registers a user", function(done) {
       });
 
       xit("logs-in a user", function(done) {
+      });
+
+      xit("retrieves game types", function(done) {
+      });
+
+      xit("retrieves a deck specification", function(done) {
       });
 
       xit("indicates not-connected when requested to retrieve game types", function(done) {
