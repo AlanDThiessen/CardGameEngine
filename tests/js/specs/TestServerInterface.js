@@ -10,7 +10,7 @@ describe( "ServerInterface", function() {
 
    describe("-when adding a callback method,", function() {
 
-      beforeEach(function() {
+      afterEach(function() {
          server.ResetCallbacks();
       });
 
@@ -36,6 +36,21 @@ describe( "ServerInterface", function() {
          expect(maxStatus).toEqual(server.status.SI_SUCCESS);
          expect(server.callBacks[(server.events.SI_MAX_EVENT - 1)]).toBeDefined();
          expect(server.callBacks[(server.events.SI_MAX_EVENT - 1)]).toContain(TestCallBackAdd);
+      });
+      
+      it("indicates an error if the same callback is added twice", function() {
+         var TestCallBackAdd = function() {
+            // Nothing needs to be done in this function
+         };
+
+         // Validate the lowest event
+         var minStatus = server.AddCallback(1, TestCallBackAdd);
+         expect(minStatus).toEqual(server.status.SI_SUCCESS);
+         expect(server.callBacks[1]).toBeDefined();
+         expect(server.callBacks[1]).toContain(TestCallBackAdd);
+         var newStatus = server.AddCallback(1, TestCallBackAdd);
+         expect(newStatus).toEqual(server.status.SI_ERROR_CALLBACK_ALREADY_EXISTS);
+         expect(server.callBacks[1].length).toEqual(1);
       });
 
       it("indicates an error for too low of an event", function() {
@@ -79,6 +94,10 @@ describe( "ServerInterface", function() {
 
          server.AddCallback(1, CallBackMin);
          server.AddCallback((server.events.SI_MAX_EVENT - 1), CallBackMax);
+      });
+
+      afterEach(function() {
+         server.ResetCallbacks();
       });
 
       it("removes a callback method from the minimum event", function() {

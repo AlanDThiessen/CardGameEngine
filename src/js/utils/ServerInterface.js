@@ -30,11 +30,12 @@ server.status = {
    SI_SUCCESS:                           0,
    SI_ERROR_INVALID_EVENT:              -1,
    SI_ERROR_INVALID_CALLBACK:           -2,
-   SI_ERROR_NOT_FOUND:                  -3,
-   SI_ERROR_TOKEN_INVALID:              -4,
-   SI_ERROR_SERVER_TIMEOUT:             -5,
-   SI_ERROR_LOGIN_INVALID:              -6,
-   SI_ERROR_REGISTER_NAME_EXISTS:       -7
+   SI_ERROR_CALLBACK_ALREADY_EXISTS:    -3,
+   SI_ERROR_NOT_FOUND:                  -4,
+   SI_ERROR_TOKEN_INVALID:              -5,
+   SI_ERROR_SERVER_TIMEOUT:             -6,
+   SI_ERROR_LOGIN_INVALID:              -7,
+   SI_ERROR_REGISTER_NAME_EXISTS:       -8
 };
 
 
@@ -58,7 +59,12 @@ server.AddCallback = function(event, callback) {
          server.callBacks[event] = [];
       }
 
-      server.callBacks[event].push(callback);
+      if(server.callBacks[event].indexOf(callback) != -1) {
+         status = server.status.SI_ERROR_CALLBACK_ALREADY_EXISTS;
+      }
+      else {
+         server.callBacks[event].push(callback);
+      }
    }
 
    return status;
