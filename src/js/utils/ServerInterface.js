@@ -66,14 +66,16 @@ server.AddCallback = function(event, callback) {
 
 
 server.RemoveCallback = function(event, callback) {
-/*
-   var status = server.events.SI_SUCCESS;
+   var status = server.status.SI_SUCCESS;
 
-   if(server.callBacks[event] === undefined) {
-      status = server.events.SI_ERROR_INVALID_EVENT;
+   if((event <= 0) || (event >= server.events.SI_MAX_EVENT)) {
+      status = server.status.SI_ERROR_INVALID_EVENT;
+   }
+   else if(server.callBacks[event] === undefined) {
+      status = server.status.SI_ERROR_NOT_FOUND;
    }
    else if(typeof(callback) !== "function" ) {
-      status = server.events.SI_ERROR_INVALID_CALLBACK;
+      status = server.status.SI_ERROR_INVALID_CALLBACK;
    }
    else {
       var index = server.callBacks[event].indexOf(callback);
@@ -82,13 +84,11 @@ server.RemoveCallback = function(event, callback) {
          server.callBacks[event].splice(index, 1);
       }
       else {
-         status = server.events.SI_ERROR_NOT_FOUND;
+         status = server.status.SI_ERROR_NOT_FOUND;
       }
    }
 
    return status;
-*/
-   return 1000;
 }
 
 
