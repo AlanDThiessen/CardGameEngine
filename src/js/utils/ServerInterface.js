@@ -4,11 +4,10 @@ log = require("./Logger.js");
 
 server = {};
 
-server.eventTypes = {
-   /***************************************************************************
-    * Server Events
-    ***************************************************************************/
-   SI_REQUEST_GENERATED:                 0,
+/******************************************************************************
+ * Server Events
+ ******************************************************************************/
+server.events = {
    SI_LOGIN_SUCCESS:                     1,
    SI_GAME_TYPES_RETRIEVED:              2,
    SI_DECK_SPEC_RETRIEVED:               3,
@@ -19,29 +18,94 @@ server.eventTypes = {
    SI_GAME_PAUSED:                       8,
    SI_GAME_RESUMED:                      9,
    SI_GAME_ENDED:                       10,
-
-   /***************************************************************************
-    * Error Events
-    ***************************************************************************/
-   SI_ERROR_TOKEN_INVALID:              -1,
-   SI_ERROR_SERVER_TIMEOUT:             -2,
-   SI_ERROR_LOGIN_INVALID:              -3,
-   SI_ERROR_REGISTER_NAME_EXISTS:       -4
+   SI_MAX_EVENT:                        11  // For validation: should always be
+                                             // one more than the last event.
 };
 
+
+/******************************************************************************
+ * Server Status/Error Values
+ ******************************************************************************/
+server.status = {
+   SI_SUCCESS:                           0,
+   SI_ERROR_INVALID_EVENT:              -1,
+   SI_ERROR_INVALID_CALLBACK:           -2,
+   SI_ERROR_NOT_FOUND:                  -3,
+   SI_ERROR_TOKEN_INVALID:              -4,
+   SI_ERROR_SERVER_TIMEOUT:             -5,
+   SI_ERROR_LOGIN_INVALID:              -6,
+   SI_ERROR_REGISTER_NAME_EXISTS:       -7
+};
+
+
+/******************************************************************************
+ * Server Callbacks
+ ******************************************************************************/
 server.callBacks = {
-
 };
 
+server.AddCallback = function(event, callback) {
+   var status = server.status.SI_SUCCESS;
+
+   if((event <= 0) || (event >= server.events.SI_MAX_EVENT)) {
+      status = server.status.SI_ERROR_INVALID_EVENT;
+   }
+   else if(typeof(callback) !== "function") {
+      status = server.status.SI_ERROR_INVALID_CALLBACK;
+   }
+   else {
+      if(server.callBacks[event] === undefined) {
+         server.callBacks[event] = [];
+      }
+
+      server.callBacks[event].push(callback);
+   }
+
+   return status;
+};
+
+
+server.RemoveCallback = function(event, callback) {
+/*
+   var status = server.events.SI_SUCCESS;
+
+   if(server.callBacks[event] === undefined) {
+      status = server.events.SI_ERROR_INVALID_EVENT;
+   }
+   else if(typeof(callback) !== "function" ) {
+      status = server.events.SI_ERROR_INVALID_CALLBACK;
+   }
+   else {
+      var index = server.callBacks[event].indexOf(callback);
+
+      if(index > -1) {
+         server.callBacks[event].splice(index, 1);
+      }
+      else {
+         status = server.events.SI_ERROR_NOT_FOUND;
+      }
+   }
+
+   return status;
+*/
+   return 1000;
+}
+
+
+// More for testing purposes.
+server.ResetCallbacks = function() {
+   server.callBacks = {};
+};
+
+
+/******************************************************************************
+ * Server Authentication Token
+ ******************************************************************************/
 server.token = {
    valid:      false,
    userId:     0
 };
 
-
-/******************************************************************************
- * Token Methods
- ******************************************************************************/
 server.SetTokenUser = function(userId) {
    server.token.userId = userId;
    server.token.valid  = true;
@@ -87,7 +151,7 @@ server.LoginUser = function(username, password) {
 
    ajax.ServerPost(postData, server.LoginUserSuccess, server.LoginUserFailure);
 
-   return SI_REQUEST_GENERATED;
+   return SI_SUCCESS;
 };
 
 
@@ -110,7 +174,7 @@ server.GetGameTypes = function() {
    
    ajax.ServerPost(postData, server.GetGameTypesSuccess, server.GetGameTypesFailure);
    
-   return SI_REQUEST_GENERATED;
+   return SI_SUCCESS;
 };
 
 
@@ -134,7 +198,7 @@ server.LoadDeckSpec = function(deckTypeId) {
    
    ajax.ServerPost(postData, server.LoadDeckSpecSuccess, server.LoadDeckSpecFailure);
    
-   return SI_REQUEST_GENERATED;
+   return SI_SUCCESS;
 };
 
 
@@ -159,7 +223,7 @@ server.GetUserGames = function() {
 
       ajax.ServerPost(postData, server.GetUserGamesSuccess, server.GetUserGamesFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -194,7 +258,7 @@ server.GetJoinableGames = function() {
 
       ajax.ServerPost(postData, server.GetJoinableGamesSuccess, server.GetJoinableGamesFailure);
       
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -224,7 +288,7 @@ server.JoinGame = function(gameId) {
       
       ajax.ServerPost(postData, server.JoinGameSuccess, server.JoinGameFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -254,7 +318,7 @@ server.StartGame = function(gameId) {
 
       ajax.ServerPost(postData, server.StartGameSuccess, server.StartGameFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -282,7 +346,7 @@ server.GetNumPlayersInGame = function(gameId) {
    
    ajax.ServerPost(postData, server.GetNumPlayersInGameSuccess, server.GetNumPlayersInGameFailure);
    
-   return SI_REQUEST_GENERATED;
+   return SI_SUCCESS;
 };
 
 
@@ -314,7 +378,7 @@ server.RecordTransaction = function(gameId,
 
       ajax.ServerPost(postData, server.RecordTransactionSuccess, server.RecordTransactionFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -344,7 +408,7 @@ server.PauseGame = function(gameId) {
       
       ajax.ServerPost(postData, server.PauseGameSuccess, server.PauseGameFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -374,7 +438,7 @@ server.ResumeGame = function(gameId) {
 
       ajax.ServerPost(postData, server.ResumeGameSuccess, server.ResumeGameFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -404,7 +468,7 @@ server.EndGame = function(gameId) {
 
       ajax.ServerPost(postData, server.EndGameSuccess, server.EndGameFailure);
 
-      return SI_REQUEST_GENERATED;
+      return SI_SUCCESS;
    }
    else {
       return SI_ERROR_TOKEN_INVALID;
@@ -434,7 +498,7 @@ server.AckEvent = function(userId, gameId, notificationId) {
    
    ajax.ServerPost(postData, server.AckEventSuccess, server.AckEventFailure);
    
-   return SI_REQUEST_GENERATED;
+   return SI_SUCCESS;
 };
 
 
