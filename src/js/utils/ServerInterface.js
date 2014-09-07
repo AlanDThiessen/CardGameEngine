@@ -8,7 +8,7 @@ server = {};
  * Server Events
  ******************************************************************************/
 server.events = {
-   SI_LOGIN_SUCCESS:                     1,
+   SI_LOGIN:                             1,
    SI_GAME_TYPES_RETRIEVED:              2,
    SI_DECK_SPEC_RETRIEVED:               3,
    SI_USER_GAMES_RETRIEVED:              4,
@@ -18,7 +18,7 @@ server.events = {
    SI_GAME_PAUSED:                       8,
    SI_GAME_RESUMED:                      9,
    SI_GAME_ENDED:                       10,
-   SI_MAX_EVENT:                        11  // For validation: should always be
+   SI_MAX_EVENT:                        11   // For validation: should always be
                                              // one more than the last event.
 };
 
@@ -28,16 +28,26 @@ server.events = {
  ******************************************************************************/
 server.status = {
    SI_SUCCESS:                           0,
-   SI_ERROR_INVALID_EVENT:              -1,
-   SI_ERROR_INVALID_CALLBACK:           -2,
-   SI_ERROR_CALLBACK_ALREADY_EXISTS:    -3,
-   SI_ERROR_NOT_FOUND:                  -4,
-   SI_ERROR_TOKEN_INVALID:              -5,
-   SI_ERROR_SERVER_TIMEOUT:             -6,
-   SI_ERROR_LOGIN_INVALID:              -7,
-   SI_ERROR_REGISTER_NAME_EXISTS:       -8
+   SI_FAILURE:                          -1,  // The specific error is unknown
+   SI_ERROR_INVALID_EVENT:              -2,
+   SI_ERROR_INVALID_CALLBACK:           -3,
+   SI_ERROR_CALLBACK_ALREADY_EXISTS:    -4,
+   SI_ERROR_NOT_FOUND:                  -5,
+   SI_ERROR_TOKEN_INVALID:              -6,
+   SI_ERROR_SERVER_TIMEOUT:             -7,
+   SI_ERROR_SERVER_DATABASE:            -8,
+   SI_ERROR_LOGIN_INVALID:              -9,
+   SI_ERROR_REGISTER_NAME_EXISTS:      -10
 };
 
+
+/******************************************************************************
+ * Server CGEServer Error Codes
+ ******************************************************************************/
+server.cgeError = {
+   SI_CGE_ERROR_USER_EXISTS:             1,
+   SI_CGE_ERROR_DB_ERROR:                2
+};
 
 /******************************************************************************
  * Server Callbacks
@@ -104,6 +114,27 @@ server.ResetCallbacks = function() {
 };
 
 
+server.CallBack = function(event, callStatus, data) {
+   var status = server.status.SI_SUCCESS;
+
+   if((event <= 0) || (event >= server.events.SI_MAX_EVENT)) {
+      status = server.status.SI_ERROR_INVALID_EVENT;
+   }
+   else if(server.callBacks[event] === undefined) {
+      status = server.status.SI_ERROR_NOT_FOUND;
+   }
+   else {
+      for(var cntr = 0; cntr < server.callBacks[event].length; cntr++) {
+         if(typeof(server.callBacks[event][cntr]) == "function") {
+            (server.callBacks[event][cntr])(callStatus, data);
+         }
+      }
+   }
+
+   return status;
+};
+
+
 /******************************************************************************
  * Server Authentication Token
  ******************************************************************************/
@@ -136,15 +167,45 @@ server.RegisterUser = function(username, password) {
       'email': email
    };
 
-   ajax.ServerPost(postData, server.LoginUserSuccess, server.RegisterUserFailure);
+   ajax.ServerPost(postData, server.RegisterUserSuccess, server.RegisterUserFailure);
+};
+
+
+server.RegisterUserSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+
+   if(response.cge_error_id !== undefined) {
+      if(response.cge_error_id == server.cgeError.SI_CGE_ERROR_USER_EXISTS) {
+         status = server.status.SI_ERROR_REGISTER_NAME_EXISTS;
+      }
+      else if(response.cge_error_id == server.cgeError.SI_CGE_ERROR_DB_ERROR) {
+         status = server.status.SI_ERROR_SERVER_DATABASE;
+      }
+      else {
+         status = server.status.SI_FAILURE;
+      }
+   }
+
+   server.CallBack(server.events.SI_LOGIN, status, response);
 };
 
 
 server.RegisterUserFailure = function(status) {
+   var status = server.status.SI_FAILURE;
    server.failure(status, "RegisterUser");
+   
+   if((status >= 400) && (status < 500)) {
+      switch(status) {
+         case 408:
+            status = server.status.SI_FAILURE;
+            break;
+      }
+   }
+
+   server.CallBack(server.events.SI_LOGIN, status, response);
 };
 
-   
+
 /******************************************************************************
  * Login User
  ******************************************************************************/
@@ -162,6 +223,7 @@ server.LoginUser = function(username, password) {
 
 
 server.LoginUserSuccess = function(user) {
+   server.CallBack(server.event.SI_LOGIN, server.status.SI_SUCCESS, user);
 };
 
 

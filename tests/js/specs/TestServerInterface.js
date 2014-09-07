@@ -83,6 +83,34 @@ describe( "ServerInterface", function() {
          expect(server.callBacks[1]).toBeUndefined();
       });
 
+      it("calls back multiple functions with the same event", function() {
+         var counter = 0;
+
+         var CallBack1 = function(status, data) {
+            if(status) {
+               counter += 1;
+            }
+         };
+
+         var CallBack2 = function(status, data) {
+            if(status) {
+               counter += 2;
+            }
+         };
+
+         var status1 = server.AddCallback(server.events.SI_LOGIN, CallBack1);
+         var status2 = server.AddCallback(server.events.SI_LOGIN, CallBack2);
+
+         // Normally, this method is not called external of the ServerInterface;
+         // However, for testing purposes...
+         var status3 = server.CallBack(server.events.SI_LOGIN, true, undefined);
+
+         expect(status1).toEqual(server.status.SI_SUCCESS);
+         expect(status2).toEqual(server.status.SI_SUCCESS);
+         expect(status3).toEqual(server.status.SI_SUCCESS);
+         expect(counter).toEqual(3);
+      });
+
    });
 
    describe("-when removing a callback method,", function() {
@@ -148,6 +176,11 @@ describe( "ServerInterface", function() {
    describe("-with no authentication token,", function() {
 
       xit("registers a user", function(done) {
+         var RegisterSuccess = function(status, data) {
+
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
       });
 
       xit("logs-in a user", function(done) {
