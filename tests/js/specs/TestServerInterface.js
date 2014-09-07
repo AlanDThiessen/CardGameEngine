@@ -173,14 +173,43 @@ describe( "ServerInterface", function() {
 
    // The authentication token indicates a user is logged-in.  With no auth
    // token, certain functionality is not allowed.
-   describe("-with no authentication token,", function() {
+   describe("-when registering a user,", function() {
 
-      xit("registers a user", function(done) {
-         var RegisterSuccess = function(status, data) {
+      beforeEach(function() {
+         jasmine.Ajax.install();
+      });
 
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
+         server.ResetCallbacks();
+      });
+
+      it("reports error if user exists", function() {
+         var status = undefined;
+
+         var RegisterSuccess = function(callStatus, data) {
+            status = callStatus;
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         server.RegisterUser('TestUser', 'TestPassword');
+
+         jasmine.Ajax.requests.mostRecent().response({
+            "status": 200,
+            "content-type": 'text/JSON',
+            "responseText": '{"cge_error_id": "001", "cge_error": "User TestUser already exists."}'
+         });
+         
+         expect(status).toEqual(server.status.SI_ERROR_REGISTER_NAME_EXISTS);
+      });
+   });
+
+
+   // The authentication token indicates a user is logged-in.  With no auth
+   // token, certain functionality is not allowed.
+   describe("-with no authentication token,", function() {
+
+      xit("registers a user", function(done) {
       });
 
       xit("logs-in a user", function(done) {

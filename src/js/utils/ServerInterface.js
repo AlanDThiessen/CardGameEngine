@@ -158,7 +158,7 @@ server.ClearToken = function() {
 /******************************************************************************
  * Register User
  ******************************************************************************/
-server.RegisterUser = function(username, password) {
+server.RegisterUser = function(username, password, displayName, email) {
    var postData = {
       'action': 'cge_register_user',
       'username': username,
