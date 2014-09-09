@@ -1,12 +1,83 @@
 
 // Pull in the module we're testing.
-var fileSystem = require("../../../src/js/utils/Authenticator.js");
+var auth = require("../../../src/js/utils/Authenticator.js");
 
 describe("Authenticator", function() {
 
    // Terminology:
    //    "Indicate" - The status is returned when queried.
    //    "Report" - The module calls a call-back method.
+   describe("-when adding a callback method,", function() {
+
+      afterEach(function() {
+         auth.ResetCallbacks();
+      });
+
+      it("adds a valid callback method", function() {
+         var TestCallBackAdd = function() {
+            // Nothing needs to be done in this function
+         };
+
+         // Validate the lowest event
+         var status = auth.AddCallback(TestCallBackAdd);
+         expect(status).toEqual(true);
+         expect(auth.callBacks).toBeDefined();
+         expect(auth.callBacks).toContain(TestCallBackAdd);
+      });
+      
+      it("indicates an error if the same callback is added twice", function() {
+         var TestCallBackAdd = function() {
+            // Nothing needs to be done in this function
+         };
+
+         // Validate the lowest event
+         var status = auth.AddCallback(TestCallBackAdd);
+         expect(status).toEqual(true);
+         expect(auth.callBacks).toBeDefined();
+         expect(auth.callBacks).toContain(TestCallBackAdd);
+         var newStatus = auth.AddCallback(TestCallBackAdd);
+         expect(newStatus).toEqual(false);
+         expect(auth.callBacks.length).toEqual(1);
+      });
+
+      it("indicates an error for invalid callback method", function() {
+         var TestCallBackAdd = "Just Testing";     // Oops! It's not a funciton!
+
+         var status = auth.AddCallback(TestCallBackAdd);
+         expect(status).toEqual(false);
+         expect(auth.callBacks.length).toEqual(0);
+      });
+
+      it("calls back multiple functions", function() {
+         var counter = 0;
+
+         var CallBack1 = function(status, data) {
+            if(status) {
+               counter += 1;
+            }
+         };
+
+         var CallBack2 = function(status, data) {
+            if(status) {
+               counter += 2;
+            }
+         };
+
+         var status1 = auth.AddCallback(CallBack1);
+         var status2 = auth.AddCallback(CallBack2);
+
+         // Normally, this method is not called external of the ServerInterface;
+         // However, for testing purposes...
+         var status3 = auth.CallBack(auth.events.AUTH_REGISTRATION, auth.status.AUTH_SUCCESS, undefined);
+
+         expect(status1).toEqual(true);
+         expect(status2).toEqual(true);
+         expect(status3).toEqual(true);
+         expect(counter).toEqual(3);
+      });
+
+   });
+
    xit("indicates user not authenticated upon initialization", function() {
    });
 
