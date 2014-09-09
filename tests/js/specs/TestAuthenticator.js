@@ -78,6 +78,41 @@ describe("Authenticator", function() {
 
    });
 
+   describe("-when removing a callback method,", function() {
+      var CallBack1 = function() {};
+      var CallBack2 = function() {};
+
+      beforeEach(function() {
+         auth.ResetCallbacks();
+         auth.AddCallback(CallBack1);
+      });
+
+      afterEach(function() {
+         auth.ResetCallbacks();
+      });
+
+      it("removes a callback method from the minimum event", function() {
+         var status = auth.RemoveCallback(CallBack1);
+         expect(status).toEqual(true);
+         expect(auth.callBacks).not.toContain(CallBack1);
+      });
+
+      it("indicates an error for invalid callback method", function() {
+         var TestCallBackAdd = "Just Testing";     // Oops! It's not a funciton!
+
+         var status = auth.RemoveCallback(TestCallBackAdd);
+         expect(status).toEqual(false);
+         expect(auth.callBacks).toContain(CallBack1);
+      });
+
+      it("indicates if the method is not found", function() {
+         var status = auth.RemoveCallback(CallBack2);
+         expect(status).toEqual(false);
+         expect(auth.callBacks).toContain(CallBack1);
+      });
+      
+   });
+
    xit("indicates user not authenticated upon initialization", function() {
    });
 
