@@ -184,6 +184,44 @@ describe( "ServerInterface", function() {
          server.ResetCallbacks();
       });
 
+      it("reports an error on http timeout", function() {
+         var status = undefined;
+
+         var RegisterSuccess = function(callStatus, data) {
+            status = callStatus;
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         server.RegisterUser('TestUser', 'TestPassword');
+
+         jasmine.Ajax.requests.mostRecent().response({
+            "status": 408,
+            "content-type": 'text/JSON',
+            "responseText": ''
+         });
+
+         expect(status).toEqual(server.status.SI_ERROR_SERVER_TIMEOUT);
+      });
+
+      it("reports an error on http error", function() {
+         var status = undefined;
+
+         var RegisterSuccess = function(callStatus, data) {
+            status = callStatus;
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         server.RegisterUser('TestUser', 'TestPassword');
+
+         jasmine.Ajax.requests.mostRecent().response({
+            "status": 403,
+            "content-type": 'text/JSON',
+            "responseText": ''
+         });
+
+         expect(status).toEqual(server.status.SI_FAILURE);
+      });
+
       it("reports error if user exists", function() {
          var status = undefined;
 

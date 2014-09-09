@@ -192,19 +192,19 @@ server.RegisterUserSuccess = function(response) {
 };
 
 
-server.RegisterUserFailure = function(status) {
+server.RegisterUserFailure = function(callstatus) {
    var status = server.status.SI_FAILURE;
-   server.failure(status, "RegisterUser");
-   
-   if((status >= 400) && (status < 500)) {
-      switch(status) {
+   server.Failure(status, "RegisterUser");
+
+   if((callstatus >= 400) && (callstatus < 500)) {
+      switch(callstatus) {
          case 408:
-            status = server.status.SI_FAILURE;
+            status = server.status.SI_ERROR_SERVER_TIMEOUT;
             break;
       }
    }
 
-   server.CallBack(server.events.SI_LOGIN, status, response);
+   server.CallBack(server.events.SI_LOGIN, status, undefined);
 };
 
 
