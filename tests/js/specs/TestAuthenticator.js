@@ -113,7 +113,12 @@ describe("Authenticator", function() {
       
    });
 
-   xit("indicates user not authenticated upon initialization", function() {
+   it("indicates user not authenticated upon initialization", function() {
+      expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+      expect(auth.GetUserId()).not.toBeDefined();
+      expect(auth.GetUserName()).not.toBeDefined();
+      expect(auth.GetUserDisplayName()).not.toBeDefined();
+      expect(auth.GetUserEmail()).not.toBeDefined();
    });
 
    describe("-when not authenticated,", function() {

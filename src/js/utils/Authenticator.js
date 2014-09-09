@@ -3,13 +3,14 @@ server = require("./ServerInterface.js");
 
 authenticator = {};
 
+
 /******************************************************************************
  * Authenticator Events
  ******************************************************************************/
 authenticator.events = {
    AUTH_REGISTRATION:                    1,
    AUTH_USER_AUTHENTICATED:              2,
-   AUTH_USER_NOT_AUTHENTICATED:          3,
+   AUTH_USER_LOGGED_OUT:                 3,
    AUTH_MAX_EVENT:                       4   // For validation: should always be
                                              // one more than the last event.
 };
@@ -90,6 +91,48 @@ authenticator.CallBack = function(event, callStatus, data) {
 
    return status;
 };
+
+
+/******************************************************************************
+ * Authenticator Token
+ ******************************************************************************/
+authenticator.token = {
+   status:        authenticator.status.AUTH_USER_NOT_AUTHENTICATED,
+   userId:        undefined,
+   userName:      undefined,
+   displayName:   undefined,
+   email:         undefined
+};
+
+authenticator.GetUserStatus = function() {
+   return authenticator.token.status;
+};
+
+authenticator.GetUserId = function() {
+   return authenticator.token.userId;
+};
+
+authenticator.GetUserName = function() {
+   return authenticator.token.userName;
+};
+
+authenticator.GetUserDisplayName = function() {
+   return authenticator.token.displayName;
+};
+
+authenticator.GetUserEmail = function() {
+   return authenticator.token.email;
+};
+
+
+/******************************************************************************
+ * Server Event Handlers
+ ******************************************************************************/
+
+
+/******************************************************************************
+ * Authenticator Interface Methods
+ ******************************************************************************/
 
 
 
