@@ -168,6 +168,8 @@ server.RegisterUser = function(username, password, displayName, email) {
    };
 
    ajax.ServerPost(postData, server.RegisterUserSuccess, server.RegisterUserFailure);
+
+   return server.status.SI_SUCCESS;
 };
 
 
@@ -218,7 +220,7 @@ server.LoginUser = function(username, password) {
 
    ajax.ServerPost(postData, server.LoginUserSuccess, server.LoginUserFailure);
 
-   return SI_SUCCESS;
+   return server.status.SI_SUCCESS;
 };
 
 
@@ -242,7 +244,7 @@ server.GetGameTypes = function() {
    
    ajax.ServerPost(postData, server.GetGameTypesSuccess, server.GetGameTypesFailure);
    
-   return SI_SUCCESS;
+   return server.status.SI_SUCCESS;
 };
 
 
@@ -266,7 +268,7 @@ server.LoadDeckSpec = function(deckTypeId) {
    
    ajax.ServerPost(postData, server.LoadDeckSpecSuccess, server.LoadDeckSpecFailure);
    
-   return SI_SUCCESS;
+   return server.status.SI_SUCCESS;
 };
 
 
@@ -291,10 +293,10 @@ server.GetUserGames = function() {
 
       ajax.ServerPost(postData, server.GetUserGamesSuccess, server.GetUserGamesFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -326,10 +328,10 @@ server.GetJoinableGames = function() {
 
       ajax.ServerPost(postData, server.GetJoinableGamesSuccess, server.GetJoinableGamesFailure);
       
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -356,10 +358,10 @@ server.JoinGame = function(gameId) {
       
       ajax.ServerPost(postData, server.JoinGameSuccess, server.JoinGameFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -386,10 +388,10 @@ server.StartGame = function(gameId) {
 
       ajax.ServerPost(postData, server.StartGameSuccess, server.StartGameFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -414,7 +416,7 @@ server.GetNumPlayersInGame = function(gameId) {
    
    ajax.ServerPost(postData, server.GetNumPlayersInGameSuccess, server.GetNumPlayersInGameFailure);
    
-   return SI_SUCCESS;
+   return server.status.SI_SUCCESS;
 };
 
 
@@ -446,10 +448,10 @@ server.RecordTransaction = function(gameId,
 
       ajax.ServerPost(postData, server.RecordTransactionSuccess, server.RecordTransactionFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -476,10 +478,10 @@ server.PauseGame = function(gameId) {
       
       ajax.ServerPost(postData, server.PauseGameSuccess, server.PauseGameFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -506,10 +508,10 @@ server.ResumeGame = function(gameId) {
 
       ajax.ServerPost(postData, server.ResumeGameSuccess, server.ResumeGameFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -536,10 +538,10 @@ server.EndGame = function(gameId) {
 
       ajax.ServerPost(postData, server.EndGameSuccess, server.EndGameFailure);
 
-      return SI_SUCCESS;
+      return server.status.SI_SUCCESS;
    }
    else {
-      return SI_ERROR_TOKEN_INVALID;
+      return server.status.SI_ERROR_TOKEN_INVALID;
    }
 };
 
@@ -566,7 +568,7 @@ server.AckEvent = function(userId, gameId, notificationId) {
    
    ajax.ServerPost(postData, server.AckEventSuccess, server.AckEventFailure);
    
-   return SI_SUCCESS;
+   return server.status.SI_SUCCESS;
 };
 
 
