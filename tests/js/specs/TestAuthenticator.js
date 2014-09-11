@@ -1,8 +1,20 @@
 
 // Pull in the module we're testing.
+var server = require("../../../src/js/utils/ServerInterface.js");
 var auth = require("../../../src/js/utils/Authenticator.js");
+var mock = require("./Data-MockServerInterface.js");
+
 
 describe("Authenticator", function() {
+
+   it("indicates user not authenticated upon initialization", function() {
+      auth.Init();
+      expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+      expect(auth.GetUserId()).not.toBeDefined();
+      expect(auth.GetUserName()).not.toBeDefined();
+      expect(auth.GetUserDisplayName()).not.toBeDefined();
+      expect(auth.GetUserEmail()).not.toBeDefined();
+   });
 
    // Terminology:
    //    "Indicate" - The status is returned when queried.
@@ -113,23 +125,94 @@ describe("Authenticator", function() {
       
    });
 
-   it("indicates user not authenticated upon initialization", function() {
-      expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
-      expect(auth.GetUserId()).not.toBeDefined();
-      expect(auth.GetUserName()).not.toBeDefined();
-      expect(auth.GetUserDisplayName()).not.toBeDefined();
-      expect(auth.GetUserEmail()).not.toBeDefined();
-   });
-
    describe("-when not authenticated,", function() {
 
-      xit("reports username exists error on user registration", function() {
+      beforeEach(function() {
+         jasmine.Ajax.install();
       });
 
-      xit("reports server error upon receiving a database error on user registration", function() {
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
+         auth.ResetCallbacks();
       });
 
-      xit("reports user authenticated upon successful registration", function() {
+      it("reports username exists error on user registration", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         auth.AddCallback(CallBack);
+         auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.UserExists("TestUser"));
+
+         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testStatus).toEqual(auth.status.AUTH_USERNAME_EXISTS);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+      });
+
+      it("reports server error upon receiving a database error on user registration", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         auth.AddCallback(CallBack);
+         auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
+
+         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+      });
+
+      it("reports user authenticated upon successful registration", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+         
+         spyOn(server, "SetTokenUser");
+
+         auth.AddCallback(CallBack);
+         auth.RegisterUser(userName, testPassword, displayName, email);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       testPassword,
+                                                                       displayName,
+                                                                       email));
+
+         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(server.SetTokenUser).toHaveBeenCalledWith(userId);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserId()).toEqual(userId);
+         expect(auth.GetUserName()).toEqual(userName);
+         expect(auth.GetUserDisplayName()).toEqual(displayName);
+         expect(auth.GetUserEmail()).toEqual(email);
       });
 
       xit("reports authentication error with invalid username on authentication", function() {
@@ -138,13 +221,7 @@ describe("Authenticator", function() {
       xit("reports authentication error with invalid password on authentication", function() {
       });
 
-      xit("reports user authenticated upon successful authentication", function() {
-      });
-
-      // The Authenticator supplies an authentication token to the server interface when
-      // the user is authenticated.  The server interface uses that token for various
-      // other interactions.
-      xit("sends authentication token to server interface upon successful authentication", function() {
+      xit("reports user authenticated upon successful login", function() {
       });
 
    });

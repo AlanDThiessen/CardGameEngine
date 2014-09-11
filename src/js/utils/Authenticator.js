@@ -9,7 +9,7 @@ authenticator = {};
  ******************************************************************************/
 authenticator.events = {
    AUTH_REGISTRATION:                    1,
-   AUTH_USER_AUTHENTICATED:              2,
+   AUTH_USER_LOGGED_IN:                  2,
    AUTH_USER_LOGGED_OUT:                 3,
    AUTH_MAX_EVENT:                       4   // For validation: should always be
                                              // one more than the last event.
@@ -22,8 +22,9 @@ authenticator.events = {
 authenticator.status = {
    // Successfull status
    AUTH_SUCCESS:                         0,
-   AUTH_USER_AUTHENTICATED:              1,
-   AUTH_USER_NOT_AUTHENTICATED:          2,
+   AUTH_REQUESTED:                       1,
+   AUTH_USER_AUTHENTICATED:              2,
+   AUTH_USER_NOT_AUTHENTICATED:          3,
 
    // Error codes   
    AUTH_FAILURE:                        -1,  // The specific error is unknown
@@ -128,12 +129,43 @@ authenticator.GetUserEmail = function() {
 /******************************************************************************
  * Server Event Handlers
  ******************************************************************************/
+authenticator.ServerLoginCallback = function(status, data) {
+
+};
+
 
 
 /******************************************************************************
  * Authenticator Interface Methods
  ******************************************************************************/
+authenticator.Init = function() {
+   authenticator.token.status       = authenticator.status.AUTH_USER_NOT_AUTHENTICATED;
+   authenticator.token.userId       = undefined;
+   authenticator.token.userName     = undefined;
+   authenticator.token.displayName  = undefined;
+   authenticator.token.email        = undefined;
 
+   server.AddCallback(server.events.SI_LOGIN, authenticator.ServerLoginCallback);
+};
+
+
+authenticator.RegisterUser = function(userName, password, displayName, email) {
+   var status = server.RegisterUser(userName, password, displayName, email);
+
+   if(status == server.status.SI_SUCCESS) {
+      authenticator.token.status = authenticator.status.AUTH_REQUESTED;
+   }
+};
+
+
+authenticator.LoginUser = function(userName, password) {
+
+};
+
+
+authenticator.LogoutUser = function() {
+
+};
 
 
 module.exports = authenticator;
