@@ -193,7 +193,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.ServerTimeout());
 
          expect(status).toEqual(server.status.SI_ERROR_SERVER_TIMEOUT);
@@ -207,7 +207,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.ServerError());
 
          expect(status).toEqual(server.status.SI_FAILURE);
@@ -221,7 +221,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists('TestUser'));
 
          expect(status).toEqual(server.status.SI_ERROR_REGISTER_NAME_EXISTS);
@@ -235,7 +235,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
          expect(status).toEqual(server.status.SI_ERROR_SERVER_DATABASE);

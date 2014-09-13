@@ -18,7 +18,8 @@ server.events = {
    SI_GAME_PAUSED:                       8,
    SI_GAME_RESUMED:                      9,
    SI_GAME_ENDED:                       10,
-   SI_MAX_EVENT:                        11   // For validation: should always be
+   SI_SERVER_ERROR:                     11,  // All server errors call this event
+   SI_MAX_EVENT:                        12   // For validation: should always be
                                              // one more than the last event.
 };
 
@@ -225,7 +226,7 @@ server.LoginUser = function(username, password) {
 
 
 server.LoginUserSuccess = function(user) {
-   server.CallBack(server.event.SI_LOGIN, server.status.SI_SUCCESS, user);
+   server.CallBack(server.events.SI_LOGIN, server.status.SI_SUCCESS, user);
 };
 
 

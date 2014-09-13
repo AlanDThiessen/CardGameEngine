@@ -18,6 +18,7 @@ serverMock.ServerError = function() {
    };
 };
 
+
 serverMock.UserExists = function(userName) {
    return {
       "status": 200,

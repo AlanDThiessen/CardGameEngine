@@ -80,7 +80,7 @@ describe("Authenticator", function() {
 
          // Normally, this method is not called external of the ServerInterface;
          // However, for testing purposes...
-         var status3 = auth.CallBack(auth.events.AUTH_REGISTRATION, auth.status.AUTH_SUCCESS, undefined);
+         var status3 = auth.CallBack(auth.events.AUTH_USER_REGISTER, auth.status.AUTH_SUCCESS, undefined);
 
          expect(status1).toEqual(true);
          expect(status2).toEqual(true);
@@ -152,7 +152,7 @@ describe("Authenticator", function() {
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists("TestUser"));
 
-         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_REGISTER);
          expect(testStatus).toEqual(auth.status.AUTH_USERNAME_EXISTS);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
@@ -173,7 +173,7 @@ describe("Authenticator", function() {
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
-         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_REGISTER);
          expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
@@ -191,7 +191,7 @@ describe("Authenticator", function() {
             testEvent = event;
             testStatus = status;
          }
-         
+
          spyOn(server, "SetTokenUser");
 
          auth.AddCallback(CallBack);
@@ -205,7 +205,7 @@ describe("Authenticator", function() {
                                                                        displayName,
                                                                        email));
 
-         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_REGISTER);
          expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
          expect(server.SetTokenUser).toHaveBeenCalledWith(userId);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
@@ -215,26 +215,188 @@ describe("Authenticator", function() {
          expect(auth.GetUserEmail()).toEqual(email);
       });
 
-      xit("reports authentication error with invalid username on authentication", function() {
+      it("reports authentication error with invalid username on authentication", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+         auth.LoginUser(userName, testPassword);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
+
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_AUTHENTICATION_ERROR);
+         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+         expect(auth.GetUserId()).toBeUndefined();
+         expect(auth.GetUserName()).toBeUndefined();
+         expect(auth.GetUserDisplayName()).toBeUndefined();
+         expect(auth.GetUserEmail()).toBeUndefined();
       });
 
-      xit("reports authentication error with invalid password on authentication", function() {
+      it("reports authentication error with invalid password on authentication", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+         auth.LoginUser(userName, testPassword);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
+
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_AUTHENTICATION_ERROR);
+         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+         expect(auth.GetUserId()).toBeUndefined();
+         expect(auth.GetUserName()).toBeUndefined();
+         expect(auth.GetUserDisplayName()).toBeUndefined();
+         expect(auth.GetUserEmail()).toBeUndefined();
       });
 
-      xit("reports user authenticated upon successful login", function() {
+      it("reports user authenticated upon successful login", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "SetTokenUser");
+
+         auth.AddCallback(CallBack);
+         auth.LoginUser(userName, testPassword);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       testPassword,
+                                                                       displayName,
+                                                                       email));
+
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(server.SetTokenUser).toHaveBeenCalledWith(userId);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserId()).toEqual(userId);
+         expect(auth.GetUserName()).toEqual(userName);
+         expect(auth.GetUserDisplayName()).toEqual(displayName);
+         expect(auth.GetUserEmail()).toEqual(email);
       });
 
    });
 
    describe("-when authenticated,", function() {
 
-      xit("reports user un-authenticated upon receiving server error", function() {
+      beforeEach(function() {
+         jasmine.Ajax.install();
       });
 
-      xit("reports user un-authenticated upon user logout", function() {
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
+         auth.ResetCallbacks();
       });
 
-      xit("rescinds authentication token from server interface upon user un-authentication", function() {
+      it("reports user un-authenticated upon receiving server error", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+
+         // Log the user in
+         auth.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       testPassword,
+                                                                       displayName,
+                                                                       email));
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+
+         // Now, cause the server failure
+         server.CallBack(server.events.SI_SERVER_ERROR, server.status.SI_FAILURE, undefined);
+         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_OUT);
+         expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+      });
+
+      it("reports user un-authenticated upon user logout", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+
+         // Log the user in
+         auth.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       testPassword,
+                                                                       displayName,
+                                                                       email));
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+
+         // Now, log the user out
+         auth.LogoutUser();
+         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_OUT);
+         expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
 
    });
