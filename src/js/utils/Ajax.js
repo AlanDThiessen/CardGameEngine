@@ -4,25 +4,24 @@ log = require("./Logger.js");
 ajax = {};
 
 ajax.server = {
-                 protocol:   'https',
-                 hostname:   'gator4021.hostgator.com',
-                 port:       443,
-                 path:       '/~thiessea/TheThiessens.net/cge/cge.php'
-              };
-
+   protocol:   'https',
+   hostname:   'gator4021.hostgator.com',
+   port:       443,
+   path:       '/~thiessea/TheThiessens.net/cge/cge.php'
+};
 
 
 ajax.ServerPost = function(postData, success, failure) {
    var url = ajax.server.protocol + '://' + ajax.server.hostname + ajax.server.path;
    var formData = new FormData();
    var request = new XMLHttpRequest();
- 
+
 	for(var key in postData) {
 	   if(postData.hasOwnProperty(key)) {
 	      formData.append(key, postData[key]);
 	   }
 	}
-  
+
    request.open("POST", url, true );
    request.responseType = 'text';
    request.onreadystatechange = function(e){ajax.HandleResponse(e, this, success, failure);};
@@ -40,7 +39,7 @@ ajax.HandleResponse = function(event, resp, success, failure) {
       }
       else {
          if(typeof failure === 'function') {
-            failure();
+            failure(resp.status);
          }
       }
    }

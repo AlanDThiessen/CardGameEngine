@@ -5,18 +5,18 @@ var gameData = require("../../../src/js/utils/GameDataManager.js");
 
 describe("GameDataManager", function() {
 
-   xit("registers callbacks with the server", function() {
+   xit("registers callbacks with the server interface", function() {
       // spy on the game data to ensure it registers all callbacks with the 
       // server comms when it is initialized.
    });
 
-   describe("when no data exists", function() {
-      
+   describe("-when no data exists,", function() {
+
       xit("retrieves game types from the server", function(done) {
          // Verify game types are retrieved from the server and stored in a file.
       });
 
-      xit("retrieves a deck specification", function(done) {
+      xit("retrieves a deck specification from the server", function(done) {
          // Verify deck specifications are retrieved from the server and stored
          // in files.
       });
@@ -35,7 +35,7 @@ describe("GameDataManager", function() {
 
    });
 
-   describe("when data exists in files", function() {
+   describe("-when data exists in files,", function() {
 
       xit("populates game types from the file", function(done) {
       });

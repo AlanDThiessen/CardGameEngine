@@ -11,40 +11,49 @@ cge_register_user
 		display_name : string (50)
 		email : string (50)
 	Return: user : object
+	
 cge_login_user
 	Params:
 		username
 		password
 	Return: user : object
+	
 cge_get_game_types
 	Params:
 	Return: list of game types : object
+	
 cge_get_joinable_games
 	Params:
 		user_id : int
 	Return: list of games in progress : object
+	
 cge_get_my_games
 	Params:
 		user_id : int
 	Return: list of games in progress : object
+	
 cge_start_game
 	Params: 
 		game_type_id : string
 		user_id : int
 	Return: game specification : object
+	
 cge_join_game
 	Params: 
 		game_id : int
 		user_id : int
 	Return: game specification : object
+	
 cge_get_num_players
 	Params:
 		game_id : int
 	Return: number of players : int
+	
 cge_load_deck_spec
 	Params: 
 		deck_type_id : string
 	Return: deck specification : object
+	
 cge_record_transaction
 	Params: 
 		game_id : int
@@ -53,27 +62,32 @@ cge_record_transaction
 		to_group_id : string
 		items : array of card ids
 	Return: transaction_id : int
+	
 cge_pause_game
 	Params:
 		game_id : int
 		user_id : int
 	Return: success : boolean
+	
 cge_resume_game
 	Params:
 		game_id : int
 		user_id : int
 	Return: success : boolean
+	
 cge_end_game
 	Params:
 		game_id : int
 		user_id : int
 	Return: success : boolean
+	
 cge_ack_event
 	Params:
 		game_id : int
 		user_id : int
 		notif_id : int
 	Return: success : boolean
+	
 
 If an Error occurs, the above functions will return: 
 NOTE: not all functions support this yet
