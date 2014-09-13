@@ -193,19 +193,9 @@ server.RegisterUserSuccess = function(response) {
 };
 
 
-server.RegisterUserFailure = function(callstatus) {
-   var status = server.status.SI_FAILURE;
+server.RegisterUserFailure = function(callStatus) {
    server.Failure(status, "RegisterUser");
-
-   if((callstatus >= 400) && (callstatus < 500)) {
-      switch(callstatus) {
-         case 408:
-            status = server.status.SI_ERROR_SERVER_TIMEOUT;
-            break;
-      }
-   }
-
-   server.CallBack(server.events.SI_LOGIN, status, undefined);
+   server.HandleAjaxFailure(server.events.SI_LOGIN, callStatus);
 };
 
 
@@ -225,13 +215,25 @@ server.LoginUser = function(username, password) {
 };
 
 
-server.LoginUserSuccess = function(user) {
-   server.CallBack(server.events.SI_LOGIN, server.status.SI_SUCCESS, user);
+server.LoginUserSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+
+   if(response.cge_error_id !== undefined) {
+      if(response.cge_error_id == server.cgeError.SI_CGE_ERROR_DB_ERROR) {
+         status = server.status.SI_ERROR_LOGIN_INVALID;
+      }
+      else {
+         status = server.status.SI_FAILURE;
+      }
+   }
+
+   server.CallBack(server.events.SI_LOGIN, status, response);
 };
 
 
-server.LoginUserFailure = function(status) {
+server.LoginUserFailure = function(callStatus) {
    server.failure(status, "LoginUser");
+   server.HandleAjaxFailure(server.events.SI_LOGIN, callStatus);
 };
 
 
@@ -579,6 +581,24 @@ server.AckEventSuccess = function(game) {
 
 server.AckEventFailure = function(status) {
    server.failure(status, "AckEvent");
+};
+
+
+/******************************************************************************
+ * Handle Ajax Failure
+ ******************************************************************************/
+server.HandleAjaxFailure = function(event, callStatus) {
+   var status = server.status.SI_FAILURE;
+
+   if((callStatus >= 400) && (callStatus < 500)) {
+      switch(callStatus) {
+         case 408:
+            status = server.status.SI_ERROR_SERVER_TIMEOUT;
+            break;
+      }
+   }
+
+   server.CallBack(event, status, undefined);
 };
 
 

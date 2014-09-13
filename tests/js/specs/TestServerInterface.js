@@ -250,7 +250,7 @@ describe( "ServerInterface", function() {
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
          server.RegisterUser('TestUser', 'TestPassword', "Test User 1", "testuser1@chamrock.net");
-         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('TestUser', 'TestPassword', "Test User 1", "testuser1@chamrock.net"));
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
 
          expect(status).toEqual(server.status.SI_SUCCESS);
       });

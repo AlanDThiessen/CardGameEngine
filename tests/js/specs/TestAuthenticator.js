@@ -9,6 +9,7 @@ describe("Authenticator", function() {
 
    it("indicates user not authenticated upon initialization", function() {
       auth.Init();
+      auth.InitToken();
       expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       expect(auth.GetUserId()).not.toBeDefined();
       expect(auth.GetUserName()).not.toBeDefined();
@@ -78,9 +79,9 @@ describe("Authenticator", function() {
          var status1 = auth.AddCallback(CallBack1);
          var status2 = auth.AddCallback(CallBack2);
 
-         // Normally, this method is not called external of the ServerInterface;
+         // Normally, this method is not called external of the Authenticator;
          // However, for testing purposes...
-         var status3 = auth.CallBack(auth.events.AUTH_USER_REGISTER, auth.status.AUTH_SUCCESS, undefined);
+         var status3 = auth.CallBack(auth.events.AUTH_USER_REGISTER, auth.status.AUTH_SUCCESS);
 
          expect(status1).toEqual(true);
          expect(status2).toEqual(true);
@@ -134,6 +135,7 @@ describe("Authenticator", function() {
       afterEach(function() {
          jasmine.Ajax.uninstall();
          auth.ResetCallbacks();
+         auth.LogoutUser();
       });
 
       it("reports username exists error on user registration", function() {
@@ -148,7 +150,7 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists("TestUser"));
 
@@ -169,7 +171,7 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
@@ -197,11 +199,10 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.RegisterUser(userName, testPassword, displayName, email);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
-                                                                       testPassword,
                                                                        displayName,
                                                                        email));
 
@@ -231,13 +232,13 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.LoginUser(userName, testPassword);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
          expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
          expect(testStatus).toEqual(auth.status.AUTH_AUTHENTICATION_ERROR);
-         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(server.ClearToken).toHaveBeenCalledWith();
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
          expect(auth.GetUserId()).toBeUndefined();
          expect(auth.GetUserName()).toBeUndefined();
@@ -261,13 +262,13 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.LoginUser(userName, testPassword);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
          expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
          expect(testStatus).toEqual(auth.status.AUTH_AUTHENTICATION_ERROR);
-         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(server.ClearToken).toHaveBeenCalledWith();
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
          expect(auth.GetUserId()).toBeUndefined();
          expect(auth.GetUserName()).toBeUndefined();
@@ -294,11 +295,10 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.LoginUser(userName, testPassword);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
-                                                                       testPassword,
                                                                        displayName,
                                                                        email));
 
@@ -347,7 +347,6 @@ describe("Authenticator", function() {
          auth.LoginUser(userName, testPassword);
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
-                                                                       testPassword,
                                                                        displayName,
                                                                        email));
          expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
@@ -356,7 +355,7 @@ describe("Authenticator", function() {
 
          // Now, cause the server failure
          server.CallBack(server.events.SI_SERVER_ERROR, server.status.SI_FAILURE, undefined);
-         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(server.ClearToken).toHaveBeenCalledWith();
          expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_OUT);
          expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
@@ -384,7 +383,6 @@ describe("Authenticator", function() {
          auth.LoginUser(userName, testPassword);
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
-                                                                       testPassword,
                                                                        displayName,
                                                                        email));
          expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
@@ -393,9 +391,9 @@ describe("Authenticator", function() {
 
          // Now, log the user out
          auth.LogoutUser();
-         expect(server.ClearToken).toHaveBeenCalledWith(userId);
+         expect(server.ClearToken).toHaveBeenCalledWith();
          expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_OUT);
-         expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
 
