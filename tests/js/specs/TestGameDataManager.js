@@ -1,13 +1,34 @@
 
 // Pull in the module we're testing.
-var gameData = require("../../../src/js/utils/GameDataManager.js");
+gameData = require("../../../src/js/utils/GameDataManager.js");
+server = require("../../../src/js/utils/ServerInterface.js");
+mock = require("./Data-MockServerInterface.js");
 
 
 describe("GameDataManager", function() {
+   var gameDataMgr = undefined;
 
-   xit("registers callbacks with the server interface", function() {
+   it("instantiates the singleton upon initialization", function() {
       // spy on the game data to ensure it registers all callbacks with the 
       // server comms when it is initialized.
+      spyOn(server, "AddCallback").and.callThrough();
+
+      gameDataMgr = gameData.GetGameDataManager();
+      expect(gameDataMgr).toBeDefined();
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_LOGIN,
+                                                      gameDataMgr.ServerLoginHandler);
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_GAME_TYPES_RETRIEVED,
+                                                      gameDataMgr.ServerGameTypesHandler);
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_USER_GAMES_RETRIEVED,
+                                                      gameDataMgr.ServerMyGamesHandler);
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_DECK_SPEC_RETRIEVED,
+                                                      gameDataMgr.ServerDeckSpecsHandler);
+   });
+
+   it("additional calls to singleton return the same object", function() {
+      var gameDataMgr2 = gameData.GetGameDataManager();
+      expect(gameDataMgr2).toBeDefined();
+      expect(gameDataMgr2).toEqual(gameDataMgr);
    });
 
    describe("-when no data exists,", function() {

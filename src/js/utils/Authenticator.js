@@ -1,5 +1,5 @@
 
-server = require("./ServerInterface.js");
+var server = require("./ServerInterface.js");
 
 authenticator = {};
 

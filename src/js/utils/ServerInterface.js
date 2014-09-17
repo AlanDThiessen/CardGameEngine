@@ -1,6 +1,6 @@
 
-ajax = require("./Ajax.js");
-log = require("./Logger.js");
+var ajax = require("./Ajax.js");
+var log = require("./Logger.js");
 
 server = {};
 
