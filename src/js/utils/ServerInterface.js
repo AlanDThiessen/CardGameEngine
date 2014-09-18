@@ -37,8 +37,9 @@ server.status = {
    SI_ERROR_TOKEN_INVALID:              -6,
    SI_ERROR_SERVER_TIMEOUT:             -7,
    SI_ERROR_SERVER_DATABASE:            -8,
-   SI_ERROR_LOGIN_INVALID:              -9,
-   SI_ERROR_REGISTER_NAME_EXISTS:      -10
+   SI_ERROR_SERVER_ERROR_NOT_FOUND:     -9,
+   SI_ERROR_LOGIN_INVALID:             -10,
+   SI_ERROR_REGISTER_NAME_EXISTS:      -11
 };
 
 
@@ -47,7 +48,8 @@ server.status = {
  ******************************************************************************/
 server.cgeError = {
    SI_CGE_ERROR_USER_EXISTS:             1,
-   SI_CGE_ERROR_DB_ERROR:                2
+   SI_CGE_ERROR_DB_ERROR:                2,
+   SI_CGE_ERROR_NOT_FOUND:               3
 };
 
 /******************************************************************************
@@ -244,19 +246,22 @@ server.GetGameTypes = function() {
    var postData = {
       'action': 'cge_get_game_types'
    };
-   
+
    ajax.ServerPost(postData, server.GetGameTypesSuccess, server.GetGameTypesFailure);
-   
+
    return server.status.SI_SUCCESS;
 };
 
 
-server.GetGameTypesSuccess = function(gameTypes) {
+server.GetGameTypesSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+   server.CallBack(server.events.SI_GAME_TYPES_RETRIEVED, status, response);
 };
 
 
 server.GetGameTypesFailure = function(status) {
    server.failure(status, "GetGameTypes");
+   server.HandleAjaxFailure(server.events.SI_GAME_TYPES_RETRIEVED, callStatus);
 };
 
 
@@ -266,9 +271,9 @@ server.GetGameTypesFailure = function(status) {
 server.LoadDeckSpec = function(deckTypeId) {
    var postData = {
       'action': 'cge_load_deck_spec',
-      'deck_type_id': deckTypeId
+      'deck_type': deckTypeId
    };
-   
+
    ajax.ServerPost(postData, server.LoadDeckSpecSuccess, server.LoadDeckSpecFailure);
    
    return server.status.SI_SUCCESS;
@@ -276,11 +281,24 @@ server.LoadDeckSpec = function(deckTypeId) {
 
 
 server.LoadDeckSpecSuccess = function(game) {
+   var status = server.status.SI_SUCCESS;
+
+   if(response.cge_error_id !== undefined) {
+      if(response.cge_error_id == server.cgeError.SI_CGE_ERROR_NOT_FOUND) {
+         status = server.status.SI_ERROR_SERVER_ERROR_NOT_FOUND;
+      }
+      else {
+         status = server.status.SI_FAILURE;
+      }
+   }
+
+   server.CallBack(server.events.SI_DECK_SPEC_RETRIEVED, status, response);
 };
 
 
 server.LoadDeckSpecFailure = function(status) {
    server.failure(status, "LoadDeckSpec");
+   server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, callStatus);
 };
 
 

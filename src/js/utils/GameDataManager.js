@@ -16,21 +16,62 @@ gdStatus = {
  ******************************************************************************/
 function GameDataManager() {
    this.gameTypes = [];
-   this.games = [];
    this.deckSpecs = [];
+   this.userGames = [];
 
    this.RegisterServerCallbacks();
 }
 
 
 /******************************************************************************
+ *
+ * Public Methods
+ *
+ ******************************************************************************/
+
+/******************************************************************************
+ * Data Access Methods
+ ******************************************************************************/
+GameDataManager.prototype.GetGameTypes = function() {
+
+};
+
+
+GameDataManager.prototype.GetGameTypeById = function(id) {
+
+};
+
+
+GameDataManager.prototype.GetDeckSpecs = function() {
+
+};
+
+
+GameDataManager.prototype.GetDeckSpecById = function(id) {
+
+};
+
+
+GameDataManager.prototype.GetUserGames = function() {
+
+};
+
+
+GameDataManager.prototype.GetUserGameById = function(id) {
+
+};
+
+
+/******************************************************************************
+ *
  * Server Interface Callback Methods
+ *
  ******************************************************************************/
 GameDataManager.prototype.RegisterServerCallbacks = function() {
    server.AddCallback(server.events.SI_LOGIN, this.ServerLoginHandler);
    server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, this.ServerGameTypesHandler);
    server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, this.ServerMyGamesHandler);
-   server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, this.ServerDeckSpecsHandler);
+   server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, this.ServerDeckSpecHandler);
 };
 
 
@@ -49,7 +90,7 @@ GameDataManager.prototype.ServerMyGamesHandler = function(status, data) {
 };
 
 
-GameDataManager.prototype.ServerDeckSpecsHandler = function(status, data) {
+GameDataManager.prototype.ServerDeckSpecHandler = function(status, data) {
 
 };
 

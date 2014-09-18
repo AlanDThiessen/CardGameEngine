@@ -281,10 +281,56 @@ describe( "ServerInterface", function() {
          expect(status).toEqual(server.status.SI_SUCCESS);
       });
 
-      xit("retrieves game types", function() {
+      it("retrieves game types", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var GamesSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, GamesSuccess);
+         server.GetGameTypes();
+         jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
+
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.GameTypes().responseText));
       });
 
-      xit("retrieves a deck specification", function() {
+      it("reports error for invalid deck specification", function() {
+         var status = undefined;
+
+         var DeckSuccess = function(callStatus, callData) {
+            status = callStatus;
+         };
+
+         var addStatus = server.AddCallback(server.events. SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         server.LoadDeckSpec('invalid-deck');
+         jasmine.Ajax.requests.mostRecent().response(mock.NotFoundError('invalid-deck'));
+
+         expect(status).toEqual(server.status.SI_ERROR_SERVER_ERROR_NOT_FOUND);
+      });
+
+      it("retrieves a deck specification", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var DeckSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events. SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         server.LoadDeckSpec('standard');
+         jasmine.Ajax.requests.mostRecent().response(mock.DeckSpecStandard());
+
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.DeckSpecStandard().responseText));
       });
 
       it("indicates not-connected when requested to retrieve user's games", function() {
@@ -341,7 +387,7 @@ describe( "ServerInterface", function() {
 
       xit("accepts a token", function() {
       });
-      
+
       xit("clears the token", function() {
       });
 

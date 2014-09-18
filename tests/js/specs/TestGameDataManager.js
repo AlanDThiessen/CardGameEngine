@@ -11,7 +11,7 @@ describe("GameDataManager", function() {
    it("instantiates the singleton upon initialization", function() {
       // spy on the game data to ensure it registers all callbacks with the 
       // server comms when it is initialized.
-      spyOn(server, "AddCallback").and.callThrough();
+      spyOn(server, "AddCallback");
 
       gameDataMgr = gameData.GetGameDataManager();
       expect(gameDataMgr).toBeDefined();
@@ -22,7 +22,7 @@ describe("GameDataManager", function() {
       expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_USER_GAMES_RETRIEVED,
                                                       gameDataMgr.ServerMyGamesHandler);
       expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_DECK_SPEC_RETRIEVED,
-                                                      gameDataMgr.ServerDeckSpecsHandler);
+                                                      gameDataMgr.ServerDeckSpecHandler);
    });
 
    it("additional calls to singleton return the same object", function() {
@@ -30,20 +30,31 @@ describe("GameDataManager", function() {
       expect(gameDataMgr2).toBeDefined();
       expect(gameDataMgr2).toEqual(gameDataMgr);
    });
+   
+   describe("-upon succesfull server login,", function() {
 
-   describe("-when no data exists,", function() {
-
-      xit("retrieves game types from the server", function(done) {
-         // Verify game types are retrieved from the server and stored in a file.
+      beforeEach(function() {
+         jasmine.Ajax.install();
       });
+
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
+      });
+
+      xit("retrieves game types and user games from the server", function(done) {
+         // Verify game types are retrieved from the server and stored in a file.
+         spyOn(server, "GetGameTypes");
+         spyOn(server, "GetUserGames");
+      });
+
+   });
+
+   describe("-need a category for these", function() {
 
       xit("retrieves a deck specification from the server", function(done) {
          // Verify deck specifications are retrieved from the server and stored
          // in files.
-      });
-
-      xit("retrieves user's games from the server", function(done) {
-         // Verify user's games are retrieved from the server and stroed in files.
+         spyOn(server, "LoadDeckSpec");
       });
 
       xit("retrieves user's joinable games from the server", function(done) {
