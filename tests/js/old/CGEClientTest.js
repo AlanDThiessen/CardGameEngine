@@ -56,6 +56,18 @@ var mainMenu =       { name: 'Main Menu:',
                            enabled: true,
                            value:   '',
                            handler: ShowServer
+                         },
+                         {
+                           name:    'Get Game Types',
+                           enabled: true,
+                           value:   '',
+                           handler: get_game_types
+                         },
+                         {
+                           name:    'Get Deck Speck',
+                           enabled: true,
+                           value:   '',
+                           handler: GetDeckSpec
                          }
                        ]
                      };
@@ -146,7 +158,7 @@ function main() {
    currMenu = mainMenu;
    io = readline.createInterface(process.stdin, process.stdout);
    SetMenuValue("path", server, 'path', 'alan thiessen');
-   
+
    if(io !== undefined) {
       RunMenu();
       io.on('line', HandleInput);
@@ -165,6 +177,11 @@ function main() {
 
 function ShowServer() {
    io.question(console.log(server), function(){});
+}
+
+
+function GetDeckSpec() {
+   get_deck_spec('asdf');
 }
 
 
@@ -233,7 +250,7 @@ function get_my_games(userId) {
    server_post(post_data, log_response);
    //user = $.parseJSON(response);
 }
-      
+
 
 function get_game_types() {
    var post_data = qs.stringify({
@@ -243,7 +260,18 @@ function get_game_types() {
    server_post(post_data, log_response);
    //user = $.parseJSON(response);
 }
-      
+
+
+function get_deck_spec(name) {
+   var post_data = qs.stringify({
+      'action': 'cge_load_deck_spec',
+      'deck_type': name
+   });
+
+   server_post(post_data, log_response);
+   //user = $.parseJSON(response);
+}
+
 
 function get_joinable_games(userId) {
    var post_data = qs.stringify({

@@ -207,9 +207,14 @@ function cge_load_deck_spec() {
 	$deckType = htmlspecialchars( $_POST[ 'deck_type' ] );
 	$deckFile = CGEPATH . '/../xml/decks/' . $deckType . '-deck.xml';
 	if (!file_exists($deckFile)) {
-		die('CGE ERROR: ' . $deckType . ' definition file not found.');
-	} 
-	$deckSpec = simplexml_load_file($deckFile);
+		$deckSpec = array(
+			'cge_error_id' => '003',
+			'cge_error' => 'Deck ' . $deckType . ' definition file not found.'
+		);
+	}
+	else {
+   	$deckSpec = simplexml_load_file($deckFile);
+	}
 
 	echo json_encode($deckSpec);
 
