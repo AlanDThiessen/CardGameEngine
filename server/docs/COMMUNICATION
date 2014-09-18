@@ -51,7 +51,7 @@ cge_get_num_players
 	
 cge_load_deck_spec
 	Params: 
-		deck_type_id : string
+		deck_type : string
 	Return: deck specification : object
 	
 cge_record_transaction

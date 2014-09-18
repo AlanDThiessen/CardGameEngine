@@ -1,103 +1,121 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<cge_deck id="standard">
+<cge_deck>
+   <id>standard</id>
 	<name>Standard Deck</name>
 	<suited>
 		<suits>
-			<suit id="clubs">
+			<suit>
+			   <id>clubs</id>
 				<name>Clubs</name>
 				<shortname>C</shortname>
 				<color>black</color>
 			</suit>
-			<suit id="hearts">
+			<suit>
+			   <id>hearts</id>
 				<name>Hearts</name>
 				<shortname>H</shortname>
 				<color>red</color>
 			</suit>
-			<suit id="spades">
+			<suit>
+			   <id>spades</id>
 				<name>Spades</name>
 				<shortname>S</shortname>
 				<color>black</color>
 			</suit>
-			<suit id="diamonds">
+			<suit>
+			   <id>diamonds</id>
 				<name>Diamonds</name>
 				<shortname>D</shortname>
 				<color>red</color>
 			</suit>
 		</suits>
 		<values>
-			<value id="2">
+			<value>
+			   <id>2</id>
 				<name>Two</name>
 				<shortname>2</shortname>
 				<rank>2</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="3">
+			<value>
+			   <id>3</id>
 				<name>Three</name>
 				<shortname>3</shortname>
 				<rank>3</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="4">
+			<value>
+			   <id>4</id>
 				<name>Four</name>
 				<shortname>4</shortname>
 				<rank>4</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="5">
+			<value>
+			   <id>5</id>
 				<name>Five</name>
 				<shortname>5</shortname>
 				<rank>5</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="6">
+			<value>
+			   <id>6</id>
 				<name>Six</name>
 				<shortname>6</shortname>
 				<rank>6</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="7">
+			<value>
+			   <id>7</id>
 				<name>Seven</name>
 				<shortname>7</shortname>
 				<rank>7</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="8">
+			<value>
+			   <id>8</id>
 				<name>Eight</name>
 				<shortname>8</shortname>
 				<rank>8</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="9">
+			<value>
+			   <id>9</id>
 				<name>Nine</name>
 				<shortname>9</shortname>
 				<rank>9</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="10">
+			<value>
+			   <id>10</id>
 				<name>Ten</name>
 				<shortname>10</shortname>
 				<rank>10</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="J">
+			<value>
+			   <id>J</id>
 				<name>Jack</name>
 				<shortname>J</shortname>
 				<rank>11</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="Q">
+			<value>
+			   <id>Q</id>
 				<name>Queen</name>
 				<shortname>Q</shortname>
 				<rank>12</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="K">
+			<value>
+			   <id>K</id>
 				<name>King</name>
 				<shortname>K</shortname>
 				<rank>13</rank>
 				<quantity>1</quantity>
 			</value>
-			<value id="A">
+			<value>
+			   <id>A</id>
 				<name>Ace</name>
 				<shortname>A</shortname>
 				<rank>14</rank>
@@ -107,7 +125,8 @@
 	</suited>
 	<nonsuited>
       <values>
-		   <value id="joker">
+		   <value>
+			   <id>joker</id>
 			   <name>Joker</name>
 			   <shortname>Joker</shortname>
 			   <rank>0</rank>
