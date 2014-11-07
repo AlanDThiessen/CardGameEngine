@@ -259,7 +259,7 @@ server.GetGameTypesSuccess = function(response) {
 };
 
 
-server.GetGameTypesFailure = function(status) {
+server.GetGameTypesFailure = function(callStatus) {
    server.failure(status, "GetGameTypes");
    server.HandleAjaxFailure(server.events.SI_GAME_TYPES_RETRIEVED, callStatus);
 };
@@ -275,12 +275,12 @@ server.LoadDeckSpec = function(deckTypeId) {
    };
 
    ajax.ServerPost(postData, server.LoadDeckSpecSuccess, server.LoadDeckSpecFailure);
-   
+
    return server.status.SI_SUCCESS;
 };
 
 
-server.LoadDeckSpecSuccess = function(game) {
+server.LoadDeckSpecSuccess = function(response) {
    var status = server.status.SI_SUCCESS;
 
    if(response.cge_error_id !== undefined) {
@@ -296,7 +296,7 @@ server.LoadDeckSpecSuccess = function(game) {
 };
 
 
-server.LoadDeckSpecFailure = function(status) {
+server.LoadDeckSpecFailure = function(callStatus) {
    server.failure(status, "LoadDeckSpec");
    server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, callStatus);
 };
