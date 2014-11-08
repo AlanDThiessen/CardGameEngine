@@ -2,6 +2,7 @@
 // Pull in the module we're testing.
 gameData = require("../../../src/js/utils/GameDataManager.js");
 server = require("../../../src/js/utils/ServerInterface.js");
+auth = require("../../../src/js/utils/Authenticator.js");
 mock = require("./Data-MockServerInterface.js");
 
 
@@ -33,6 +34,7 @@ describe("GameDataManager", function() {
       expect(gameDataMgr2).toEqual(gameDataMgr);
    });
 
+   // NOTE: These tests assume the Authenticator has already been initialized
    describe("-upon succesfull server login,", function() {
 
       beforeEach(function() {
@@ -41,6 +43,7 @@ describe("GameDataManager", function() {
 
       afterEach(function() {
          jasmine.Ajax.uninstall();
+         auth.LogoutUser();
       });
 
       it("retrieves game types from the server", function(done) {
@@ -48,24 +51,24 @@ describe("GameDataManager", function() {
          spyOn(server, "GetGameTypes").and.callThrough();
          
          // Mock server ajax registration success
-         server.LoginUser(userName, testPassword);
+         auth.LoginUser(userName, testPassword);
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
 
          // Verify spies
          expect(server.GetGameTypes).toHaveBeenCalled();
-         
+
          // Mock server ajax game types and user games from server
          jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
 
-         expect(gameDataMgr.gameTypes).toEqual(mock.GameTypes());
+         expect(gameDataMgr.GetGameTypes()).toEqual(mock.GameTypes());
       });
 
-      it("retrieves user games from the server", function(done) {
+      it("retrieves user's games from the server", function(done) {
          // Verify game types are retrieved from the server and stored in a file.
          spyOn(server, "GetUserGames").and.callThrough();
-         
+
          // Mock server ajax registration success
-         server.LoginUser(userName, testPassword);
+         auth.LoginUser(userName, testPassword);
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
 
          // Verify spies
@@ -74,7 +77,7 @@ describe("GameDataManager", function() {
          // Mock server ajax game types and user games from server
          jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
 
-         expect(gameDataMgr.userGames).toEqual(mock.UserGames());
+         expect(gameDataMgr.GetUserGames()).toEqual(mock.UserGames());
       });
 
    });
@@ -85,10 +88,6 @@ describe("GameDataManager", function() {
          // Verify deck specifications are retrieved from the server and stored
          // in files.
          spyOn(server, "LoadDeckSpec");
-      });
-
-      xit("retrieves user's joinable games from the server", function(done) {
-         // These are not stored in a file.
       });
 
       // Not sure why this is necessary... ???
