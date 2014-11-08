@@ -226,7 +226,7 @@ describe( "ServerInterface", function() {
 
          expect(status).toEqual(server.status.SI_ERROR_REGISTER_NAME_EXISTS);
       });
-      
+
       it("reports an error if the server responds with an error", function() {
          var status = undefined;
 
@@ -240,7 +240,7 @@ describe( "ServerInterface", function() {
 
          expect(status).toEqual(server.status.SI_ERROR_SERVER_DATABASE);
       });
-      
+
       it("reports successful user registration", function() {
          var status = undefined;
 

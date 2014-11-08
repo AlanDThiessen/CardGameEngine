@@ -8,11 +8,12 @@ authenticator = {};
  * Authenticator Events
  ******************************************************************************/
 authenticator.events = {
-   AUTH_USER_REGISTER:                    1,
+   AUTH_USER_REGISTER:                   1,
    AUTH_USER_LOG_IN:                     2,
    AUTH_USER_LOG_OUT:                    3,
-   AUTH_MAX_EVENT:                       4   // For validation: should always be
-                                             // one more than the last event.
+   
+   // For validation: should always be one more than the last event.
+   AUTH_MAX_EVENT:                       4
 };
 
 

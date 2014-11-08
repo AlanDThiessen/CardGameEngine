@@ -68,6 +68,12 @@ var mainMenu =       { name: 'Main Menu:',
                            enabled: true,
                            value:   '',
                            handler: GetDeckSpec
+                         },
+                         {
+                           name:    'Get User Games',
+                           enabled: true,
+                           value:   '',
+                           handler: GetUserGames
                          }
                        ]
                      };
@@ -184,6 +190,9 @@ function GetDeckSpec() {
    get_deck_spec('asdf');
 }
 
+function GetUserGames() {
+   get_my_games('0001');
+}
 
 function server_post(post_data, callback) {
    var options = {

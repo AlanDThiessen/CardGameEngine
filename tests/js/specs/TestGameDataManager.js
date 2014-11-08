@@ -7,6 +7,8 @@ mock = require("./Data-MockServerInterface.js");
 
 describe("GameDataManager", function() {
    var gameDataMgr = undefined;
+   var userName = 'TestUser';
+   var testPassword = 'testPassword';
 
    it("instantiates the singleton upon initialization", function() {
       // spy on the game data to ensure it registers all callbacks with the 
@@ -30,7 +32,7 @@ describe("GameDataManager", function() {
       expect(gameDataMgr2).toBeDefined();
       expect(gameDataMgr2).toEqual(gameDataMgr);
    });
-   
+
    describe("-upon succesfull server login,", function() {
 
       beforeEach(function() {
@@ -41,10 +43,38 @@ describe("GameDataManager", function() {
          jasmine.Ajax.uninstall();
       });
 
-      xit("retrieves game types and user games from the server", function(done) {
+      it("retrieves game types from the server", function(done) {
          // Verify game types are retrieved from the server and stored in a file.
-         spyOn(server, "GetGameTypes");
-         spyOn(server, "GetUserGames");
+         spyOn(server, "GetGameTypes").and.callThrough();
+         
+         // Mock server ajax registration success
+         server.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
+
+         // Verify spies
+         expect(server.GetGameTypes).toHaveBeenCalled();
+         
+         // Mock server ajax game types and user games from server
+         jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
+
+         expect(gameDataMgr.gameTypes).toEqual(mock.GameTypes());
+      });
+
+      it("retrieves user games from the server", function(done) {
+         // Verify game types are retrieved from the server and stored in a file.
+         spyOn(server, "GetUserGames").and.callThrough();
+         
+         // Mock server ajax registration success
+         server.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
+
+         // Verify spies
+         expect(server.GetUserGames).toHaveBeenCalled();
+         
+         // Mock server ajax game types and user games from server
+         jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
+
+         expect(gameDataMgr.userGames).toEqual(mock.UserGames());
       });
 
    });
@@ -68,6 +98,9 @@ describe("GameDataManager", function() {
    });
 
    describe("-when data exists in files,", function() {
+   /* TODO: Future
+      Game Data File Storage has been postponed for a future release
+   */
 
       xit("populates game types from the file", function(done) {
       });
