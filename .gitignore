@@ -1,6 +1,8 @@
 # Ignore Eclipse project files
 /.buildpath
 /.settings
+/.idea
+/.project
 
 # Ignore Cordova build output directories
 **/android/assets/

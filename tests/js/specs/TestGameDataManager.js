@@ -12,20 +12,13 @@ describe("GameDataManager", function() {
    var testPassword = 'testPassword';
 
    it("instantiates the singleton upon initialization", function() {
-      // spy on the game data to ensure it registers all callbacks with the 
+      // spy on the game data to ensure it registers all callbacks with the
       // server comms when it is initialized.
-      spyOn(server, "AddCallback");
+      spyOn(server, "AddCallback").and.callThrough();
 
       gameDataMgr = gameData.GetGameDataManager();
       expect(gameDataMgr).toBeDefined();
-      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_LOGIN,
-                                                      gameDataMgr.ServerLoginHandler);
-      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_GAME_TYPES_RETRIEVED,
-                                                      gameDataMgr.ServerGameTypesHandler);
-      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_USER_GAMES_RETRIEVED,
-                                                      gameDataMgr.ServerMyGamesHandler);
-      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_DECK_SPEC_RETRIEVED,
-                                                      gameDataMgr.ServerDeckSpecHandler);
+      expect(server.AddCallback.calls.count()).toEqual(4);
    });
 
    it("additional calls to singleton return the same object", function() {
@@ -35,7 +28,7 @@ describe("GameDataManager", function() {
    });
 
    // NOTE: These tests assume the Authenticator has already been initialized
-   describe("-upon succesfull server login,", function() {
+   describe("-upon successful server login,", function() {
 
       beforeEach(function() {
          jasmine.Ajax.install();
@@ -46,52 +39,42 @@ describe("GameDataManager", function() {
          auth.LogoutUser();
       });
 
-      it("retrieves game types from the server", function(done) {
+      it("retrieves game types and user's games from the server", function() {
+         var gameTypes = mock.GameTypes();
+         var userGames = mock.UserGames();
+
          // Verify game types are retrieved from the server and stored in a file.
          spyOn(server, "GetGameTypes").and.callThrough();
-         
-         // Mock server ajax registration success
-         auth.LoginUser(userName, testPassword);
-         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
-
-         // Verify spies
-         expect(server.GetGameTypes).toHaveBeenCalled();
-
-         // Mock server ajax game types and user games from server
-         jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
-
-         expect(gameDataMgr.GetGameTypes()).toEqual(mock.GameTypes());
-      });
-
-      it("retrieves user's games from the server", function(done) {
-         // Verify game types are retrieved from the server and stored in a file.
          spyOn(server, "GetUserGames").and.callThrough();
 
          // Mock server ajax registration success
          auth.LoginUser(userName, testPassword);
-         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
+         jasmine.Ajax.requests.at(0).response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
 
          // Verify spies
+         expect(server.GetGameTypes).toHaveBeenCalled();
          expect(server.GetUserGames).toHaveBeenCalled();
-         
-         // Mock server ajax game types and user games from server
-         jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
 
-         expect(gameDataMgr.GetUserGames()).toEqual(mock.UserGames());
+         // Mock server ajax game types and user games from server
+         jasmine.Ajax.requests.at(1).response(gameTypes);
+         jasmine.Ajax.requests.at(2).response(userGames);
+
+         expect(gameDataMgr.GetGameTypes()).toEqual(JSON.parse(gameTypes.responseText));
+         expect(gameDataMgr.GetUserGames()).toEqual(JSON.parse(userGames.responseText));
       });
 
    });
 
    describe("-need a category for these", function() {
 
-      xit("retrieves a deck specification from the server", function(done) {
+      xit("retrieves a deck specification from the server", function() {
          // Verify deck specifications are retrieved from the server and stored
          // in files.
          spyOn(server, "LoadDeckSpec");
       });
 
       // Not sure why this is necessary... ???
-      xit("retrieves number of players in a game from the server", function(done) {
+      xit("retrieves number of players in a game from the server", function() {
       });
 
    });
@@ -101,22 +84,22 @@ describe("GameDataManager", function() {
       Game Data File Storage has been postponed for a future release
    */
 
-      xit("populates game types from the file", function(done) {
+      xit("populates game types from the file", function() {
       });
 
-      xit("populates deck specifications from files", function(done) {
+      xit("populates deck specifications from files", function() {
       });
 
-      xit("populates user's games from files", function(done) {
+      xit("populates user's games from files", function() {
       });
 
-      xit("syncs game types with the server", function(done) {
+      xit("syncs game types with the server", function() {
       });
 
-      xit("syncs deck specifications with the server", function(done) {
+      xit("syncs deck specifications with the server", function() {
       });
 
-      xit("syncs user's games with the server", function(done) {
+      xit("syncs user's games with the server", function() {
       });
    });
 

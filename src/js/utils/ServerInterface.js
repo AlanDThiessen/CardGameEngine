@@ -322,18 +322,15 @@ server.GetUserGames = function() {
 };
 
 
-server.GetUserGamesSuccess = function(games) {
-   var cntr;
-   var gameNames = "";
-
-   for(cntr = 0; cntr < games.length; cntr++) {
-      gameNames += '"' + games[cntr].game_name + '", ';
-   }
+server.GetUserGamesSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+   server.CallBack(server.events.SI_USER_GAMES_RETRIEVED, status, response);
 };
 
 
 server.GetUserGamesFailure = function(status) {
    server.failure(status, "GetUserGames");
+   server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, callStatus);
 };
 
 

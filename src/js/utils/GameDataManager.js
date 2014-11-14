@@ -33,17 +33,15 @@ function GameDataManager() {
  * Data Access Methods
  ******************************************************************************/
 GameDataManager.prototype.GetGameTypes = function() {
-
+   return this.gameTypes;
 };
 
 
 GameDataManager.prototype.GetGameTypeById = function(id) {
-
 };
 
 
 GameDataManager.prototype.GetDeckSpecs = function() {
-
 };
 
 
@@ -53,12 +51,17 @@ GameDataManager.prototype.GetDeckSpecById = function(id) {
 
 
 GameDataManager.prototype.GetUserGames = function() {
-
+   return this.userGames;
 };
 
 
 GameDataManager.prototype.GetUserGameById = function(id) {
 
+};
+
+
+GameDataManager.prototype.ClearUserData = function() {
+   this.userGames = [];
 };
 
 
@@ -69,24 +72,31 @@ GameDataManager.prototype.GetUserGameById = function(id) {
  ******************************************************************************/
 GameDataManager.prototype.RegisterServerCallbacks = function() {
    server.AddCallback(server.events.SI_LOGIN, this.ServerLoginHandler);
-   server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, this.ServerGameTypesHandler);
-   server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, this.ServerMyGamesHandler);
-   server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, this.ServerDeckSpecHandler);
+   server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, this.ServerGameTypesHandler.bind(this));
+   server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, this.ServerMyGamesHandler.bind(this));
+   server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, this.ServerDeckSpecHandler.bind(this));
 };
 
 
 GameDataManager.prototype.ServerLoginHandler = function(status, data) {
-
+   if(status == server.status.SI_SUCCESS) {
+      server.GetGameTypes();
+      server.GetUserGames();
+   }
 };
 
 
 GameDataManager.prototype.ServerGameTypesHandler = function(status, data) {
-
+   if(status == server.status.SI_SUCCESS) {
+      this.gameTypes = data;
+   }
 };
 
 
 GameDataManager.prototype.ServerMyGamesHandler = function(status, data) {
-
+   if(status == server.status.SI_SUCCESS) {
+      this.userGames = data;
+   }
 };
 
 
