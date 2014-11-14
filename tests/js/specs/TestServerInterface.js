@@ -307,7 +307,7 @@ describe( "ServerInterface", function() {
             status = callStatus;
          };
 
-         var addStatus = server.AddCallback(server.events. SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         var addStatus = server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, DeckSuccess);
          server.LoadDeckSpec('invalid-deck');
          jasmine.Ajax.requests.mostRecent().response(mock.NotFoundError('invalid-deck'));
 
@@ -325,7 +325,7 @@ describe( "ServerInterface", function() {
             }
          };
 
-         var addStatus = server.AddCallback(server.events. SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         var addStatus = server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, DeckSuccess);
          server.LoadDeckSpec('standard');
          jasmine.Ajax.requests.mostRecent().response(mock.DeckSpecStandard());
 
@@ -385,19 +385,60 @@ describe( "ServerInterface", function() {
 
    describe("-with authentication token,", function() {
 
-      xit("accepts a token", function() {
+      beforeEach(function() {
+         jasmine.Ajax.install();
       });
 
-      xit("clears the token", function() {
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
       });
 
-      xit("retrieves game types", function() {
+      it("accepts a token", function() {
+         expect(server.token.valid).toBeFalsy();
+         server.SetTokenUser('001');
+         expect(server.token.userId).toEqual('001');
+         expect(server.token.valid).toBeTruthy();
+      });
+
+      it("retrieves game types", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var GameTypesSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, GameTypesSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
+         server.GetGameTypes();
+         jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.GameTypes().responseText));
       });
 
       xit("retrieves a deck specification", function() {
       });
 
-      xit("retrieves user's games", function() {
+      it("retrieves user's games", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var UserGamesSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, UserGamesSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
+         server.GetUserGames();
+         jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.UserGames().responseText));
       });
 
       xit("retrieves joinable games for user", function() {
@@ -419,6 +460,12 @@ describe( "ServerInterface", function() {
       });
 
       xit("ends a game", function() {
+      });
+
+      it("clears the token", function() {
+         server.ClearToken();
+         expect(server.token.userId).toEqual(0);
+         expect(server.token.valid).toBeFalsy();
       });
 
    });
