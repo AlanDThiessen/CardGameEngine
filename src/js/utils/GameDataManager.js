@@ -38,6 +38,17 @@ GameDataManager.prototype.GetGameTypes = function() {
 
 
 GameDataManager.prototype.GetGameTypeById = function(id) {
+   var cntr;
+   var gameType = undefined;
+
+   for(cntr = 0; cntr < this.gameTypes.length; cntr++) {
+      if(this.gameTypes[cntr].id === id) {
+         gameType = this.gameTypes[cntr];
+         break;
+      }
+   }
+
+   return gameType;
 };
 
 
@@ -46,7 +57,6 @@ GameDataManager.prototype.GetDeckSpecs = function() {
 
 
 GameDataManager.prototype.GetDeckSpecById = function(id) {
-
 };
 
 
@@ -56,7 +66,17 @@ GameDataManager.prototype.GetUserGames = function() {
 
 
 GameDataManager.prototype.GetUserGameById = function(id) {
+   var cntr;
+   var userGame = undefined;
 
+   for(cntr = 0; cntr < this.userGames.length; cntr++) {
+      if(this.userGames[cntr].id === id) {
+         userGame = this.userGames[cntr];
+         break;
+      }
+   }
+
+   return userGame;
 };
 
 

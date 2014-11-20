@@ -4,7 +4,7 @@ var server = require("../../../src/js/utils/ServerInterface.js");
 var mock = require("./Data-MockServerInterface.js");
 
 
-describe( "ServerInterface", function() {
+describe("ServerInterface", function() {
    // Terminology:
    //    "Indicate" - The status is returned when queried.
    //    "Report" - The module calls a call-back method.
@@ -193,6 +193,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.ServerTimeout());
 
@@ -207,6 +208,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.ServerError());
 
@@ -221,6 +223,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists('TestUser'));
 
@@ -235,6 +238,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
@@ -249,6 +253,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.RegisterUser('TestUser', 'TestPassword', "Test User 1", "testuser1@chamrock.net");
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
 
@@ -293,6 +298,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, GamesSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.GetGameTypes();
          jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
 
@@ -308,6 +314,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.LoadDeckSpec('invalid-deck');
          jasmine.Ajax.requests.mostRecent().response(mock.NotFoundError('invalid-deck'));
 
@@ -326,6 +333,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          server.LoadDeckSpec('standard');
          jasmine.Ajax.requests.mostRecent().response(mock.DeckSpecStandard());
 
@@ -419,7 +427,23 @@ describe( "ServerInterface", function() {
          expect(data).toEqual(JSON.parse(mock.GameTypes().responseText));
       });
 
-      xit("retrieves a deck specification", function() {
+      it("retrieves a deck specification", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var DeckSpecSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, DeckSpecSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
+         server.LoadDeckSpec();
+         jasmine.Ajax.requests.mostRecent().response(mock.DeckSpecStandard());
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.DeckSpecStandard().responseText));
       });
 
       it("retrieves user's games", function() {

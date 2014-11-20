@@ -65,8 +65,23 @@ describe("GameDataManager", function() {
 
    });
 
-   describe("-need a category for these", function() {
+   describe("-when requested", function() {
 
+      it("retrieves a game type by id", function() {
+         var gameTypes = JSON.parse(mock.GameTypes().responseText);
+         var simpleWar = gameDataMgr.GetGameTypeById('simple-war');
+         var tenPhases = gameDataMgr.GetGameTypeById('ten-phases');
+         expect(simpleWar).toEqual(gameTypes[0]);
+         expect(tenPhases).toEqual(gameTypes[1]);
+      });
+
+      it("retrieves a user's game by id", function() {
+         var userGames = JSON.parse(mock.UserGames().responseText);
+         var simpleWar = gameDataMgr.GetUserGameById('2');
+         expect(simpleWar).toEqual(userGames[1]);
+      });
+
+      /* TODO: When should it retrieve a deck spec?  When a game is started? */
       xit("retrieves a deck specification from the server", function() {
          // Verify deck specifications are retrieved from the server and stored
          // in files.
