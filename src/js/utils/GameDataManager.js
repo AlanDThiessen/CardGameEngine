@@ -18,6 +18,7 @@ function GameDataManager() {
    this.gameTypes = [];
    this.deckSpecs = [];
    this.userGames = [];
+   this.joinableGames = [];
 
    this.RegisterServerCallbacks();
 }

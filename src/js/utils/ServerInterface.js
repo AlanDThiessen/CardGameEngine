@@ -335,7 +335,7 @@ server.GetUserGamesFailure = function(status) {
 
 
 /******************************************************************************
- * Get Joinable Games
+ * Get Join-able Games
  ******************************************************************************/ 
 server.GetJoinableGames = function() {
    if((server.token.valid == true) && (server.token.userId != 0)) {
@@ -354,7 +354,9 @@ server.GetJoinableGames = function() {
 };
 
 
-server.GetJoinableGamesSuccess = function(joinableGames) {
+server.GetJoinableGamesSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+   server.CallBack(server.events.SI_USER_JOINABLE_GAMES_RETRIEVED, status, response);
 };
 
 

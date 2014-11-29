@@ -465,7 +465,24 @@ describe("ServerInterface", function() {
          expect(data).toEqual(JSON.parse(mock.UserGames().responseText));
       });
 
-      xit("retrieves joinable games for user", function() {
+      it("retrieves join-able games for user", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var JoinableGamesSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_USER_JOINABLE_GAMES_RETRIEVED, JoinableGamesSuccess);
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
+         server.GetJoinableGames();
+         // We'll send in user games for now as it's the same format as join-able games
+         jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.UserGames().responseText));
       });
 
       xit("joins a game", function() {

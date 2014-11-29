@@ -26,7 +26,7 @@ ajax.ServerPost = function(postData, success, failure) {
    request.responseType = 'text';
    request.onreadystatechange = function(e){ajax.HandleResponse(e, this, success, failure);};
    request.send(formData);
-}
+};
 
 
 ajax.HandleResponse = function(event, resp, success, failure) {
@@ -43,6 +43,6 @@ ajax.HandleResponse = function(event, resp, success, failure) {
          }
       }
    }
-}
+};
 
 module.exports = ajax;
