@@ -276,6 +276,15 @@ function main() {
 
 
 function ChangeUser() {
+    var cntr;
+
+    console.log("Users:");
+
+    for(cntr = 0; cntr < users.length; cntr++) {
+        console.log('   ' + cntr + ': ' + users[cntr].userName);
+    }
+
+    io.question("Select User: ", function(input))
 }
 
 
