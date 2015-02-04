@@ -2,10 +2,10 @@ describe( "TestAuthService", function() {
 
    var AuthService = null;
 
-   beforeEach(angular.module('myApp'));
+   beforeEach(angular.module('starter'));
 
    beforeEach ( function () {
-      AuthService = angular.injector(['myApp']).get('AuthService');
+      AuthService = angular.injector().get('AuthService');
    });
 
    it("should be defined", function () {

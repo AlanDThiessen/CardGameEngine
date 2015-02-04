@@ -50,7 +50,7 @@ module.exports = ajax;
 
 },{"./Logger.js":6}],2:[function(require,module,exports){
 
-server = require("./ServerInterface.js");
+var server = require("./ServerInterface.js");
 
 authenticator = {};
 
@@ -59,11 +59,12 @@ authenticator = {};
  * Authenticator Events
  ******************************************************************************/
 authenticator.events = {
-   AUTH_REGISTRATION:                    1,
-   AUTH_USER_LOGGED_IN:                  2,
-   AUTH_USER_LOGGED_OUT:                 3,
-   AUTH_MAX_EVENT:                       4   // For validation: should always be
-                                             // one more than the last event.
+   AUTH_USER_REGISTER:                   1,
+   AUTH_USER_LOG_IN:                     2,
+   AUTH_USER_LOG_OUT:                    3,
+   
+   // For validation: should always be one more than the last event.
+   AUTH_MAX_EVENT:                       4
 };
 
 
@@ -73,14 +74,15 @@ authenticator.events = {
 authenticator.status = {
    // Successfull status
    AUTH_SUCCESS:                         0,
-   AUTH_REQUESTED:                       1,
-   AUTH_USER_AUTHENTICATED:              2,
-   AUTH_USER_NOT_AUTHENTICATED:          3,
+   AUTH_PENDING_REGISTRATION:            1,
+   AUTH_PENDING_LOGIN:                   2,
+   AUTH_USER_AUTHENTICATED:              3,
+   AUTH_USER_NOT_AUTHENTICATED:          4,
 
    // Error codes   
    AUTH_FAILURE:                        -1,  // The specific error is unknown
    AUTH_USERNAME_EXISTS:                -2,
-   AUTH_SERVER_ERROR:                   -3,
+   AUTH_SERVER_ERROR:                   -3,  // The server timed-out or returned an error
    AUTH_AUTHENTICATION_ERROR:           -4
 };
 
@@ -128,7 +130,7 @@ authenticator.ResetCallbacks = function() {
 };
 
 
-authenticator.CallBack = function(event, callStatus, data) {
+authenticator.CallBack = function(event, callStatus) {
    var status = false;
 
    if((event > 0) && (event < authenticator.events.AUTH_MAX_EVENT)) {
@@ -156,21 +158,48 @@ authenticator.token = {
    email:         undefined
 };
 
+
+authenticator.InitToken = function() {
+   authenticator.token.status       = authenticator.status.AUTH_USER_NOT_AUTHENTICATED;
+   authenticator.token.userId       = undefined;
+   authenticator.token.userName     = undefined;
+   authenticator.token.displayName  = undefined;
+   authenticator.token.email        = undefined;
+
+   server.ClearToken();
+};
+
+
+authenticator.SetToken = function(data) {
+   authenticator.token.status       = authenticator.status.AUTH_USER_AUTHENTICATED;
+   authenticator.token.userId       = data.id;
+   authenticator.token.userName     = data.username;
+   authenticator.token.displayName  = data.display_name;
+   authenticator.token.email        = data.email;
+
+   server.SetTokenUser(authenticator.token.userId);
+};
+
+
 authenticator.GetUserStatus = function() {
    return authenticator.token.status;
 };
+
 
 authenticator.GetUserId = function() {
    return authenticator.token.userId;
 };
 
+
 authenticator.GetUserName = function() {
    return authenticator.token.userName;
 };
 
+
 authenticator.GetUserDisplayName = function() {
    return authenticator.token.displayName;
 };
+
 
 authenticator.GetUserEmail = function() {
    return authenticator.token.email;
@@ -181,41 +210,86 @@ authenticator.GetUserEmail = function() {
  * Server Event Handlers
  ******************************************************************************/
 authenticator.ServerLoginCallback = function(status, data) {
+   var authEvent;
+   
+   if(authenticator.token.status == authenticator.status.AUTH_PENDING_REGISTRATION) {
+      authEvent = authenticator.events.AUTH_USER_REGISTER;
+   }
+   else if(authenticator.token.status == authenticator.status.AUTH_PENDING_LOGIN) {
+      authEvent = authenticator.events.AUTH_USER_LOG_IN;
+   }
 
+   switch(status) {
+      case server.status.SI_SUCCESS:
+         authenticator.SetToken(data);
+         authenticator.CallBack(authEvent,
+                                authenticator.status.AUTH_USER_AUTHENTICATED);
+         break;
+
+      case server.status.SI_ERROR_REGISTER_NAME_EXISTS:
+         authenticator.InitToken();
+         authenticator.CallBack(authEvent,
+                                authenticator.status.AUTH_USERNAME_EXISTS);
+         break;
+
+      case server.status.SI_ERROR_SERVER_DATABASE:
+         authenticator.InitToken();
+         authenticator.CallBack(authEvent,
+                                authenticator.status.AUTH_SERVER_ERROR);
+         break;
+
+      case server.status.SI_ERROR_LOGIN_INVALID:
+         authenticator.InitToken();
+         authenticator.CallBack(authEvent,
+                                authenticator.status.AUTH_AUTHENTICATION_ERROR);
+         break;
+
+      case server.status.SI_FAILURE:
+         authenticator.InitToken();
+         authenticator.CallBack(authEvent,
+                                authenticator.status.AUTH_FAILURE);
+         break;      
+   }
 };
 
+
+authenticator.ServerErrorCallback = function(callStatus, data) {
+   authenticator.InitToken();
+   authenticator.CallBack(authenticator.events.AUTH_USER_LOG_OUT,
+                          authenticator.status.AUTH_SERVER_ERROR);
+};
 
 
 /******************************************************************************
  * Authenticator Interface Methods
  ******************************************************************************/
 authenticator.Init = function() {
-   authenticator.token.status       = authenticator.status.AUTH_USER_NOT_AUTHENTICATED;
-   authenticator.token.userId       = undefined;
-   authenticator.token.userName     = undefined;
-   authenticator.token.displayName  = undefined;
-   authenticator.token.email        = undefined;
-
    server.AddCallback(server.events.SI_LOGIN, authenticator.ServerLoginCallback);
+   server.AddCallback(server.events.SI_SERVER_ERROR, authenticator.ServerErrorCallback);
 };
-
 
 authenticator.RegisterUser = function(userName, password, displayName, email) {
    var status = server.RegisterUser(userName, password, displayName, email);
 
    if(status == server.status.SI_SUCCESS) {
-      authenticator.token.status = authenticator.status.AUTH_REQUESTED;
+      authenticator.token.status = authenticator.status.AUTH_PENDING_REGISTRATION;
    }
 };
 
 
 authenticator.LoginUser = function(userName, password) {
+   var status = server.LoginUser(userName, password);
 
+   if(status == server.status.SI_SUCCESS) {
+      authenticator.token.status = authenticator.status.AUTH_PENDING_LOGIN;
+   }
 };
 
 
 authenticator.LogoutUser = function() {
-
+   authenticator.InitToken();
+   authenticator.CallBack(authenticator.events.AUTH_USER_LOG_OUT,
+                          authenticator.status.AUTH_USER_NOT_AUTHENTICATED);
 };
 
 
@@ -782,11 +856,127 @@ module.exports = {
 
 },{}],4:[function(require,module,exports){
 
-module.exports = {
+var server = require("./ServerInterface.js");
+
+/******************************************************************************
+ * Server Status/Error Values
+ ******************************************************************************/
+gdStatus = {
+   GD_SUCCESS:                           0
 };
 
 
-},{}],5:[function(require,module,exports){
+/*******************************************************************************
+ * 
+ * GameDataManager Class Constructor
+ * 
+ ******************************************************************************/
+function GameDataManager() {
+   this.gameTypes = [];
+   this.deckSpecs = [];
+   this.userGames = [];
+
+   this.RegisterServerCallbacks();
+}
+
+
+/******************************************************************************
+ *
+ * Public Methods
+ *
+ ******************************************************************************/
+
+/******************************************************************************
+ * Data Access Methods
+ ******************************************************************************/
+GameDataManager.prototype.GetGameTypes = function() {
+
+};
+
+
+GameDataManager.prototype.GetGameTypeById = function(id) {
+
+};
+
+
+GameDataManager.prototype.GetDeckSpecs = function() {
+
+};
+
+
+GameDataManager.prototype.GetDeckSpecById = function(id) {
+
+};
+
+
+GameDataManager.prototype.GetUserGames = function() {
+
+};
+
+
+GameDataManager.prototype.GetUserGameById = function(id) {
+
+};
+
+
+/******************************************************************************
+ *
+ * Server Interface Callback Methods
+ *
+ ******************************************************************************/
+GameDataManager.prototype.RegisterServerCallbacks = function() {
+   server.AddCallback(server.events.SI_LOGIN, this.ServerLoginHandler);
+   server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, this.ServerGameTypesHandler);
+   server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, this.ServerMyGamesHandler);
+   server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, this.ServerDeckSpecHandler);
+};
+
+
+GameDataManager.prototype.ServerLoginHandler = function(status, data) {
+
+};
+
+
+GameDataManager.prototype.ServerGameTypesHandler = function(status, data) {
+
+};
+
+
+GameDataManager.prototype.ServerMyGamesHandler = function(status, data) {
+
+};
+
+
+GameDataManager.prototype.ServerDeckSpecHandler = function(status, data) {
+
+};
+
+
+/*******************************************************************************
+ * 
+ * GameDataManager Singleton
+ * 
+ ******************************************************************************/
+var gameDataMgr = undefined;
+
+function GetGameDataManager() {
+
+   if(gameDataMgr === undefined) {
+      gameDataMgr = new GameDataManager();
+   }
+
+   return gameDataMgr;
+}
+
+
+module.exports = {
+   status:              gdStatus,
+   gameDataMgr:         gameDataMgr,
+   GetGameDataManager:  GetGameDataManager
+};
+
+
+},{"./ServerInterface.js":7}],5:[function(require,module,exports){
 
 },{}],6:[function(require,module,exports){
 var config = require("./config.js");
@@ -943,8 +1133,8 @@ module.exports = log;
 
 },{"./FileSystem.js":3,"./config.js":8}],7:[function(require,module,exports){
 
-ajax = require("./Ajax.js");
-log = require("./Logger.js");
+var ajax = require("./Ajax.js");
+var log = require("./Logger.js");
 
 server = {};
 
@@ -962,7 +1152,8 @@ server.events = {
    SI_GAME_PAUSED:                       8,
    SI_GAME_RESUMED:                      9,
    SI_GAME_ENDED:                       10,
-   SI_MAX_EVENT:                        11   // For validation: should always be
+   SI_SERVER_ERROR:                     11,  // All server errors call this event
+   SI_MAX_EVENT:                        12   // For validation: should always be
                                              // one more than the last event.
 };
 
@@ -980,8 +1171,9 @@ server.status = {
    SI_ERROR_TOKEN_INVALID:              -6,
    SI_ERROR_SERVER_TIMEOUT:             -7,
    SI_ERROR_SERVER_DATABASE:            -8,
-   SI_ERROR_LOGIN_INVALID:              -9,
-   SI_ERROR_REGISTER_NAME_EXISTS:      -10
+   SI_ERROR_SERVER_ERROR_NOT_FOUND:     -9,
+   SI_ERROR_LOGIN_INVALID:             -10,
+   SI_ERROR_REGISTER_NAME_EXISTS:      -11
 };
 
 
@@ -990,7 +1182,8 @@ server.status = {
  ******************************************************************************/
 server.cgeError = {
    SI_CGE_ERROR_USER_EXISTS:             1,
-   SI_CGE_ERROR_DB_ERROR:                2
+   SI_CGE_ERROR_DB_ERROR:                2,
+   SI_CGE_ERROR_NOT_FOUND:               3
 };
 
 /******************************************************************************
@@ -1136,19 +1329,9 @@ server.RegisterUserSuccess = function(response) {
 };
 
 
-server.RegisterUserFailure = function(callstatus) {
-   var status = server.status.SI_FAILURE;
+server.RegisterUserFailure = function(callStatus) {
    server.Failure(status, "RegisterUser");
-
-   if((callstatus >= 400) && (callstatus < 500)) {
-      switch(callstatus) {
-         case 408:
-            status = server.status.SI_ERROR_SERVER_TIMEOUT;
-            break;
-      }
-   }
-
-   server.CallBack(server.events.SI_LOGIN, status, undefined);
+   server.HandleAjaxFailure(server.events.SI_LOGIN, callStatus);
 };
 
 
@@ -1168,13 +1351,25 @@ server.LoginUser = function(username, password) {
 };
 
 
-server.LoginUserSuccess = function(user) {
-   server.CallBack(server.event.SI_LOGIN, server.status.SI_SUCCESS, user);
+server.LoginUserSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+
+   if(response.cge_error_id !== undefined) {
+      if(response.cge_error_id == server.cgeError.SI_CGE_ERROR_DB_ERROR) {
+         status = server.status.SI_ERROR_LOGIN_INVALID;
+      }
+      else {
+         status = server.status.SI_FAILURE;
+      }
+   }
+
+   server.CallBack(server.events.SI_LOGIN, status, response);
 };
 
 
-server.LoginUserFailure = function(status) {
+server.LoginUserFailure = function(callStatus) {
    server.failure(status, "LoginUser");
+   server.HandleAjaxFailure(server.events.SI_LOGIN, callStatus);
 };
 
 
@@ -1185,19 +1380,22 @@ server.GetGameTypes = function() {
    var postData = {
       'action': 'cge_get_game_types'
    };
-   
+
    ajax.ServerPost(postData, server.GetGameTypesSuccess, server.GetGameTypesFailure);
-   
+
    return server.status.SI_SUCCESS;
 };
 
 
-server.GetGameTypesSuccess = function(gameTypes) {
+server.GetGameTypesSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+   server.CallBack(server.events.SI_GAME_TYPES_RETRIEVED, status, response);
 };
 
 
-server.GetGameTypesFailure = function(status) {
+server.GetGameTypesFailure = function(callStatus) {
    server.failure(status, "GetGameTypes");
+   server.HandleAjaxFailure(server.events.SI_GAME_TYPES_RETRIEVED, callStatus);
 };
 
 
@@ -1207,21 +1405,34 @@ server.GetGameTypesFailure = function(status) {
 server.LoadDeckSpec = function(deckTypeId) {
    var postData = {
       'action': 'cge_load_deck_spec',
-      'deck_type_id': deckTypeId
+      'deck_type': deckTypeId
    };
-   
+
    ajax.ServerPost(postData, server.LoadDeckSpecSuccess, server.LoadDeckSpecFailure);
-   
+
    return server.status.SI_SUCCESS;
 };
 
 
-server.LoadDeckSpecSuccess = function(game) {
+server.LoadDeckSpecSuccess = function(response) {
+   var status = server.status.SI_SUCCESS;
+
+   if(response.cge_error_id !== undefined) {
+      if(response.cge_error_id == server.cgeError.SI_CGE_ERROR_NOT_FOUND) {
+         status = server.status.SI_ERROR_SERVER_ERROR_NOT_FOUND;
+      }
+      else {
+         status = server.status.SI_FAILURE;
+      }
+   }
+
+   server.CallBack(server.events.SI_DECK_SPEC_RETRIEVED, status, response);
 };
 
 
-server.LoadDeckSpecFailure = function(status) {
+server.LoadDeckSpecFailure = function(callStatus) {
    server.failure(status, "LoadDeckSpec");
+   server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, callStatus);
 };
 
 
@@ -1526,6 +1737,24 @@ server.AckEventFailure = function(status) {
 
 
 /******************************************************************************
+ * Handle Ajax Failure
+ ******************************************************************************/
+server.HandleAjaxFailure = function(event, callStatus) {
+   var status = server.status.SI_FAILURE;
+
+   if((callStatus >= 400) && (callStatus < 500)) {
+      switch(callStatus) {
+         case 408:
+            status = server.status.SI_ERROR_SERVER_TIMEOUT;
+            break;
+      }
+   }
+
+   server.CallBack(event, status, undefined);
+};
+
+
+/******************************************************************************
  * Failure to Send - TODO: Needs some thought
  ******************************************************************************/ 
 server.Failure = function(status, name) {
@@ -1607,7 +1836,7 @@ serverMock = {};
 serverMock.ServerTimeout = function() {
    return {
       "status": 408,
-      "content-type": 'text/JSON',
+      "content-type": 'text/html',
       "responseText": ''
    };
 };
@@ -1616,15 +1845,16 @@ serverMock.ServerTimeout = function() {
 serverMock.ServerError = function() {
    return {
       "status": 403,
-      "content-type": 'text/JSON',
+      "content-type": 'text/html',
       "responseText": ''
    };
 };
 
+
 serverMock.UserExists = function(userName) {
    return {
       "status": 200,
-      "content-type": 'text/JSON',
+      "content-type": 'text/html',
       "responseText": '{"cge_error_id": "001", "cge_error": "User ' + userName + ' already exists."}'
    };
 };
@@ -1633,7 +1863,7 @@ serverMock.UserExists = function(userName) {
 serverMock.DatabaseError = function() {
    return {
       "status": 200,
-      "content-type": 'text/JSON',
+      "content-type": 'text/html',
       "responseText": '{"cge_error_id": "002", "cge_error": "Database error."}'
    };
 };
@@ -1642,7 +1872,7 @@ serverMock.DatabaseError = function() {
 serverMock.UserResponse = function(userId, userName, displayName, email) {
    return {
       "status": 200,
-      "content-type": 'text/JSON',
+      "content-type": 'text/html',
       "responseText":   '{"id": "' + userId + '",'
                       +  ' "username": "' + userName + '",'
                       +  ' "display_name": "' + displayName + '",'
@@ -1650,6 +1880,52 @@ serverMock.UserResponse = function(userId, userName, displayName, email) {
                       + '}'
    };
 };
+
+
+serverMock.GameTypes = function() {
+   return {
+      "status": 200,
+      "content-type": 'text/html',
+      "responseText":   '[{"id":"simple-war","name":"Simple War"},{"id":"ten-phases","name":"Ten Phases"}]'
+   };
+};
+
+
+serverMock.UserGames = function() {
+   return {
+      "status": 200,
+      "content-type": 'text/html',
+      "responseText": '[{"id":"1","game_type_id":"simple-war","game_name":"Simple War created by FIXME","created_by":"1","num_players_allowed":"4","game_state":"0"},{"id":"2","game_type_id":"simple-war","game_name":"Simple War created by FIXME","created_by":"1","num_players_allowed":"4","game_state":"0"}]'
+   };
+};
+
+
+serverMock.NotFoundError = function(item) {
+   return {
+      "status": 200,
+      "content-type": 'text/html',
+      "responseText": '{"cge_error_id":"003","cge_error":"Deck ' + item + ' definition file not found."}'
+   };
+}
+
+
+serverMock.DeckSpecStandard = function() {
+   return {
+      "status": 200,
+      "content-type": 'text/html',
+      "responseText": '{"id":"standard","name":"Standard Deck","suited":{"suits":{"suit":[{"id":"clubs","name":"Clubs","shortname":"C","color":"black"},{"id":"hearts","name":"Hearts","shortname":"H","color":"red"},{"id":"spades","name":"Spades","shortname":"S","color":"black"},{"id":"diamonds","name":"Diamonds","shortname":"D","color":"red"}]},"values":{"value":[{"id":"2","name":"Two","shortname":"2","rank":"2","quantity":"1"},{"id":"3","name":"Three","shortname":"3","rank":"3","quantity":"1"},{"id":"4","name":"Four","shortname":"4","rank":"4","quantity":"1"},{"id":"5","name":"Five","shortname":"5","rank":"5","quantity":"1"},{"id":"6","name":"Six","shortname":"6","rank":"6","quantity":"1"},{"id":"7","name":"Seven","shortname":"7","rank":"7","quantity":"1"},{"id":"8","name":"Eight","shortname":"8","rank":"8","quantity":"1"},{"id":"9","name":"Nine","shortname":"9","rank":"9","quantity":"1"},{"id":"10","name":"Ten","shortname":"10","rank":"10","quantity":"1"},{"id":"J","name":"Jack","shortname":"J","rank":"11","quantity":"1"},{"id":"Q","name":"Queen","shortname":"Q","rank":"12","quantity":"1"},{"id":"K","name":"King","shortname":"K","rank":"13","quantity":"1"},{"id":"A","name":"Ace","shortname":"A","rank":"14","quantity":"1"}]}},"nonsuited":{"values":{"value":{"id":"joker","name":"Joker","shortname":"Joker","rank":"0","quantity":"2","color":"black"}}}}'
+   }
+};
+
+
+serverMock.DeckSpecStandardNoJokers = function() {
+   return {
+      "status": 200,
+      "content-type": 'text/html',
+      "responseText": '{"id":"standard-no-jokers","name":"Standard Deck without Jokers","suited":{"suits":{"suit":[{"id":"clubs","name":"Clubs","shortname":"C","color":"black"},{"id":"hearts","name":"Hearts","shortname":"H","color":"red"},{"id":"spades","name":"Spades","shortname":"S","color":"black"},{"id":"diamonds","name":"Diamonds","shortname":"D","color":"red"}]},"values":{"value":[{"id":"2","name":"Two","shortname":"2","rank":"2","quantity":"1"},{"id":"3","name":"Three","shortname":"3","rank":"3","quantity":"1"},{"id":"4","name":"Four","shortname":"4","rank":"4","quantity":"1"},{"id":"5","name":"Five","shortname":"5","rank":"5","quantity":"1"},{"id":"6","name":"Six","shortname":"6","rank":"6","quantity":"1"},{"id":"7","name":"Seven","shortname":"7","rank":"7","quantity":"1"},{"id":"8","name":"Eight","shortname":"8","rank":"8","quantity":"1"},{"id":"9","name":"Nine","shortname":"9","rank":"9","quantity":"1"},{"id":"10","name":"Ten","shortname":"10","rank":"10","quantity":"1"},{"id":"J","name":"Jack","shortname":"J","rank":"11","quantity":"1"},{"id":"Q","name":"Queen","shortname":"Q","rank":"12","quantity":"1"},{"id":"K","name":"King","shortname":"K","rank":"13","quantity":"1"},{"id":"A","name":"Ace","shortname":"A","rank":"14","quantity":"1"}]}},"nonsuited":{"values":{}}}'
+      };
+}
+
 
 module.exports = serverMock;
 
@@ -1659,10 +1935,10 @@ describe( "TestAuthService", function() {
 
    var AuthService = null;
 
-   beforeEach(angular.module('myApp'));
+   beforeEach(angular.module('starter'));
 
    beforeEach ( function () {
-      AuthService = angular.injector(['myApp']).get('AuthService');
+      AuthService = angular.injector().get('AuthService');
    });
 
    it("should be defined", function () {
@@ -1702,6 +1978,7 @@ describe("Authenticator", function() {
 
    it("indicates user not authenticated upon initialization", function() {
       auth.Init();
+      auth.InitToken();
       expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       expect(auth.GetUserId()).not.toBeDefined();
       expect(auth.GetUserName()).not.toBeDefined();
@@ -1771,9 +2048,9 @@ describe("Authenticator", function() {
          var status1 = auth.AddCallback(CallBack1);
          var status2 = auth.AddCallback(CallBack2);
 
-         // Normally, this method is not called external of the ServerInterface;
+         // Normally, this method is not called external of the Authenticator;
          // However, for testing purposes...
-         var status3 = auth.CallBack(auth.events.AUTH_REGISTRATION, auth.status.AUTH_SUCCESS, undefined);
+         var status3 = auth.CallBack(auth.events.AUTH_USER_REGISTER, auth.status.AUTH_SUCCESS);
 
          expect(status1).toEqual(true);
          expect(status2).toEqual(true);
@@ -1827,6 +2104,7 @@ describe("Authenticator", function() {
       afterEach(function() {
          jasmine.Ajax.uninstall();
          auth.ResetCallbacks();
+         auth.LogoutUser();
       });
 
       it("reports username exists error on user registration", function() {
@@ -1841,11 +2119,11 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists("TestUser"));
 
-         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_REGISTER);
          expect(testStatus).toEqual(auth.status.AUTH_USERNAME_EXISTS);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
@@ -1862,11 +2140,11 @@ describe("Authenticator", function() {
          auth.AddCallback(CallBack);
          auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
-         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_REGISTER);
          expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
@@ -1884,21 +2162,20 @@ describe("Authenticator", function() {
             testEvent = event;
             testStatus = status;
          }
-         
+
          spyOn(server, "SetTokenUser");
 
          auth.AddCallback(CallBack);
          auth.RegisterUser(userName, testPassword, displayName, email);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_REQUESTED);
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
-                                                                       testPassword,
                                                                        displayName,
                                                                        email));
 
-         expect(testEvent).toEqual(auth.events.AUTH_REGISTRATION);
+         expect(testEvent).toEqual(auth.events.AUTH_USER_REGISTER);
          expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
          expect(server.SetTokenUser).toHaveBeenCalledWith(userId);
          expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
@@ -1908,26 +2185,185 @@ describe("Authenticator", function() {
          expect(auth.GetUserEmail()).toEqual(email);
       });
 
-      xit("reports authentication error with invalid username on authentication", function() {
+      it("reports authentication error with invalid username on authentication", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+         auth.LoginUser(userName, testPassword);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
+
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_AUTHENTICATION_ERROR);
+         expect(server.ClearToken).toHaveBeenCalledWith();
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+         expect(auth.GetUserId()).toBeUndefined();
+         expect(auth.GetUserName()).toBeUndefined();
+         expect(auth.GetUserDisplayName()).toBeUndefined();
+         expect(auth.GetUserEmail()).toBeUndefined();
       });
 
-      xit("reports authentication error with invalid password on authentication", function() {
+      it("reports authentication error with invalid password on authentication", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+         auth.LoginUser(userName, testPassword);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
+
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_AUTHENTICATION_ERROR);
+         expect(server.ClearToken).toHaveBeenCalledWith();
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+         expect(auth.GetUserId()).toBeUndefined();
+         expect(auth.GetUserName()).toBeUndefined();
+         expect(auth.GetUserDisplayName()).toBeUndefined();
+         expect(auth.GetUserEmail()).toBeUndefined();
       });
 
-      xit("reports user authenticated upon successful login", function() {
+      it("reports user authenticated upon successful login", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "SetTokenUser");
+
+         auth.AddCallback(CallBack);
+         auth.LoginUser(userName, testPassword);
+
+         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
+
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       displayName,
+                                                                       email));
+
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(server.SetTokenUser).toHaveBeenCalledWith(userId);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserId()).toEqual(userId);
+         expect(auth.GetUserName()).toEqual(userName);
+         expect(auth.GetUserDisplayName()).toEqual(displayName);
+         expect(auth.GetUserEmail()).toEqual(email);
       });
 
    });
 
    describe("-when authenticated,", function() {
 
-      xit("reports user un-authenticated upon receiving server error", function() {
+      beforeEach(function() {
+         jasmine.Ajax.install();
       });
 
-      xit("reports user un-authenticated upon user logout", function() {
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
+         auth.ResetCallbacks();
       });
 
-      xit("rescinds authentication token from server interface upon user un-authentication", function() {
+      it("reports user un-authenticated upon receiving server error", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+
+         // Log the user in
+         auth.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       displayName,
+                                                                       email));
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+
+         // Now, cause the server failure
+         server.CallBack(server.events.SI_SERVER_ERROR, server.status.SI_FAILURE, undefined);
+         expect(server.ClearToken).toHaveBeenCalledWith();
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_OUT);
+         expect(testStatus).toEqual(auth.status.AUTH_SERVER_ERROR);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+      });
+
+      it("reports user un-authenticated upon user logout", function() {
+         var testEvent = undefined;
+         var testStatus = undefined;
+         var userId = '0001';
+         var userName = 'TestUser';
+         var testPassword = 'testPassword';
+         var displayName = 'Test User 1';
+         var email = 'testuser1@chamrock.net';
+
+         var CallBack = function(event, status) {
+            testEvent = event;
+            testStatus = status;
+         }
+
+         spyOn(server, "ClearToken");
+
+         auth.AddCallback(CallBack);
+
+         // Log the user in
+         auth.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
+                                                                       userName,
+                                                                       displayName,
+                                                                       email));
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_IN);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_AUTHENTICATED);
+
+         // Now, log the user out
+         auth.LogoutUser();
+         expect(server.ClearToken).toHaveBeenCalledWith();
+         expect(testEvent).toEqual(auth.events.AUTH_USER_LOG_OUT);
+         expect(testStatus).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
       });
 
    });
@@ -1938,33 +2374,94 @@ describe("Authenticator", function() {
 },{"../../../src/js/utils/Authenticator.js":2,"../../../src/js/utils/ServerInterface.js":7,"./Data-MockServerInterface.js":10}],13:[function(require,module,exports){
 
 // Pull in the module we're testing.
-var gameData = require("../../../src/js/utils/GameDataManager.js");
+gameData = require("../../../src/js/utils/GameDataManager.js");
+server = require("../../../src/js/utils/ServerInterface.js");
+auth = require("../../../src/js/utils/Authenticator.js");
+mock = require("./Data-MockServerInterface.js");
 
 
 describe("GameDataManager", function() {
+   var gameDataMgr = undefined;
+   var userName = 'TestUser';
+   var testPassword = 'testPassword';
 
-   xit("registers callbacks with the server interface", function() {
+   it("instantiates the singleton upon initialization", function() {
       // spy on the game data to ensure it registers all callbacks with the 
       // server comms when it is initialized.
+      spyOn(server, "AddCallback");
+
+      gameDataMgr = gameData.GetGameDataManager();
+      expect(gameDataMgr).toBeDefined();
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_LOGIN,
+                                                      gameDataMgr.ServerLoginHandler);
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_GAME_TYPES_RETRIEVED,
+                                                      gameDataMgr.ServerGameTypesHandler);
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_USER_GAMES_RETRIEVED,
+                                                      gameDataMgr.ServerMyGamesHandler);
+      expect(server.AddCallback).toHaveBeenCalledWith(server.events.SI_DECK_SPEC_RETRIEVED,
+                                                      gameDataMgr.ServerDeckSpecHandler);
    });
 
-   describe("-when no data exists,", function() {
+   it("additional calls to singleton return the same object", function() {
+      var gameDataMgr2 = gameData.GetGameDataManager();
+      expect(gameDataMgr2).toBeDefined();
+      expect(gameDataMgr2).toEqual(gameDataMgr);
+   });
 
-      xit("retrieves game types from the server", function(done) {
-         // Verify game types are retrieved from the server and stored in a file.
+   // NOTE: These tests assume the Authenticator has already been initialized
+   describe("-upon succesfull server login,", function() {
+
+      beforeEach(function() {
+         jasmine.Ajax.install();
       });
+
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
+         auth.LogoutUser();
+      });
+
+      it("retrieves game types from the server", function(done) {
+         // Verify game types are retrieved from the server and stored in a file.
+         spyOn(server, "GetGameTypes").and.callThrough();
+         
+         // Mock server ajax registration success
+         auth.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
+
+         // Verify spies
+         expect(server.GetGameTypes).toHaveBeenCalled();
+
+         // Mock server ajax game types and user games from server
+         jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
+
+         expect(gameDataMgr.GetGameTypes()).toEqual(mock.GameTypes());
+      });
+
+      it("retrieves user's games from the server", function(done) {
+         // Verify game types are retrieved from the server and stored in a file.
+         spyOn(server, "GetUserGames").and.callThrough();
+
+         // Mock server ajax registration success
+         auth.LoginUser(userName, testPassword);
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
+
+         // Verify spies
+         expect(server.GetUserGames).toHaveBeenCalled();
+         
+         // Mock server ajax game types and user games from server
+         jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
+
+         expect(gameDataMgr.GetUserGames()).toEqual(mock.UserGames());
+      });
+
+   });
+
+   describe("-need a category for these", function() {
 
       xit("retrieves a deck specification from the server", function(done) {
          // Verify deck specifications are retrieved from the server and stored
          // in files.
-      });
-
-      xit("retrieves user's games from the server", function(done) {
-         // Verify user's games are retrieved from the server and stroed in files.
-      });
-
-      xit("retrieves user's joinable games from the server", function(done) {
-         // These are not stored in a file.
+         spyOn(server, "LoadDeckSpec");
       });
 
       // Not sure why this is necessary... ???
@@ -1974,6 +2471,9 @@ describe("GameDataManager", function() {
    });
 
    describe("-when data exists in files,", function() {
+   /* TODO: Future
+      Game Data File Storage has been postponed for a future release
+   */
 
       xit("populates game types from the file", function(done) {
       });
@@ -1997,7 +2497,7 @@ describe("GameDataManager", function() {
 } );
 
 
-},{"../../../src/js/utils/GameDataManager.js":4}],14:[function(require,module,exports){
+},{"../../../src/js/utils/Authenticator.js":2,"../../../src/js/utils/GameDataManager.js":4,"../../../src/js/utils/ServerInterface.js":7,"./Data-MockServerInterface.js":10}],14:[function(require,module,exports){
 
 // Pull in the module we're testing.
 var fileSystem = require("../../../src/js/utils/GameManager.js");
@@ -2203,7 +2703,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.ServerTimeout());
 
          expect(status).toEqual(server.status.SI_ERROR_SERVER_TIMEOUT);
@@ -2217,7 +2717,7 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.ServerError());
 
          expect(status).toEqual(server.status.SI_FAILURE);
@@ -2231,12 +2731,12 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists('TestUser'));
 
          expect(status).toEqual(server.status.SI_ERROR_REGISTER_NAME_EXISTS);
       });
-      
+
       it("reports an error if the server responds with an error", function() {
          var status = undefined;
 
@@ -2245,12 +2745,12 @@ describe( "ServerInterface", function() {
          };
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
-         server.RegisterUser('TestUser', 'TestPassword');
+         server.RegisterUser('TestUser', 'TestPassword', 'Test User1', 'testuser1@chamrock.net');
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
          expect(status).toEqual(server.status.SI_ERROR_SERVER_DATABASE);
       });
-      
+
       it("reports successful user registration", function() {
          var status = undefined;
 
@@ -2260,7 +2760,7 @@ describe( "ServerInterface", function() {
 
          var addStatus = server.AddCallback(server.events.SI_LOGIN, RegisterSuccess);
          server.RegisterUser('TestUser', 'TestPassword', "Test User 1", "testuser1@chamrock.net");
-         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('TestUser', 'TestPassword', "Test User 1", "testuser1@chamrock.net"));
+         jasmine.Ajax.requests.mostRecent().response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
 
          expect(status).toEqual(server.status.SI_SUCCESS);
       });
@@ -2291,10 +2791,56 @@ describe( "ServerInterface", function() {
          expect(status).toEqual(server.status.SI_SUCCESS);
       });
 
-      xit("retrieves game types", function() {
+      it("retrieves game types", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var GamesSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, GamesSuccess);
+         server.GetGameTypes();
+         jasmine.Ajax.requests.mostRecent().response(mock.GameTypes());
+
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.GameTypes().responseText));
       });
 
-      xit("retrieves a deck specification", function() {
+      it("reports error for invalid deck specification", function() {
+         var status = undefined;
+
+         var DeckSuccess = function(callStatus, callData) {
+            status = callStatus;
+         };
+
+         var addStatus = server.AddCallback(server.events. SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         server.LoadDeckSpec('invalid-deck');
+         jasmine.Ajax.requests.mostRecent().response(mock.NotFoundError('invalid-deck'));
+
+         expect(status).toEqual(server.status.SI_ERROR_SERVER_ERROR_NOT_FOUND);
+      });
+
+      it("retrieves a deck specification", function() {
+         var status = undefined;
+         var data = undefined;
+
+         var DeckSuccess = function(callStatus, callData) {
+            status = callStatus;
+            if(status == server.status.SI_SUCCESS) {
+               data = callData;
+            }
+         };
+
+         var addStatus = server.AddCallback(server.events. SI_DECK_SPEC_RETRIEVED, DeckSuccess);
+         server.LoadDeckSpec('standard');
+         jasmine.Ajax.requests.mostRecent().response(mock.DeckSpecStandard());
+
+         expect(status).toEqual(server.status.SI_SUCCESS);
+         expect(data).toEqual(JSON.parse(mock.DeckSpecStandard().responseText));
       });
 
       it("indicates not-connected when requested to retrieve user's games", function() {
@@ -2351,7 +2897,7 @@ describe( "ServerInterface", function() {
 
       xit("accepts a token", function() {
       });
-      
+
       xit("clears the token", function() {
       });
 

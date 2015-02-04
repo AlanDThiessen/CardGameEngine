@@ -1,3 +1,4 @@
-angular.module('myApp')
+angular.module('starter')
    .service('AuthService', ['', function () {
+      console.log('AuthService started');
    }]);
