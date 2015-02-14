@@ -19,7 +19,7 @@
       <!-- cordova script (this will be a 404 during development) -->
       <script src="cordova.js"></script>
 
-      <!-- your app's js -->
+      <!-- Platform Scripts -->
       <script src="lib/jasmine/jasmine.js"></script>
       <script src="lib/jasmine/jasmine-html.js"></script>
       <script src="lib/jasmine/boot.js"></script>
@@ -28,8 +28,20 @@
       <script src="js/controllers.js"></script>
       <script src="js/config-controller.js"></script>
       <script src="js/tester.js"></script>
-      <!-- script src="js/CGETest.js"></script -->
-      <script src="js/AllTests.js"></script>
+
+      <!-- Application Scripts -->
+      <script src="../../js/utils/Ajax.js"></script>
+      <script src="../../js/utils/Authenticator.js"></script>
+      <script src="../../js/utils/config.js"></script>
+      <script src="../../js/utils/FileSystem.js"></script>
+      <script src="../../js/utils/GameDataManager.js"></script>
+      <script src="../../js/utils/GameManager.js"></script>
+      <script src="../../js/utils/Logger.js"></script>
+      <script src="../../js/utils/ServerInterface.js"></script>
+
+      <!-- Application Scripts -->
+      <script src="../../../tests/js/specs/TestGameManager.js"></script>
+
    </head>
 
    <body ng-app="starter">

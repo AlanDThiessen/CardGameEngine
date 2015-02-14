@@ -1,151 +1,153 @@
-var config = require("./config.js");
-var FS = require("./FileSystem.js");
 
-log = {
-   DEBUG:      0x01,
-   INFO:       0x02,
-   WARN:       0x04,
-   ERROR:      0x08,
+angular.module( "cge.utils.logger", [] ).
+    factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
 
-   toFile:     false,
-   toConsole:  false,
-   fileReady:  false,
-   mask:       0xFF,
-   pendingStr: null
-};
+   //var config = require("./config.js");
+   //var FS = require("./FileSystem.js");
 
-//log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
+   log = {
+      DEBUG: 0x01,
+      INFO: 0x02,
+      WARN: 0x04,
+      ERROR: 0x08,
 
-log.SetMask = function(value) {
-   log.mask = value;
-};
+      toFile: false,
+      toConsole: false,
+      fileReady: false,
+      mask: 0xFF,
+      pendingStr: null
+   };
 
-log.SetLogToConsole = function(value) {
-   log.toConsole = value;
-};
+    //log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
 
-log.SetLogToFile = function(value) {
-   log.toFile = value;
-};
+   log.SetMask = function (value) {
+      log.mask = value;
+   };
 
-log.FileSystemReady = function() {
-   FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
-};
+   log.SetLogToConsole = function (value) {
+      log.toConsole = value;
+   };
+
+   log.SetLogToFile = function (value) {
+      log.toFile = value;
+   };
+
+   log.FileSystemReady = function () {
+      FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
+   };
 
 
-log.LogFileReady = function(ready) {
-   log.fileReady = true;
-   //log.mask = 0xFF;
-   log.info("App Log Startup");
-};
-
-log.LogFileWriteComplete = function() {
-
-   var str = pendingStr;
-
-   pendingStr = null;
-
-   if (str !== null) {
-      FS.WriteLogFile(true, str);
-   } else {
+   log.LogFileReady = function (ready) {
       log.fileReady = true;
-   }
-};
+      //log.mask = 0xFF;
+      log.info("App Log Startup");
+   };
+
+   log.LogFileWriteComplete = function () {
+
+      var str = pendingStr;
+
+      pendingStr = null;
+
+      if (str !== null) {
+         FS.WriteLogFile(true, str);
+      } else {
+         log.fileReady = true;
+      }
+   };
+
+   log.GetDate = function () {
+      var date = new Date();
+      dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+      dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+      return dateStr;
+   };
 
 
-log.GetDate = function() {
-   var date = new Date();
-   dateStr  = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-   dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-   return dateStr;
-};
+   log.debug = function (format) {
+      var args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(log.DEBUG);
 
+      if (log.mask & log.DEBUG) {
+         log._out.apply(this, args);
+      }
+   };
 
-log.debug = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.DEBUG);
+   log.info = function (format) {
+      var args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(log.INFO);
 
-   if (log.mask & log.DEBUG) {
-      log._out.apply(this, args);
-   }
-};
+      if (log.mask & log.INFO) {
+         log._out.apply(this, args);
+      }
+   };
 
+   log.warn = function (format) {
+      var args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(log.WARN);
 
-log.info = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.INFO);
+      if (log.mask & log.WARN) {
+         log._out.apply(this, args);
+      }
+   };
 
-   if (log.mask & log.INFO) {
-      log._out.apply(this, args);
-   }
-};
+   log.error = function (format) {
+      var args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(log.ERROR);
 
-log.warn = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.WARN);
+      if (log.mask & log.ERROR) {
+         log._out.apply(this, args);
+      }
+   };
 
-   if (log.mask & log.WARN) {
-      log._out.apply(this, args);
-   }
-};
+   log._out = function (level, format) {
+      var i = -1;
+      var args = Array.prototype.slice.call(arguments, 2);
+      var str;
 
-log.error = function (format) {
-   var args = Array.prototype.slice.call(arguments, 0);
-   args.unshift(log.ERROR);
+      var dateStr = log.GetDate();
+      dateStr = "[" + dateStr + "] ";
+      format = "" + format;
 
-   if (log.mask & log.ERROR) {
-      log._out.apply(this, args);
-   }
-};
+      str = format.replace(/\%[sd]/g, function () {
+         i++;
+         return args[i];
+      });
 
-log._out = function (level, format) {
-   var i = -1;
-   var args = Array.prototype.slice.call(arguments, 2);
-   var str;
+      switch (level) {
+         case log.DEBUG:
+            console.log(dateStr + "DEBUG: " + str);
+            log._ToFile(dateStr + "DEBUG: " + str);
+            break;
 
-   var dateStr = log.GetDate();
-   dateStr = "[" + dateStr + "] ";
-   format = "" + format;
+         case log.INFO:
+            console.log(dateStr + " INFO: " + str);
+            log._ToFile(dateStr + " INFO: " + str);
+            break;
 
-   str = format.replace(/\%[sd]/g, function () {
-      i++;
-      return args[i];
-   });
+         case log.WARN:
+            console.warn(dateStr + " WARN: " + str);
+            log._ToFile(dateStr + " WARN: " + str);
+            break;
 
-   switch (level) {
-      case log.DEBUG:
-         console.log(dateStr + "DEBUG: " + str);
-         log._ToFile(dateStr + "DEBUG: " + str);
-         break;
+         case log.ERROR:
+            console.error(dateStr + "ERROR: " + str);
+            log._ToFile(dateStr + "ERROR: " + str);
+            break;
+      }
+   };
 
-      case log.INFO:
-         console.log(dateStr + " INFO: " + str);
-         log._ToFile(dateStr + " INFO: " + str);
-         break;
+   log._ToFile = function (str) {
+      if (log.fileReady) {
+         log.fileReady = false;
+         str += '\n';
+         FS.WriteLogFile(true, str);
+      }
+      else {
+         log.pendingStr += str + '\n';
+      }
+   };
 
-      case log.WARN:
-         console.warn(dateStr + " WARN: " + str);
-         log._ToFile(dateStr + " WARN: " + str);
-         break;
-
-      case log.ERROR:
-         console.error(dateStr + "ERROR: " + str);
-         log._ToFile(dateStr + "ERROR: " + str);
-         break;
-   }
-};
-
-
-log._ToFile = function(str) {
-   if(log.fileReady) {
-      log.fileReady = false;
-      str += '\n';
-      FS.WriteLogFile(true, str);
-   }
-   else {
-      log.pendingStr += str + '\n';
-   }
-};
-
-
-module.exports = log;
+   //module.exports = log;
+   return log;
+}]);
