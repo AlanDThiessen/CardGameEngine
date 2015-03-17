@@ -1,29 +1,52 @@
 
-// Pull in the module we're testing.
-var server = require("../../../src/js/utils/ServerInterface.js");
-var auth = require("../../../src/js/utils/Authenticator.js");
-var mock = require("./Data-MockServerInterface.js");
+// TODO: It might be nice if we could mock these dependencies
+angular.module('TestAuthenticator', []);
 
 
 describe("Authenticator", function() {
 
-   it("indicates user not authenticated upon initialization", function() {
-      auth.Init();
-      auth.InitToken();
-      expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
-      expect(auth.GetUserId()).not.toBeDefined();
-      expect(auth.GetUserName()).not.toBeDefined();
-      expect(auth.GetUserDisplayName()).not.toBeDefined();
-      expect(auth.GetUserEmail()).not.toBeDefined();
+   describe("-when initializing,", function() {
+      var auth;
+
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(module('cge.server.authenticator'));
+      beforeEach(function() {
+         inject(function($injector) {
+            auth = $injector.get('cge.server.Authenticator');
+         });
+      });
+
+      it("indicates user not authenticated upon initialization", function () {
+         auth.Init();
+         auth.InitToken();
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_USER_NOT_AUTHENTICATED);
+         expect(auth.GetUserId()).not.toBeDefined();
+         expect(auth.GetUserName()).not.toBeDefined();
+         expect(auth.GetUserDisplayName()).not.toBeDefined();
+         expect(auth.GetUserEmail()).not.toBeDefined();
+      });
    });
 
    // Terminology:
    //    "Indicate" - The status is returned when queried.
    //    "Report" - The module calls a call-back method.
    describe("-when adding a callback method,", function() {
+      var auth;
 
-      afterEach(function() {
-         auth.ResetCallbacks();
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(module('cge.server.authenticator'));
+      beforeEach(function() {
+         inject(function($injector) {
+            auth = $injector.get('cge.server.Authenticator');
+            auth.Init();
+            auth.InitToken();
+         });
       });
 
       it("adds a valid callback method", function() {
@@ -94,14 +117,20 @@ describe("Authenticator", function() {
    describe("-when removing a callback method,", function() {
       var CallBack1 = function() {};
       var CallBack2 = function() {};
+      var auth;
 
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(module('cge.server.authenticator'));
       beforeEach(function() {
-         auth.ResetCallbacks();
-         auth.AddCallback(CallBack1);
-      });
-
-      afterEach(function() {
-         auth.ResetCallbacks();
+         inject(function($injector) {
+            auth = $injector.get('cge.server.Authenticator');
+            auth.AddCallback(CallBack1);
+            auth.Init();
+            auth.InitToken();
+         });
       });
 
       it("removes a callback method from the minimum event", function() {
@@ -127,14 +156,31 @@ describe("Authenticator", function() {
    });
 
    describe("-when not authenticated,", function() {
+      var auth;
+      var mock;
 
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(module('cge.server.authenticator'));
       beforeEach(function() {
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
+
+         inject(function($injector) {
+            auth = $injector.get('cge.server.Authenticator');
+            auth.Init();
+            auth.InitToken();
+         });
+
          jasmine.Ajax.install();
       });
 
       afterEach(function() {
          jasmine.Ajax.uninstall();
-         auth.ResetCallbacks();
          auth.LogoutUser();
       });
 
@@ -145,12 +191,12 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
-         auth.AddCallback(CallBack);
+         expect(auth.AddCallback(CallBack)).toBeTruthy();
          auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserExists("TestUser"));
 
@@ -166,12 +212,12 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          auth.AddCallback(CallBack);
          auth.RegisterUser("TestUser", "testPassword", "Test User 1", "testuser1@chamrock.net");
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
@@ -192,14 +238,14 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          spyOn(server, "SetTokenUser");
 
          auth.AddCallback(CallBack);
          auth.RegisterUser(userName, testPassword, displayName, email);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_REGISTRATION);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_PENDING_REGISTRATION);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
@@ -225,14 +271,14 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          spyOn(server, "ClearToken");
 
          auth.AddCallback(CallBack);
          auth.LoginUser(userName, testPassword);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_PENDING_LOGIN);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
@@ -255,14 +301,14 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          spyOn(server, "ClearToken");
 
          auth.AddCallback(CallBack);
          auth.LoginUser(userName, testPassword);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_PENDING_LOGIN);
 
          jasmine.Ajax.requests.mostRecent().response(mock.DatabaseError());
 
@@ -288,14 +334,14 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          spyOn(server, "SetTokenUser");
 
          auth.AddCallback(CallBack);
          auth.LoginUser(userName, testPassword);
 
-         expect(auth.GetUserStatus()).toEqual(authenticator.status.AUTH_PENDING_LOGIN);
+         expect(auth.GetUserStatus()).toEqual(auth.status.AUTH_PENDING_LOGIN);
 
          jasmine.Ajax.requests.mostRecent().response(mock.UserResponse(userId,
                                                                        userName,
@@ -315,14 +361,32 @@ describe("Authenticator", function() {
    });
 
    describe("-when authenticated,", function() {
+      var auth;
+      var mock;
 
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(module('cge.server.authenticator'));
       beforeEach(function() {
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
+
+         inject(function($injector) {
+            auth = $injector.get('cge.server.Authenticator');
+            auth.Init();
+            auth.InitToken();
+         });
+
          jasmine.Ajax.install();
       });
 
       afterEach(function() {
          jasmine.Ajax.uninstall();
-         auth.ResetCallbacks();
+         auth.LogoutUser();
       });
 
       it("reports user un-authenticated upon receiving server error", function() {
@@ -337,7 +401,7 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          spyOn(server, "ClearToken");
 
@@ -373,7 +437,7 @@ describe("Authenticator", function() {
          var CallBack = function(event, status) {
             testEvent = event;
             testStatus = status;
-         }
+         };
 
          spyOn(server, "ClearToken");
 
