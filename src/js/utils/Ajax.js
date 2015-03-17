@@ -47,6 +47,5 @@ angular.module( "cge.server.ajax", [] ).
       }
    };
 
-   //module.exports = ajax;
    return ajax;
 });

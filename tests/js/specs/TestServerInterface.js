@@ -1,7 +1,6 @@
 
-// Pull in the module we're testing.
-var server = require("../../../src/js/utils/ServerInterface.js");
-var mock = require("./Data-MockServerInterface.js");
+// TODO: It might be nice if we could mock these dependencies
+angular.module('TestServerInterface', []);
 
 
 describe("ServerInterface", function() {
@@ -10,9 +9,22 @@ describe("ServerInterface", function() {
    //    "Report" - The module calls a call-back method.
 
    describe("-when adding a callback method,", function() {
+      var mock;
+      var server;
 
-      afterEach(function() {
-         server.ResetCallbacks();
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(function() {
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
+
+         inject(function($injector) {
+            server = $injector.get('cge.server.Interface');
+         });
       });
 
       it("adds a valid callback method for the lowest event", function() {
@@ -115,18 +127,26 @@ describe("ServerInterface", function() {
    });
 
    describe("-when removing a callback method,", function() {
+      var mock;
+      var server;
       var CallBackMin = function() {};
       var CallBackMax = function() {};
 
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
       beforeEach(function() {
-         server.ResetCallbacks();
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
 
-         server.AddCallback(1, CallBackMin);
-         server.AddCallback((server.events.SI_MAX_EVENT - 1), CallBackMax);
-      });
-
-      afterEach(function() {
-         server.ResetCallbacks();
+         inject(function($injector) {
+            server = $injector.get('cge.server.Interface');
+            server.AddCallback(1, CallBackMin);
+            server.AddCallback((server.events.SI_MAX_EVENT - 1), CallBackMax);
+         });
       });
 
       it("removes a callback method from the minimum event", function() {
@@ -175,14 +195,28 @@ describe("ServerInterface", function() {
    // The authentication token indicates a user is logged-in.  With no auth
    // token, certain functionality is not allowed.
    describe("-when registering a user,", function() {
+      var mock;
+      var server;
 
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
       beforeEach(function() {
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
+
+         inject(function($injector) {
+            server = $injector.get('cge.server.Interface');
+         });
+
          jasmine.Ajax.install();
       });
 
       afterEach(function() {
          jasmine.Ajax.uninstall();
-         server.ResetCallbacks();
       });
 
       it("reports an error on http timeout", function() {
@@ -264,14 +298,28 @@ describe("ServerInterface", function() {
    // The authentication token indicates a user is logged-in.  With no auth
    // token, certain functionality is not allowed.
    describe("-with no authentication token,", function() {
+      var mock;
+      var server;
 
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
       beforeEach(function() {
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
+
+         inject(function($injector) {
+            server = $injector.get('cge.server.Interface');
+         });
+
          jasmine.Ajax.install();
       });
 
       afterEach(function() {
          jasmine.Ajax.uninstall();
-         server.ResetCallbacks();
       });
 
       it("registers a user", function() {
@@ -389,23 +437,38 @@ describe("ServerInterface", function() {
          expect(status).toEqual(server.status.SI_ERROR_TOKEN_INVALID);
       });
 
-   });
-
-   describe("-with authentication token,", function() {
-
-      beforeEach(function() {
-         jasmine.Ajax.install();
-      });
-
-      afterEach(function() {
-         jasmine.Ajax.uninstall();
-      });
-
       it("accepts a token", function() {
          expect(server.token.valid).toBeFalsy();
          server.SetTokenUser('001');
          expect(server.token.userId).toEqual('001');
          expect(server.token.valid).toBeTruthy();
+      });
+   });
+
+   describe("-with authentication token,", function() {
+      var mock;
+      var server;
+
+      beforeEach(module('test.data.mockserver'));
+      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
+      beforeEach(module('cge.server.interface'));
+      beforeEach(function() {
+         inject(function($injector) {
+            mock = $injector.get('test.data.mockServer');
+         });
+
+         inject(function($injector) {
+            server = $injector.get('cge.server.Interface');
+            server.SetTokenUser('001');
+         });
+
+         jasmine.Ajax.install();
+      });
+
+      afterEach(function() {
+         jasmine.Ajax.uninstall();
       });
 
       it("retrieves game types", function() {
@@ -414,7 +477,7 @@ describe("ServerInterface", function() {
 
          var GameTypesSuccess = function(callStatus, callData) {
             status = callStatus;
-            if(status == server.status.SI_SUCCESS) {
+            if(status === server.status.SI_SUCCESS) {
                data = callData;
             }
          };
@@ -459,7 +522,8 @@ describe("ServerInterface", function() {
 
          var addStatus = server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, UserGamesSuccess);
          expect(addStatus).toEqual(server.status.SI_SUCCESS);
-         server.GetUserGames();
+         addStatus = server.GetUserGames();
+         expect(addStatus).toEqual(server.status.SI_SUCCESS);
          jasmine.Ajax.requests.mostRecent().response(mock.UserGames());
          expect(status).toEqual(server.status.SI_SUCCESS);
          expect(data).toEqual(JSON.parse(mock.UserGames().responseText));

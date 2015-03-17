@@ -1,9 +1,8 @@
 
 angular.module( "cge.utils.logger", [] ).
-    factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
-
-   //var config = require("./config.js");
-   //var FS = require("./FileSystem.js");
+   // TODO: Put this back in!
+   // factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
+    factory('cge.utils.Logger', ['cge.utils.Config', function(config, fs) {
 
    log = {
       DEBUG: 0x01,
@@ -33,7 +32,8 @@ angular.module( "cge.utils.logger", [] ).
    };
 
    log.FileSystemReady = function () {
-      FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
+      // TODO: Put this back in!
+      // FS.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
    };
 
 
@@ -50,7 +50,8 @@ angular.module( "cge.utils.logger", [] ).
       pendingStr = null;
 
       if (str !== null) {
-         FS.WriteLogFile(true, str);
+         // TODO: Put this back in
+         // FS.WriteLogFile(true, str);
       } else {
          log.fileReady = true;
       }
@@ -141,13 +142,13 @@ angular.module( "cge.utils.logger", [] ).
       if (log.fileReady) {
          log.fileReady = false;
          str += '\n';
-         FS.WriteLogFile(true, str);
+         // TODO: Put this back in!
+         // FS.WriteLogFile(true, str);
       }
       else {
          log.pendingStr += str + '\n';
       }
    };
 
-   //module.exports = log;
    return log;
 }]);

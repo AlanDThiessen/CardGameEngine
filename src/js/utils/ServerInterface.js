@@ -2,9 +2,6 @@
 angular.module( "cge.server.interface", [] ).
     factory('cge.server.Interface', ['cge.server.Ajax', 'cge.utils.Logger', function(ajax, log) {
 
-   //var ajax = require("./Ajax.js");
-   //var log = require("./Logger.js");
-
    server = {};
 
    /******************************************************************************
@@ -628,6 +625,5 @@ angular.module( "cge.server.interface", [] ).
       log.warn("ServerInterface Error: " + status + " in " + name);
    };
 
-   //module.exports = server;
    return server;
 }]);
