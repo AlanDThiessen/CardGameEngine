@@ -1,6 +1,6 @@
 
 angular.module( "cge.server.gameDataManager", [] ).
-    factory('cge.utils.GameDataManager', ['cge.server.Interface', function(server) {
+    factory('cge.server.GameDataManager', ['cge.server.Interface', function(server) {
 
    //var server = require("./ServerInterface.js");
 

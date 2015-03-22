@@ -107,7 +107,7 @@ angular.module( "cge.server.interface", [] ).
       }
 
       return status;
-   }
+   };
 
 
 // More for testing purposes.
@@ -154,7 +154,7 @@ angular.module( "cge.server.interface", [] ).
    server.ClearToken = function () {
       server.token.valid = false;
       server.token.userId = 0;
-   }
+   };
 
 
    /******************************************************************************
