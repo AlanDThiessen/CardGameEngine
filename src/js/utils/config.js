@@ -1,5 +1,6 @@
 
-angular.module( "cge.utils.config", [] ).factory('cge.utils.Config', function() {
+angular.module('cge.utils').
+    factory('cge.utils.Config', function() {
 
    config = {};
 

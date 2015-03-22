@@ -1,8 +1,6 @@
 
-angular.module( "cge.server.authenticator", [] ).
+angular.module('cge.server').
     factory('cge.server.Authenticator', ['cge.server.Interface', function(server) {
-
-    //var server = require("./ServerInterface.js");
 
    authenticator = {};
 
@@ -243,7 +241,6 @@ angular.module( "cge.server.authenticator", [] ).
    };
 
 
-//module.exports = authenticator;
    return authenticator;
 }]);
 

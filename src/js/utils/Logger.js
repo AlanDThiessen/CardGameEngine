@@ -1,5 +1,5 @@
 
-angular.module( "cge.utils.logger", [] ).
+angular.module('cge.utils').
    // TODO: Put this back in!
    // factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
     factory('cge.utils.Logger', ['cge.utils.Config', function(config, fs) {

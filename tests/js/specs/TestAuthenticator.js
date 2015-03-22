@@ -8,11 +8,8 @@ describe("Authenticator", function() {
    describe("-when initializing,", function() {
       var auth;
 
-      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.interface'));
-      beforeEach(module('cge.server.authenticator'));
+      beforeEach(module('cge.utils'));
+      beforeEach(module('cge.server'));
       beforeEach(function() {
          inject(function($injector) {
             auth = $injector.get('cge.server.Authenticator');
@@ -36,11 +33,8 @@ describe("Authenticator", function() {
    describe("-when adding a callback method,", function() {
       var auth;
 
-      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.interface'));
-      beforeEach(module('cge.server.authenticator'));
+      beforeEach(module('cge.utils'));
+      beforeEach(module('cge.server'));
       beforeEach(function() {
          inject(function($injector) {
             auth = $injector.get('cge.server.Authenticator');
@@ -119,11 +113,8 @@ describe("Authenticator", function() {
       var CallBack2 = function() {};
       var auth;
 
-      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.interface'));
-      beforeEach(module('cge.server.authenticator'));
+      beforeEach(module('cge.utils'));
+      beforeEach(module('cge.server'));
       beforeEach(function() {
          inject(function($injector) {
             auth = $injector.get('cge.server.Authenticator');
@@ -160,11 +151,8 @@ describe("Authenticator", function() {
       var mock;
 
       beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.interface'));
-      beforeEach(module('cge.server.authenticator'));
+      beforeEach(module('cge.utils'));
+      beforeEach(module('cge.server'));
       beforeEach(function() {
          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
@@ -365,11 +353,8 @@ describe("Authenticator", function() {
       var mock;
 
       beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils.config'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.utils.logger'));         // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.ajax'));          // TODO: It would be nice if we could mock this dependency
-      beforeEach(module('cge.server.interface'));
-      beforeEach(module('cge.server.authenticator'));
+      beforeEach(module('cge.utils'));
+      beforeEach(module('cge.server'));
       beforeEach(function() {
          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
