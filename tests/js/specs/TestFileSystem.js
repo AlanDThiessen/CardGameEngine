@@ -1,300 +1,307 @@
 
-// Pull in the module we're testing.
-var fileSystem = require("../../../src/js/utils/FileSystem.js");
-var dataDeckSpec = require("./Data-DeckSpec.js");
-var dataGameSpec = require("./Data-GameSpec.js");
+angular.module('TestFileSystem', []);
 
 
-describe( "FileModule", function() {
-   var fsStatus = false;
-   var fsError = null;
-   var testStr1 = "Test writing to the file.";
-   var testStr2 = "Test appending to the file.";
+// These tests must have Cordova to run
+if(window.cordova) {
+   describe( "FileModule", function() {
+      var fsStatus = false;
+      var fsError = null;
+      var testStr1 = "Test writing to the file.";
+      var testStr2 = "Test appending to the file.";
 
-   beforeEach(function() {
-      fsStatus = false;
-      fsError = null;
-   });
+      beforeEach(module('cge.utils'));
+      beforeEach(function() {
+         fsStatus = false;
+         fsError = null;
 
-   var CommonExpectations = function() {
-      expect(fsError).toBeNull();
-      expect(fsStatus).toBeTruthy();
-   };
+         inject(function($injector) {
+            fileSystem = $injector.get('cge.utils.FileSystem');
+         });
+      });
 
-   it("initializes the file system", function(done) {
-      var OnReady = function(status) {
-         fsStatus = status;
-         CommonExpectations();
-         InitExpectations();
-         done();
+      var CommonExpectations = function() {
+         expect(fsError).toBeNull();
+         expect(fsStatus).toBeTruthy();
       };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+      it("initializes the file system", function(done) {
+         var OnReady = function(status) {
+            fsStatus = status;
+            CommonExpectations();
+            InitExpectations();
+            done();
+         };
 
-      var InitExpectations = function() {
-         expect(fileSystem.dirEntries.appStorageDir).toBeDefined();
-         expect(fileSystem.dirEntries.gamesDefsDir).toBeDefined();
-         expect(fileSystem.dirEntries.deckDefsDir).toBeDefined();
-         expect(fileSystem.dirEntries.activeGamesDir).toBeDefined();
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-         expect(fileSystem.dirEntries.appStorageDir.isDirectory).toBeTruthy();
-         expect(fileSystem.dirEntries.gamesDefsDir.isDirectory).toBeTruthy();
-         expect(fileSystem.dirEntries.deckDefsDir.isDirectory).toBeTruthy();
-         expect(fileSystem.dirEntries.activeGamesDir.isDirectory).toBeTruthy();
-      };
+         var InitExpectations = function() {
+            expect(fileSystem.dirEntries.appStorageDir).toBeDefined();
+            expect(fileSystem.dirEntries.gamesDefsDir).toBeDefined();
+            expect(fileSystem.dirEntries.deckDefsDir).toBeDefined();
+            expect(fileSystem.dirEntries.activeGamesDir).toBeDefined();
 
-      fileSystem.InitFileSystem(OnReady, Failure);
-   });
+            expect(fileSystem.dirEntries.appStorageDir.isDirectory).toBeTruthy();
+            expect(fileSystem.dirEntries.gamesDefsDir.isDirectory).toBeTruthy();
+            expect(fileSystem.dirEntries.deckDefsDir.isDirectory).toBeTruthy();
+            expect(fileSystem.dirEntries.activeGamesDir.isDirectory).toBeTruthy();
+         };
 
-   it("opens the log file", function(done) {
-      var OnOpenReady = function(status) {
-         fsStatus = status;
-         CommonExpectations();
-         OpenLogExpectations();
-         done();
-      };
+         fileSystem.InitFileSystem(OnReady, Failure);
+      });
 
-      var OnOpenEnd = function() {
-         // Do nothing here.
-      };
+      it("opens the log file", function(done) {
+         var OnOpenReady = function(status) {
+            fsStatus = status;
+            CommonExpectations();
+            OpenLogExpectations();
+            done();
+         };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+         var OnOpenEnd = function() {
+            // Do nothing here.
+         };
 
-      var OpenLogExpectations = function() {
-         expect(fileSystem.fileEntries.log).toBeDefined();
-         expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.log.writer).toBeDefined();
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      fileSystem.OpenLogFile(OnOpenReady, OnOpenEnd);
-   });
+         var OpenLogExpectations = function() {
+            expect(fileSystem.fileEntries.log).toBeDefined();
+            expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
+            expect(fileSystem.fileEntries.log.writer).toBeDefined();
+         };
 
-   it("writes the log file", function(done) {
-      var OnWriteReady = function(status) {
-         fsStatus = status;
-      };
+         fileSystem.SetErrorCallback(Failure);
+         fileSystem.OpenLogFile(OnOpenReady, OnOpenEnd);
+      });
 
-      var OnWriteEnd = function() {
-         CommonExpectations();
-         WriteLogExpectations();
-         done();
-      };
+      it("writes the log file", function(done) {
+         var OnWriteReady = function(status) {
+            fsStatus = status;
+         };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+         var OnWriteEnd = function() {
+            CommonExpectations();
+            WriteLogExpectations();
+            done();
+         };
 
-      var WriteLogExpectations = function() {
-         expect(fileSystem.fileEntries.log).toBeDefined();
-         expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.log.writer).toBeDefined();
-         expect(fileSystem.fileEntries.log.writer.length).toEqual(testStr1.length);
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.OpenLogFile(OnWriteReady, OnWriteEnd);
-      fileSystem.WriteLogFile(false, testStr1);
-   });
+         var WriteLogExpectations = function() {
+            expect(fileSystem.fileEntries.log).toBeDefined();
+            expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
+            expect(fileSystem.fileEntries.log.writer).toBeDefined();
+            expect(fileSystem.fileEntries.log.writer.length).toEqual(testStr1.length);
+         };
 
-   it("appends the log file", function(done) {
-      var OnAppendReady = function(status) {
-         fsStatus = status;
-      };
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.OpenLogFile(OnWriteReady, OnWriteEnd);
+         fileSystem.WriteLogFile(false, testStr1);
+      });
 
-      var OnAppendEnd = function() {
-         CommonExpectations();
-         AppendLogExpectations();
-         done();
-      };
+      it("appends the log file", function(done) {
+         var OnAppendReady = function(status) {
+            fsStatus = status;
+         };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+         var OnAppendEnd = function() {
+            CommonExpectations();
+            AppendLogExpectations();
+            done();
+         };
 
-      var AppendLogExpectations = function() {
-         expect(fileSystem.fileEntries.log).toBeDefined();
-         expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.log.writer).toBeDefined();
-         expect(fileSystem.fileEntries.log.writer.length).toEqual(testStr1.length + testStr2.length);
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.OpenLogFile(OnAppendReady, OnAppendEnd);
-      fileSystem.WriteLogFile(false, testStr2);
-   });
+         var AppendLogExpectations = function() {
+            expect(fileSystem.fileEntries.log).toBeDefined();
+            expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
+            expect(fileSystem.fileEntries.log.writer).toBeDefined();
+            expect(fileSystem.fileEntries.log.writer.length).toEqual(testStr1.length + testStr2.length);
+         };
 
-   it("reads the log file", function(done) {
-      var OnReadComplete = function(data) {
-         fsStatus = true;
-         CommonExpectations();
-         ReadLogExpectations(data);
-         done();
-      };
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.OpenLogFile(OnAppendReady, OnAppendEnd);
+         fileSystem.WriteLogFile(false, testStr2);
+      });
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+      it("reads the log file", function(done) {
+         var OnReadComplete = function(data) {
+            fsStatus = true;
+            CommonExpectations();
+            ReadLogExpectations(data);
+            done();
+         };
 
-      var ReadLogExpectations = function(data) {
-         expect(data.length).toEqual(testStr1.length + testStr2.length);
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.ReadLogFile(OnReadComplete);
-   });
+         var ReadLogExpectations = function(data) {
+            expect(data.length).toEqual(testStr1.length + testStr2.length);
+         };
 
-   it("clears the log file", function(done) {
-      var OnClearReady = function(status) {
-         fsStatus = status;
-      };
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.ReadLogFile(OnReadComplete);
+      });
 
-      var OnClearEnd = function() {
-         CommonExpectations();
-         ClearLogExpectations();
-         done();
-      };
+      it("clears the log file", function(done) {
+         var OnClearReady = function(status) {
+            fsStatus = status;
+         };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+         var OnClearEnd = function() {
+            CommonExpectations();
+            ClearLogExpectations();
+            done();
+         };
 
-      var ClearLogExpectations = function() {
-         expect(fileSystem.fileEntries.log).toBeDefined();
-         expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.log.writer).toBeDefined();
-         expect(fileSystem.fileEntries.log.writer.length).toEqual(0);
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.OpenLogFile(OnClearReady, OnClearEnd);
-      fileSystem.ClearLogFile();
-   });
+         var ClearLogExpectations = function() {
+            expect(fileSystem.fileEntries.log).toBeDefined();
+            expect(fileSystem.fileEntries.log.entry.isFile).toBeTruthy();
+            expect(fileSystem.fileEntries.log.writer).toBeDefined();
+            expect(fileSystem.fileEntries.log.writer.length).toEqual(0);
+         };
 
-   it("writes a deck specification file", function(done) {
-      var OnWriteDeck = function() {
-         fsStatus = true;
-         CommonExpectations();
-         WriteDeckSpecExpectations();
-         done();
-      };
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.OpenLogFile(OnClearReady, OnClearEnd);
+         fileSystem.ClearLogFile();
+      });
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+      it("writes a deck specification file", function(done) {
+         var OnWriteDeck = function() {
+            fsStatus = true;
+            CommonExpectations();
+            WriteDeckSpecExpectations();
+            done();
+         };
 
-      var WriteDeckSpecExpectations = function() {
-         expect(fileSystem.fileEntries.deckDefs['standard']).toBeDefined();
-         expect(fileSystem.fileEntries.deckDefs['standard'].entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.deckDefs['standard'].writer).toBeDefined();
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
+
+         var WriteDeckSpecExpectations = function() {
+            expect(fileSystem.fileEntries.deckDefs['standard']).toBeDefined();
+            expect(fileSystem.fileEntries.deckDefs['standard'].entry.isFile).toBeTruthy();
+            expect(fileSystem.fileEntries.deckDefs['standard'].writer).toBeDefined();
 //         expect(fileSystem.fileEntries.deckDefs['standard'].writer.length).toEqual(dataDeckSpec.toJSON().length);
-      };
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.WriteDeckSpec(dataDeckSpec['cge_deck']['id'], dataDeckSpec, OnWriteDeck);
-   });
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.WriteDeckSpec(dataDeckSpec['cge_deck']['id'], dataDeckSpec, OnWriteDeck);
+      });
 
-   it("reads a deck specification file", function(done) {
-      var OnReadDeck = function(deckSpec) {
-         fsStatus = true;
-         CommonExpectations();
-         ReadDeckSpecExpectations(deckSpec);
-         done();
-      };
+      it("reads a deck specification file", function(done) {
+         var OnReadDeck = function(deckSpec) {
+            fsStatus = true;
+            CommonExpectations();
+            ReadDeckSpecExpectations(deckSpec);
+            done();
+         };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      var ReadDeckSpecExpectations = function(deckSpec) {
-         expect(deckSpec).toBeDefined();
-         expect(deckSpec).toEqual(dataDeckSpec);
-      };
+         var ReadDeckSpecExpectations = function(deckSpec) {
+            expect(deckSpec).toBeDefined();
+            expect(deckSpec).toEqual(dataDeckSpec);
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.ReadDeckSpec("standard", OnReadDeck);
-   });
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.ReadDeckSpec("standard", OnReadDeck);
+      });
 
-   it("writes a game specification file", function(done) {
-      var OnWriteGame = function() {
-         fsStatus = true;
-         CommonExpectations();
-         WriteGameSpecExpectations();
-         done();
-      };
+      it("writes a game specification file", function(done) {
+         var OnWriteGame = function() {
+            fsStatus = true;
+            CommonExpectations();
+            WriteGameSpecExpectations();
+            done();
+         };
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
 
-      var WriteGameSpecExpectations = function() {
-         expect(fileSystem.fileEntries.gameDefs['simple-war']).toBeDefined();
-         expect(fileSystem.fileEntries.gameDefs['simple-war'].entry.isFile).toBeTruthy();
-         expect(fileSystem.fileEntries.gameDefs['simple-war'].writer).toBeDefined();
+         var WriteGameSpecExpectations = function() {
+            expect(fileSystem.fileEntries.gameDefs['simple-war']).toBeDefined();
+            expect(fileSystem.fileEntries.gameDefs['simple-war'].entry.isFile).toBeTruthy();
+            expect(fileSystem.fileEntries.gameDefs['simple-war'].writer).toBeDefined();
 //         expect(fileSystem.fileEntries.deckDefs['standard'].writer.length).toEqual(dataDeckSpec.toJSON().length);
-      };
+         };
 
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.WriteGameSpec(dataGameSpec['cge_game']['id'], dataGameSpec, OnWriteGame);
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.WriteGameSpec(dataGameSpec['cge_game']['id'], dataGameSpec, OnWriteGame);
+      });
+
+      it("reads a game specification file", function(done) {
+         var OnReadGame = function(gameSpec) {
+            fsStatus = true;
+            CommonExpectations();
+            ReadGameSpecExpectations(gameSpec);
+            done();
+         };
+
+         var Failure = function(errorCode, errorStr) {
+            fsError = errorStr;
+            CommonExpectations();
+            done();
+         };
+
+         var ReadGameSpecExpectations = function(gameSpec) {
+            expect(gameSpec).toBeDefined();
+            expect(gameSpec).toEqual(dataGameSpec);
+         };
+
+         fileSystem.SetErrorCallback(Failure);
+         // Log file should already be open, just change its callbacks
+         fileSystem.ReadGameSpec("simple-war", OnReadGame);
+      });
+
+      xit("writes a game file for a given user", function() {
+      });
+
+      xit("reads a game file for a given user", function() {
+      });
    });
 
-   it("reads a game specification file", function(done) {
-      var OnReadGame = function(gameSpec) {
-         fsStatus = true;
-         CommonExpectations();
-         ReadGameSpecExpectations(gameSpec);
-         done();
-      };
+}
 
-      var Failure = function(errorCode, errorStr) {
-         fsError = errorStr;
-         CommonExpectations();
-         done();
-      };
-
-      var ReadGameSpecExpectations = function(gameSpec) {
-         expect(gameSpec).toBeDefined();
-         expect(gameSpec).toEqual(dataGameSpec);
-      };
-
-      fileSystem.SetErrorCallback(Failure);
-      // Log file should already be open, just change its callbacks
-      fileSystem.ReadGameSpec("simple-war", OnReadGame);
-   });
-
-   xit("writes a game file for a given user", function() {
-   });
-
-   xit("reads a game file for a given user", function() {
-   });
-});
 

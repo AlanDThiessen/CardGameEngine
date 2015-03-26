@@ -1,5 +1,4 @@
 
-// TODO: It might be nice if we could mock these dependencies
 angular.module('TestServerInterface', []);
 
 

@@ -8,16 +8,14 @@
  *    - Provides the interface for retrieving game data from the filesystem.
  * 
  * Usage:
- *    var FS = require('FileSystem.js');
- * 
+ *
  *    document.addEventListener("deviceready", function(){
  *       FS.InitFileSystem();
  *       }, false);
  * 
  ******************************************************************************/
 
-angular.module( "cge.utils.filesystem", [] ).
-    factory('cge.utils.FileSystem', function() {
+angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', function() {
 
    /*******************************************************************************
     * Constants
@@ -38,7 +36,7 @@ angular.module( "cge.utils.filesystem", [] ).
    var onErrorCallback = undefined;
    var fsError = "";
 
-// Variable holding the directory entries
+   // Variable holding the directory entries
    var dirEntries = {
       appStorageDir: undefined,
       gamesDefsDir: undefined,
@@ -46,7 +44,7 @@ angular.module( "cge.utils.filesystem", [] ).
       activeGamesDir: undefined
    };
 
-// File Object
+   // File Object
    function FileEntity(name, onReady, onWriteEnd, fileEntry) {
       this.name = name;
       this.type = "text";
@@ -59,7 +57,7 @@ angular.module( "cge.utils.filesystem", [] ).
       this.onWriteEnd = onWriteEnd;    // Callback when finished writing
    }
 
-// Array to hold the FileEntry objects that are open
+   // Array to hold the FileEntry objects that are open
    var fileEntries = {
       log: undefined,
       gameSummary: undefined,
@@ -72,8 +70,8 @@ angular.module( "cge.utils.filesystem", [] ).
    /*******************************************************************************
     * Initialization Methods
     ******************************************************************************/
-// InitFileSystem() should always be called once at app startup
-// Note: This function cannot be called until after the Device Ready event.
+   // InitFileSystem() should always be called once at app startup
+   // Note: This function cannot be called until after the Device Ready event.
    function InitFileSystem(onReady, onError) {
       fileSystemGo = false;
       fsError = "";
@@ -552,7 +550,7 @@ angular.module( "cge.utils.filesystem", [] ).
 
       errorStr += " in " + location;
 
-//   alert(errorStr);
+      //   alert(errorStr);
       fsError = errorStr;
 
       if (typeof onErrorCallback === "function") {
