@@ -1,9 +1,9 @@
 
 
-angular.module( "test.data.mockgamedata", [] ).
-   factory('test.data.mockgamedata', function() {
+angular.module( "test.data.mockGamedata", [] ).
+   factory('test.data.mockGamedata', function() {
 
-   gameDataMock = {};
+   var gameDataMock = {};
 
    gameDataMock.deckSpec = {
        "cge_deck": {
