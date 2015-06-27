@@ -15,7 +15,7 @@
  * 
  ******************************************************************************/
 
-angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', function() {
+angular.module( "cge.utils", [] ).factory('cge.utils.FileSystem', function() {
 
    /*******************************************************************************
     * Constants
@@ -32,8 +32,8 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
     * Variables
     ******************************************************************************/
    var fileSystemGo = false;       // Whether the fileSystem is usable
-   var onReadyCallback = undefined;
-   var onErrorCallback = undefined;
+   var onReadyCallback;
+   var onErrorCallback;
    var fsError = "";
 
    // Variable holding the directory entries
@@ -111,7 +111,7 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
           (dirEntries.activeGamesDir === undefined)) {
          // Attempt to read the dir entries
          //log.info("Retrieving game directories");
-         dirReader = new DirectoryReader(dirEntries.appStorageDir.toInternalURL());
+         var dirReader = new DirectoryReader(dirEntries.appStorageDir.toInternalURL());
          dirReader.readEntries(ReadRootDir, function (error) {
             FSError(error, 'Read Directory');
          });
@@ -125,19 +125,17 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
 
    function ReadRootDir(entries) {
       // Go through looking for our entries
-      for (cntr = 0; cntr < entries.length; cntr++) {
+      for (var cntr = 0; cntr < entries.length; cntr++) {
          if (entries[cntr].isDirectory) {
             SetRootDirEntry(entries[cntr]);
          }
          else if (entries[cntr].isFile) {
-            if (entries[cntr].name == LOG_FILE_NAME) {
-               //alert('Found log file!');
-               //fileEntries.log = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
+            if (entries[cntr].name === LOG_FILE_NAME) {
+               fileEntries.log = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
             }
 
-            if (entries[cntr].name == GAME_SUMMARY_FILE_NAME) {
-               //alert('Found game summary file!');
-               //fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
+            if (entries[cntr].name === GAME_SUMMARY_FILE_NAME) {
+               fileEntries.gameSummary = new FileEntity(entries[cntr].name, undefined, undefined, entries[cntr]);
             }
          }
       }
@@ -185,15 +183,15 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
 
    function SetRootDirEntry(entry) {
       //log.info("Setting directory object for " + entry.name);
-      if (entry.name == GAME_DEFS_DIR) {
+      if (entry.name === GAME_DEFS_DIR) {
          dirEntries.gamesDefsDir = entry;
       }
 
-      if (entry.name == DECK_DEFS_DIR) {
+      if (entry.name === DECK_DEFS_DIR) {
          dirEntries.deckDefsDir = entry;
       }
 
-      if (entry.name == ACTIVE_GAMES_DIR) {
+      if (entry.name === ACTIVE_GAMES_DIR) {
          dirEntries.activeGamesDir = entry;
       }
 
@@ -229,6 +227,11 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
     * File Entity Methods
     ******************************************************************************/
    function OpenFileEntity(entity, dirEntry) {
+      // *** TODO: Fix bug documented below...
+      //     When called, entity is correct.  However, success callback below on dirEntry.getFile
+      //     receives a copy of entity instead of a reference.
+      //     For example: if called from OpenLogFile(): ((entity === fileEntries.log) == false)
+      // ****************************************************************
       // If the file entry is undefined, then we need to get the file
       if (entity.entry === undefined) {
          if (dirEntry !== undefined) {
@@ -271,14 +274,14 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
 
    function FileEntitySetWriter(entity, writer) {
       if (entity !== undefined) {
-         entity.writer = writer;
-         entity.writer.onerror = function (error) {
+          entity.writer = writer;
+          entity.writer.onerror = function (error) {
             FSError(error, "Write file " + entity.name);
          };
 
          if (entity.truncate) {
             entity.writer.onwriteend = function () {
-               FileEntityTruncateAfterWrite(entity)
+               FileEntityTruncateAfterWrite(entity);
             };
          }
          else {
@@ -338,6 +341,8 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
       var reader = new FileReader();
 
       reader.onloadend = function (e) {
+         var data;
+
          if (entity.type == "JSON") {
             data = JSON.parse(this.result);
          }
@@ -422,7 +427,7 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
     * Deck Spec File Methods
     ******************************************************************************/
    function WriteDeckSpec(specName, data, onWriteEnd) {
-      fileName = specName + ".deckDef";
+      var fileName = specName + ".deckDef";
 
       // Create a new entity if one does not already exist by this name
       if (fileEntries.deckDefs[specName] === undefined) {
@@ -441,7 +446,7 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
 
 
    function ReadDeckSpec(specName, onReadEnd) {
-      fileName = specName + ".deckDef";
+      var fileName = specName + ".deckDef";
 
       if (fileEntries.deckDefs[specName] === undefined) {
          fileEntries.deckDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
@@ -457,7 +462,7 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
     * Game Spec File Methods
     ******************************************************************************/
    function WriteGameSpec(specName, data, onWriteEnd) {
-      fileName = specName + ".gameDef";
+      var fileName = specName + ".gameDef";
 
       // Create a new entity if one does not already exist by this name
       if (fileEntries.gameDefs[specName] === undefined) {
@@ -476,7 +481,7 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
 
 
    function ReadGameSpec(specName, onReadEnd) {
-      fileName = specName + ".gameDef";
+      var fileName = specName + ".gameDef";
 
       if (fileEntries.gameDefs[specName] === undefined) {
          fileEntries.gameDefs[specName] = new FileEntity(fileName, undefined, undefined, undefined);
@@ -550,7 +555,7 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
 
       errorStr += " in " + location;
 
-      //   alert(errorStr);
+      //alert(errorStr);
       fsError = errorStr;
 
       if (typeof onErrorCallback === "function") {
@@ -559,28 +564,31 @@ angular.module( "cge.utils.filesystem", [] ).factory('cge.utils.FileSystem', fun
    }
 
 
-   fileSystem = {
+   return {
       // Initialization methods
       InitFileSystem: InitFileSystem,
       SetErrorCallback: SetErrorCallback,
+
       // Log file methods
       OpenLogFile: OpenLogFile,
       WriteLogFile: WriteLogFile,
       ClearLogFile: ClearLogFile,
       ReadLogFile: ReadLogFile,
+
       // Deck Spec methods
       WriteDeckSpec: WriteDeckSpec,
       ReadDeckSpec: ReadDeckSpec,
+
       // Game Spec methods
       WriteGameSpec: WriteGameSpec,
       ReadGameSpec: ReadGameSpec,
+
       // Status methods
       GetStatus: GetStatus,
       GetError: GetError,
+
       // Data export (for testing)
       dirEntries: dirEntries,
       fileEntries: fileEntries
    };
-
-   return fileSystem;
 });
