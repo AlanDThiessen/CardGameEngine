@@ -1,5 +1,4 @@
 
-// TODO: It might be nice if we could mock these dependencies
 angular.module('TestAuthenticator', []);
 
 
@@ -33,10 +32,10 @@ describe("Authenticator", function() {
    describe("-when adding a callback method,", function() {
       var auth;
 
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
-      beforeEach(function() {
-         inject(function($injector) {
+     beforeEach(function() {
+          module('cge.utils');
+          module('cge.server');
+          inject(function($injector) {
             auth = $injector.get('cge.server.Authenticator');
             auth.Init();
             auth.InitToken();
@@ -113,10 +112,10 @@ describe("Authenticator", function() {
       var CallBack2 = function() {};
       var auth;
 
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
-      beforeEach(function() {
-         inject(function($injector) {
+     beforeEach(function() {
+          module('cge.utils');
+          module('cge.server');
+          inject(function($injector) {
             auth = $injector.get('cge.server.Authenticator');
             auth.AddCallback(CallBack1);
             auth.Init();
@@ -150,11 +149,11 @@ describe("Authenticator", function() {
       var auth;
       var mock;
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
       beforeEach(function() {
-         inject(function($injector) {
+          module('test.data.mockserver');
+          module('cge.utils');
+          module('cge.server');
+          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
 
@@ -352,11 +351,11 @@ describe("Authenticator", function() {
       var auth;
       var mock;
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
-      beforeEach(function() {
-         inject(function($injector) {
+     beforeEach(function() {
+          module('test.data.mockserver');
+          module('cge.utils');
+          module('cge.server');
+          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
 

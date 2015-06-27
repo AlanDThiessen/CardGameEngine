@@ -11,10 +11,10 @@ describe("ServerInterface", function() {
       var mock;
       var server;
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
-      beforeEach(function() {
+     beforeEach(function() {
+         module('test.data.mockserver');
+         module('cge.utils');
+         module('cge.server');
          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
@@ -129,11 +129,11 @@ describe("ServerInterface", function() {
       var CallBackMin = function() {};
       var CallBackMax = function() {};
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
       beforeEach(function() {
-         inject(function($injector) {
+          module('test.data.mockserver');
+          module('cge.utils');
+          module('cge.server');
+          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
 
@@ -193,10 +193,10 @@ describe("ServerInterface", function() {
       var mock;
       var server;
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
       beforeEach(function() {
+         module('test.data.mockserver');
+         module('cge.utils');
+         module('cge.server');
          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
@@ -294,10 +294,10 @@ describe("ServerInterface", function() {
       var mock;
       var server;
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
       beforeEach(function() {
+         module('test.data.mockserver');
+         module('cge.utils');
+         module('cge.server');
          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
@@ -440,10 +440,10 @@ describe("ServerInterface", function() {
       var mock;
       var server;
 
-      beforeEach(module('test.data.mockserver'));
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
       beforeEach(function() {
+         module('test.data.mockserver');
+         module('cge.utils');
+         module('cge.server');
          inject(function($injector) {
             mock = $injector.get('test.data.mockServer');
          });
