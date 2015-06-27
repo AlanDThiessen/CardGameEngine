@@ -15,7 +15,8 @@
  * 
  ******************************************************************************/
 
-angular.module( "cge.utils", [] ).factory('cge.utils.FileSystem', function() {
+angular.module('cge.utils').
+   factory('cge.utils.FileSystem', function() {
 
    /*******************************************************************************
     * Constants

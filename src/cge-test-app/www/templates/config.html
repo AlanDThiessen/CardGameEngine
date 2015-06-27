@@ -3,18 +3,18 @@
       <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
    </ion-nav-buttons>
    <ion-content class="has-header">
-      <div ng-controller="ConfigCtrl as config">
+      <div ng-controller="ConfigCtrl">
          <div class="list">
             <div class="item item-divider">
                User Settings
             </div>
             <label class="item item-input">
                <span class="input-label">Username</span>
-               <input type="text" ng-model="config.userName" ng-change="config.UpdateUserName();">
+               <input type="text" ng-model="userName" ng-change="UpdateUserName();">
             </label>
             <label class="item item-input">
                <span class="input-label">Password</span>
-               <input type="password" ng-model="config.password" ng-change="config.UpdatePassword();">
+               <input type="password" ng-model="password" ng-change="UpdatePassword();">
             </label>
 
             <div class="item item-divider">
@@ -23,7 +23,7 @@
             <div class="item item-toggle">
                <span class="input-label">Log to Console</span>
                <label class="toggle">
-                  <input type="checkbox" ng-model="config.logToConsole" ng-change="config.UpdateLogToConsole();" required>
+                  <input type="checkbox" ng-model="logToConsole" ng-change="UpdateLogToConsole();" required>
                   <div class="track">
                      <div class="handle"></div>
                   </div>
@@ -32,7 +32,7 @@
             <div class="item item-toggle">
                <span class="input-label">Log to File</span>
                <label class="toggle">
-                  <input type="checkbox" ng-model="config.logToFile" ng-change="config.UpdateLogToFile();" required>
+                  <input type="checkbox" ng-model="logToFile" ng-change="UpdateLogToFile();" required>
                   <div class="track">
                      <div class="handle"></div>
                   </div>
@@ -43,25 +43,25 @@
                <ul class="list list-inset">
                   <li class="item item-checkbox">
                      <label class="checkbox">
-                        <input type="checkbox" ng-model="config.logMask.error" ng-change="config.UpdateLogMask();">
+                        <input type="checkbox" ng-model="logMask.error" ng-change="UpdateLogMask();">
                      </label>
                      Error
                   </li>
                   <li class="item item-checkbox">
                      <label class="checkbox">
-                        <input type="checkbox" ng-model="config.logMask.warn" ng-change="config.UpdateLogMask();">
+                        <input type="checkbox" ng-model="logMask.warn" ng-change="UpdateLogMask();">
                      </label>
                      Warning
                   </li>
                   <li class="item item-checkbox">
                      <label class="checkbox">
-                        <input type="checkbox" ng-model="config.logMask.info" ng-change="config.UpdateLogMask();">
+                        <input type="checkbox" ng-model="logMask.info" ng-change="UpdateLogMask();">
                      </label>
                      Info
                   </li>
                   <li class="item item-checkbox">
                      <label class="checkbox">
-                        <input type="checkbox" ng-model="config.logMask.debug" ng-change="config.UpdateLogMask();">
+                        <input type="checkbox" ng-model="logMask.debug" ng-change="UpdateLogMask();">
                      </label>
                      Debug
                   </li>
@@ -75,18 +75,18 @@
                <div class="input-label">
                   Protocol
                </div>
-               <select ng-model="config.server.protocol" ng-change="config.UpdateServer();">
+               <select ng-model="server.protocol" ng-change="UpdateServer();">
                   <option>http</option>
                   <option selected>https</option>
                </select>
             </label>
             <label class="item item-input">
                <span class="input-label">Host</span>
-               <input type="text" ng-model="config.server.host" ng-change="config.UpdateServer();">
+               <input type="text" ng-model="server.host" ng-change="UpdateServer();">
             </label>
             <label class="item item-input">
                <span class="input-label">Path</span>
-               <input type="text" ng-model="config.server.path" ng-change="config.UpdateServer();">
+               <input type="text" ng-model="server.path" ng-change="UpdateServer();">
             </label>
 
       </div>

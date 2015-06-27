@@ -8,9 +8,9 @@ describe("Authenticator", function() {
    describe("-when initializing,", function() {
       var auth;
 
-      beforeEach(module('cge.utils'));
-      beforeEach(module('cge.server'));
       beforeEach(function() {
+         module('cge.utils');
+         module('cge.server');
          inject(function($injector) {
             auth = $injector.get('cge.server.Authenticator');
          });
