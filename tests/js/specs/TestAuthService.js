@@ -1,4 +1,13 @@
+
+angular.module('TestAuthService', []);
+
 describe( "TestAuthService", function() {
+   beforeEach(function() {
+       module('cge.utils');
+       inject(function($injector) {
+           authService = $injector.get('cge.utils.AuthService');
+       });
+   });
 
    xit("should be defined", function () {
    });
