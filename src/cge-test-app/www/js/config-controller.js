@@ -1,100 +1,100 @@
 
-var configCtrl = angular.module('config_controller', []);
+var configCtrl = angular.module('config_controller', ['cge.utils']);
 
-configCtrl.controller('ConfigCtrl', ['$scope', '$window', 'cge.utils.Config', 'cge.utils.Logger', function($scope, $window, config, log) {
-   $scope.userName = config.GetUserName();
-   $scope.password = config.GetPassword();
-   $scope.logToConsole = config.GetLogToConsole();
-   $scope.logToFile = config.GetLogToFile();
-   $scope.logMask = {};
-   $scope.logMask.value = config.GetLogMask();
-   $scope.logMask.debug = (($scope.logMask.value & log.DEBUG) == log.DEBUG);
-   $scope.logMask.info  = (($scope.logMask.value & log.INFO ) == log.INFO );
-   $scope.logMask.warn  = (($scope.logMask.value & log.WARN ) == log.WARN );
-   $scope.logMask.error = (($scope.logMask.value & log.ERROR) == log.ERROR);
+configCtrl.controller('ConfigCtrl', ['$window', 'cge.utils.Config', 'cge.utils.Logger', function($window, config, log) {
+   this.userName = config.GetUserName();
+   this.password = config.GetPassword();
+   this.logToConsole = config.GetLogToConsole();
+   this.logToFile = config.GetLogToFile();
+   this.logMask = {};
+   this.logMask.value = config.GetLogMask();
+   this.logMask.debug = ((this.logMask.value & log.DEBUG) == log.DEBUG);
+   this.logMask.info  = ((this.logMask.value & log.INFO ) == log.INFO );
+   this.logMask.warn  = ((this.logMask.value & log.WARN ) == log.WARN );
+   this.logMask.error = ((this.logMask.value & log.ERROR) == log.ERROR);
 
-   // Server settings will be local to $scope app, so no need to call config
-   $scope.server = {};
+   // Server settings will be local to this app, so no need to call config
+   this.server = {};
    if($window.localStorage.serverProtocol) {
-      $scope.server.protocol = $window.localStorage.serverProtocol;
+      this.server.protocol = $window.localStorage.serverProtocol;
    }
    else {
-      $scope.server.protocol = 'https';
+      this.server.protocol = 'https';
    }
 
    if($window.localStorage.serverHost) {
-      $scope.server.host = $window.localStorage.serverHost;
+      this.server.host = $window.localStorage.serverHost;
    }
    else {
-      $scope.server.host = 'gator4021.hostgator.com';
+      this.server.host = 'gator4021.hostgator.com';
    }
 
    if($window.localStorage.serverPath) {
-      $scope.server.path = $window.localStorage.serverPath;
+      this.server.path = $window.localStorage.serverPath;
    }
    else {
-      $scope.server.path = '/~thiessea/TheThiessens.net/cge/cge.php';
+      this.server.path = '/~thiessea/TheThiessens.net/cge/cge.php';
    }
 
    // Update the logger with what we read out of configuration.
-   log.SetLogToConsole($scope.logToConsole);
-   log.SetLogToFile($scope.logToFile);
+   log.SetLogToConsole(this.logToConsole);
+   log.SetLogToFile(this.logToFile);
    log.SetMask(config.GetLogMask());
 
    // Update Ajax object
-   ajax.server.protocol = $scope.server.protocol;
-   ajax.server.hostname = $scope.server.host;
-   ajax.server.path = $scope.server.path;
+   ajax.server.protocol = this.server.protocol;
+   ajax.server.hostname = this.server.host;
+   ajax.server.path = this.server.path;
 
-   $scope.UpdateUserName = function() {
-      config.SetUserName($scope.userName);
+   this.UpdateUserName = function() {
+      config.SetUserName(this.userName);
    };
 
-   $scope.UpdatePassword = function() {
-      config.SetPassword($scope.password);
+   this.UpdatePassword = function() {
+      config.SetPassword(this.password);
    };
 
-   $scope.UpdateLogToConsole = function() {
-      log.SetLogToConsole($scope.logToConsole);
-      config.SetLogToConsole($scope.logToConsole);
+   this.UpdateLogToConsole = function() {
+      log.SetLogToConsole(this.logToConsole);
+      config.SetLogToConsole(this.logToConsole);
    };
 
-   $scope.UpdateLogToFile = function() {
-      log.SetLogToFile($scope.logToFile);
-      config.SetLogToFile($scope.logToFile);
+   this.UpdateLogToFile = function() {
+      log.SetLogToFile(this.logToFile);
+      config.SetLogToFile(this.logToFile);
    };
 
-   $scope.UpdateLogMask = function() {
-      $scope.logMask.value = 0x00;
+   this.UpdateLogMask = function() {
+      this.logMask.value = 0x00;
 
-      if($scope.logMask.debug) {
-         $scope.logMask.value |= log.DEBUG;
+      if(this.logMask.debug) {
+         this.logMask.value |= log.DEBUG;
       }
 
-      if($scope.logMask.info) {
-         $scope.logMask.value |= log.INFO;
+      if(this.logMask.info) {
+         this.logMask.value |= log.INFO;
       }
 
-      if($scope.logMask.warn) {
-         $scope.logMask.value |= log.WARN;
+      if(this.logMask.warn) {
+         this.logMask.value |= log.WARN;
       }
 
-      if($scope.logMask.error) {
-         $scope.logMask.value |= log.ERROR;
+      if(this.logMask.error) {
+         this.logMask.value |= log.ERROR;
       }
 
-      log.SetMask($scope.logMask.value);
-      config.SetLogMask($scope.logMask.value);
+      log.SetMask(this.logMask.value);
+      config.SetLogMask(this.logMask.value);
    };
 
-   $scope.UpdateServer = function() {
-      ajax.server.protocol = $scope.server.protocol;
-      ajax.server.hostname = $scope.server.host;
-      ajax.server.path = $scope.server.path;
+   this.UpdateServer = function() {
+      ajax.server.protocol = this.server.protocol;
+      ajax.server.hostname = this.server.host;
+      ajax.server.path = this.server.path;
 
-      $window.localStorage.serverProtocol = $scope.server.protocol;
-      $window.localStorage.serverHost = $scope.server.host;
-      $window.localStorage.serverPath = $scope.server.path;
+      $window.localStorage.serverProtocol = this.server.protocol;
+      $window.localStorage.serverHost = this.server.host;
+      $window.localStorage.serverPath = this.server.path;
    };
 }]);
 
