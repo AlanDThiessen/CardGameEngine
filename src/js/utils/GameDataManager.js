@@ -1,8 +1,5 @@
 
-angular.module('cge.server').
-    factory('cge.server.GameDataManager', ['cge.server.Interface', function(server) {
-
-   //var server = require("./ServerInterface.js");
+angular.module('cge.server').factory('cge.server.GameDataManager', ['cge.server.Interface', function(server) {
 
    /******************************************************************************
     * Server Status/Error Values
@@ -146,7 +143,7 @@ angular.module('cge.server').
    }
 
 
-   module.exports = {
+   return {
       status: gdStatus,
       gameDataMgr: gameDataMgr,
       GetGameDataManager: GetGameDataManager

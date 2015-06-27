@@ -1,15 +1,19 @@
 
-// Pull in the module we're testing.
-gameData = require("../../../src/js/utils/GameDataManager.js");
-server = require("../../../src/js/utils/ServerInterface.js");
-auth = require("../../../src/js/utils/Authenticator.js");
-mock = require("./Data-MockServerInterface.js");
+
+angular.module('TestGameDataManager', []);
 
 
 describe("GameDataManager", function() {
    var gameDataMgr = undefined;
    var userName = 'TestUser';
    var testPassword = 'testPassword';
+
+   beforeEach(function() {
+       module('cge.server');
+       inject(function($injector) {
+           gameData = $injector.get('cge.server.GameDataManager');
+       });
+   });
 
    it("instantiates the singleton upon initialization", function() {
       // spy on the game data to ensure it registers all callbacks with the
@@ -31,7 +35,18 @@ describe("GameDataManager", function() {
    describe("-upon successful server login,", function() {
 
       beforeEach(function() {
-         jasmine.Ajax.install();
+          module('cge.server');
+          module('test.data.mockserver');
+
+          inject(function($injector) {
+              mock = $injector.get('test.data.mockServer');
+          });
+
+          inject(function($injector) {
+              auth = $injector.get('cge.server.Authenticator');
+          });
+
+          jasmine.Ajax.install();
       });
 
       afterEach(function() {
@@ -66,6 +81,14 @@ describe("GameDataManager", function() {
    });
 
    describe("-when requested", function() {
+
+       beforeEach(function() {
+           module('test.data.mockserver');
+
+           inject(function($injector) {
+               mock = $injector.get('test.data.mockServer');
+           });
+       });
 
       it("retrieves a game type by id", function() {
          var gameTypes = JSON.parse(mock.GameTypes().responseText);
