@@ -4,14 +4,27 @@ angular.module('TestGameDataManager', []);
 
 
 describe("GameDataManager", function() {
-   var gameDataMgr = undefined;
    var userName = 'TestUser';
    var testPassword = 'testPassword';
 
    beforeEach(function() {
        module('cge.server');
+       module('test.data.mockserver');
+
        inject(function($injector) {
            gameData = $injector.get('cge.server.GameDataManager');
+       });
+
+       inject(function($injector) {
+           mock = $injector.get('test.data.mockServer');
+       });
+
+       inject(function($injector) {
+           auth = $injector.get('cge.server.Authenticator');
+       });
+
+       inject(function($injector) {
+           server = $injector.get('cge.server.Interface');
        });
    });
 
@@ -20,12 +33,13 @@ describe("GameDataManager", function() {
       // server comms when it is initialized.
       spyOn(server, "AddCallback").and.callThrough();
 
-      gameDataMgr = gameData.GetGameDataManager();
+      var gameDataMgr = gameData.GetGameDataManager();
       expect(gameDataMgr).toBeDefined();
       expect(server.AddCallback.calls.count()).toEqual(4);
    });
 
    it("additional calls to singleton return the same object", function() {
+      var gameDataMgr  = gameData.GetGameDataManager();
       var gameDataMgr2 = gameData.GetGameDataManager();
       expect(gameDataMgr2).toBeDefined();
       expect(gameDataMgr2).toEqual(gameDataMgr);
@@ -35,17 +49,6 @@ describe("GameDataManager", function() {
    describe("-upon successful server login,", function() {
 
       beforeEach(function() {
-          module('cge.server');
-          module('test.data.mockserver');
-
-          inject(function($injector) {
-              mock = $injector.get('test.data.mockServer');
-          });
-
-          inject(function($injector) {
-              auth = $injector.get('cge.server.Authenticator');
-          });
-
           jasmine.Ajax.install();
       });
 
@@ -55,25 +58,24 @@ describe("GameDataManager", function() {
       });
 
       it("retrieves game types and user's games from the server", function() {
-         var gameTypes = mock.GameTypes();
-         var userGames = mock.UserGames();
+         var gameTypes    = mock.GameTypes();
+         var userGames    = mock.UserGames();
+         var gameDataMgr  = gameData.GetGameDataManager();
 
-         // Verify game types are retrieved from the server and stored in a file.
+          // Verify game types are retrieved from the server and stored in a file.
          spyOn(server, "GetGameTypes").and.callThrough();
          spyOn(server, "GetUserGames").and.callThrough();
 
          // Mock server ajax registration success
          auth.LoginUser(userName, testPassword);
          jasmine.Ajax.requests.at(0).response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
-
-         // Verify spies
-         expect(server.GetGameTypes).toHaveBeenCalled();
-         expect(server.GetUserGames).toHaveBeenCalled();
-
          // Mock server ajax game types and user games from server
          jasmine.Ajax.requests.at(1).response(gameTypes);
          jasmine.Ajax.requests.at(2).response(userGames);
 
+         // Verify spies
+         expect(server.GetGameTypes).toHaveBeenCalled();
+         expect(server.GetUserGames).toHaveBeenCalled();
          expect(gameDataMgr.GetGameTypes()).toEqual(JSON.parse(gameTypes.responseText));
          expect(gameDataMgr.GetUserGames()).toEqual(JSON.parse(userGames.responseText));
       });
@@ -81,26 +83,38 @@ describe("GameDataManager", function() {
    });
 
    describe("-when requested", function() {
+       var gameDataMgr;
 
        beforeEach(function() {
-           module('test.data.mockserver');
+           var gameTypes   = JSON.parse(mock.GameTypes().responseText);
+           var userGames   = JSON.parse(mock.UserGames().responseText);
 
-           inject(function($injector) {
-               mock = $injector.get('test.data.mockServer');
-           });
+           jasmine.Ajax.install();
+           gameDataMgr = gameData.GetGameDataManager();
+
+           // Mock server ajax registration success
+           auth.LoginUser(userName, testPassword);
+           jasmine.Ajax.requests.at(0).response(mock.UserResponse('001', 'TestUser', "Test User 1", "testuser1@chamrock.net"));
+           // Mock server ajax game types and user games from server
+           jasmine.Ajax.requests.at(1).response(gameTypes);
+           jasmine.Ajax.requests.at(2).response(userGames);
+       });
+
+       afterEach(function() {
+           auth.LogoutUser();
+           jasmine.Ajax.uninstall();
+           gameDataMgr = undefined;
        });
 
       it("retrieves a game type by id", function() {
-         var gameTypes = JSON.parse(mock.GameTypes().responseText);
-         var simpleWar = gameDataMgr.GetGameTypeById('simple-war');
-         var tenPhases = gameDataMgr.GetGameTypeById('ten-phases');
+         var simpleWar   = gameDataMgr.GetGameTypeById('simple-war');
+         var tenPhases   = gameDataMgr.GetGameTypeById('ten-phases');
          expect(simpleWar).toEqual(gameTypes[0]);
          expect(tenPhases).toEqual(gameTypes[1]);
       });
 
       it("retrieves a user's game by id", function() {
-         var userGames = JSON.parse(mock.UserGames().responseText);
-         var simpleWar = gameDataMgr.GetUserGameById('2');
+         var simpleWar   = gameDataMgr.GetUserGameById('2');
          expect(simpleWar).toEqual(userGames[1]);
       });
 
