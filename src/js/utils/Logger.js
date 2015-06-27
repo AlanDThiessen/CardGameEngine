@@ -1,55 +1,33 @@
 
 angular.module('cge.utils').
    factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
-   // factory('cge.utils.Logger', ['cge.utils.Config', function(config, fs) {
 
-   log = {
+   var log = {
       DEBUG: 0x01,
       INFO: 0x02,
       WARN: 0x04,
       ERROR: 0x08,
 
-      toFile: false,
-      toConsole: false,
       fileReady: false,
-      mask: 0xFF,
       pendingStr: null
    };
 
-    //log.mask = config.GetLogMask() || (log.WARN | log.ERROR);
-
-   log.SetMask = function (value) {
-      log.mask = value;
-   };
-
-   log.SetLogToConsole = function (value) {
-      log.toConsole = value;
-   };
-
-   log.SetLogToFile = function (value) {
-      log.toFile = value;
-   };
 
    log.FileSystemReady = function () {
-      // TODO: Put this back in!
-      fs.OpenLogFile(log.LogFileReady, log.LogFileWriteComplete);
+      fs.OpenLogFile(LogFileReady, log.LogFileWriteComplete);
    };
 
 
-   log.LogFileReady = function (ready) {
+   var LogFileReady = function (ready) {
       log.fileReady = true;
-      //log.mask = 0xFF;
       log.info("App Log Startup");
    };
 
    log.LogFileWriteComplete = function () {
-
       var str = pendingStr;
-
       pendingStr = null;
 
       if (str !== null) {
-         // TODO: Put this back in
          fs.WriteLogFile(true, str);
       } else {
          log.fileReady = true;
@@ -63,12 +41,11 @@ angular.module('cge.utils').
       return dateStr;
    };
 
-
    log.debug = function (format) {
       var args = Array.prototype.slice.call(arguments, 0);
       args.unshift(log.DEBUG);
 
-      if (log.mask & log.DEBUG) {
+      if (config.GetLogMask() & log.DEBUG) {
          log._out.apply(this, args);
       }
    };
@@ -77,7 +54,7 @@ angular.module('cge.utils').
       var args = Array.prototype.slice.call(arguments, 0);
       args.unshift(log.INFO);
 
-      if (log.mask & log.INFO) {
+      if (config.GetLogMask() & log.INFO) {
          log._out.apply(this, args);
       }
    };
@@ -86,7 +63,7 @@ angular.module('cge.utils').
       var args = Array.prototype.slice.call(arguments, 0);
       args.unshift(log.WARN);
 
-      if (log.mask & log.WARN) {
+      if (config.GetLogMask() & log.WARN) {
          log._out.apply(this, args);
       }
    };
@@ -95,7 +72,7 @@ angular.module('cge.utils').
       var args = Array.prototype.slice.call(arguments, 0);
       args.unshift(log.ERROR);
 
-      if (log.mask & log.ERROR) {
+      if (config.GetLogMask() & log.ERROR) {
          log._out.apply(this, args);
       }
    };
@@ -116,23 +93,23 @@ angular.module('cge.utils').
 
       switch (level) {
          case log.DEBUG:
-            console.log(dateStr + "DEBUG: " + str);
-            log._ToFile(dateStr + "DEBUG: " + str);
+            if(config.GetLogToConsole()) { console.log(dateStr + "DEBUG: " + str); }
+            if(config.GetLogToFile())    { log._ToFile(dateStr + "DEBUG: " + str); }
             break;
 
          case log.INFO:
-            console.log(dateStr + " INFO: " + str);
-            log._ToFile(dateStr + " INFO: " + str);
+            if(config.GetLogToConsole()) { console.log(dateStr + " INFO: " + str); }
+            if(config.GetLogToFile())    { log._ToFile(dateStr + " INFO: " + str); }
             break;
 
          case log.WARN:
-            console.warn(dateStr + " WARN: " + str);
-            log._ToFile(dateStr + " WARN: " + str);
+            if(config.GetLogToConsole()) { console.warn(dateStr + " WARN: " + str); }
+            if(config.GetLogToFile())    { log._ToFile(dateStr + " WARN: " + str);  }
             break;
 
          case log.ERROR:
-            console.error(dateStr + "ERROR: " + str);
-            log._ToFile(dateStr + "ERROR: " + str);
+            if(config.GetLogToConsole()) { console.error(dateStr + "ERROR: " + str); }
+            if(config.GetLogToFile())    { log._ToFile(dateStr + "ERROR: " + str); }
             break;
       }
    };
@@ -141,7 +118,6 @@ angular.module('cge.utils').
       if (log.fileReady) {
          log.fileReady = false;
          str += '\n';
-         // TODO: Put this back in!
          fs.WriteLogFile(true, str);
       }
       else {
