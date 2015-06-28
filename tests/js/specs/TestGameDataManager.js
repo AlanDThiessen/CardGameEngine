@@ -12,21 +12,23 @@ describe("GameDataManager", function() {
        module('test.data.mockserver');
 
        inject(function($injector) {
-           gameData = $injector.get('cge.server.GameDataManager');
-       });
-
-       inject(function($injector) {
            mock = $injector.get('test.data.mockServer');
-       });
-
-       inject(function($injector) {
-           auth = $injector.get('cge.server.Authenticator');
        });
 
        inject(function($injector) {
            server = $injector.get('cge.server.Interface');
        });
-   });
+
+       inject(function($injector) {
+           auth = $injector.get('cge.server.Authenticator');
+           auth.Init();
+           auth.InitToken();
+       });
+
+       inject(function($injector) {
+           gameData = $injector.get('cge.server.GameDataManager');
+       });
+  });
 
    it("instantiates the singleton upon initialization", function() {
       // spy on the game data to ensure it registers all callbacks with the
@@ -62,7 +64,7 @@ describe("GameDataManager", function() {
          var userGames    = mock.UserGames();
          var gameDataMgr  = gameData.GetGameDataManager();
 
-          // Verify game types are retrieved from the server and stored in a file.
+         // Verify game types are retrieved from the server and stored in a file.
          spyOn(server, "GetGameTypes").and.callThrough();
          spyOn(server, "GetUserGames").and.callThrough();
 
@@ -84,10 +86,12 @@ describe("GameDataManager", function() {
 
    describe("-when requested", function() {
        var gameDataMgr;
+       var gameTypes;
+       var userGames;
 
        beforeEach(function() {
-           var gameTypes   = JSON.parse(mock.GameTypes().responseText);
-           var userGames   = JSON.parse(mock.UserGames().responseText);
+           gameTypes   = JSON.parse(mock.GameTypes().responseText);
+           userGames   = JSON.parse(mock.UserGames().responseText);
 
            jasmine.Ajax.install();
            gameDataMgr = gameData.GetGameDataManager();
@@ -104,6 +108,8 @@ describe("GameDataManager", function() {
            auth.LogoutUser();
            jasmine.Ajax.uninstall();
            gameDataMgr = undefined;
+           gameTypes = undefined;
+           userGames = undefined;
        });
 
       it("retrieves a game type by id", function() {

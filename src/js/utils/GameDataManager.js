@@ -8,144 +8,136 @@ angular.module('cge.server').factory('cge.server.GameDataManager', ['cge.server.
       GD_SUCCESS: 0
    };
 
-
    /*******************************************************************************
-    *
     * GameDataManager Class Constructor
-    *
     ******************************************************************************/
-   function GameDataManager() {
-      this.gameTypes = [];
-      this.deckSpecs = [];
-      this.userGames = [];
-      this.joinableGames = [];
+   var GameDataManager = {
+      gameTypes:        [],
+      deckSpecs:        [],
+      userGames:        [],
+      joinableGames:    [],
 
-      this.RegisterServerCallbacks();
-   }
-
-
-   /******************************************************************************
-    *
-    * Public Methods
-    *
-    ******************************************************************************/
-
-   /******************************************************************************
-    * Data Access Methods
-    ******************************************************************************/
-   GameDataManager.prototype.GetGameTypes = function () {
-      return this.gameTypes;
-   };
+      /******************************************************************************
+       * Data Access Methods
+       ******************************************************************************/
+      GetGameTypes: function () {
+         return this.gameTypes;
+      },
 
 
-   GameDataManager.prototype.GetGameTypeById = function (id) {
-      var cntr;
-      var gameType = undefined;
+      GetGameTypeById: function (id) {
+         var cntr;
+         var gameType;
 
-      for (cntr = 0; cntr < this.gameTypes.length; cntr++) {
-         if (this.gameTypes[cntr].id === id) {
-            gameType = this.gameTypes[cntr];
-            break;
+         for (cntr = 0; cntr < this.gameTypes.length; cntr++) {
+            if (this.gameTypes[cntr].id === id) {
+                gameType = this.gameTypes[cntr];
+                break;
+            }
          }
-      }
 
-      return gameType;
-   };
-
-
-   GameDataManager.prototype.GetDeckSpecs = function () {
-   };
+         return gameType;
+      },
 
 
-   GameDataManager.prototype.GetDeckSpecById = function (id) {
-   };
+      SetGameTypes: function(gameTypes) {
+         this.gameTypes = gameTypes;
+      },
 
 
-   GameDataManager.prototype.GetUserGames = function () {
-      return this.userGames;
-   };
+      GetDeckSpecs: function () {
+      },
 
 
-   GameDataManager.prototype.GetUserGameById = function (id) {
-      var cntr;
-      var userGame = undefined;
+      GetDeckSpecById: function (id) {
+      },
 
-      for (cntr = 0; cntr < this.userGames.length; cntr++) {
-         if (this.userGames[cntr].id === id) {
-            userGame = this.userGames[cntr];
-            break;
+
+      GetUserGames: function () {
+         return this.userGames;
+      },
+
+
+      GetUserGameById: function (id) {
+         var cntr;
+         var userGame;
+
+         for (cntr = 0; cntr < this.userGames.length; cntr++) {
+            if (this.userGames[cntr].id === id) {
+               userGame = this.userGames[cntr];
+               break;
+            }
          }
-      }
 
-      return userGame;
+         return userGame;
+      },
+
+
+      SetUserGames: function(userGames) {
+         this.userGames = userGames;
+      },
+
+
+      ClearUserData: function () {
+         gameDataMgr.userGames = [];
+      },
    };
-
-
-   GameDataManager.prototype.ClearUserData = function () {
-      this.userGames = [];
-   };
-
-
-   /******************************************************************************
-    *
-    * Server Interface Callback Methods
-    *
-    ******************************************************************************/
-   GameDataManager.prototype.RegisterServerCallbacks = function () {
-      server.AddCallback(server.events.SI_LOGIN, this.ServerLoginHandler);
-      server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, this.ServerGameTypesHandler.bind(this));
-      server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, this.ServerMyGamesHandler.bind(this));
-      server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, this.ServerDeckSpecHandler.bind(this));
-   };
-
-
-   GameDataManager.prototype.ServerLoginHandler = function (status, data) {
-      if (status == server.status.SI_SUCCESS) {
-         server.GetGameTypes();
-         server.GetUserGames();
-      }
-   };
-
-
-   GameDataManager.prototype.ServerGameTypesHandler = function (status, data) {
-      if (status == server.status.SI_SUCCESS) {
-         this.gameTypes = data;
-      }
-   };
-
-
-   GameDataManager.prototype.ServerMyGamesHandler = function (status, data) {
-      if (status == server.status.SI_SUCCESS) {
-         this.userGames = data;
-      }
-   };
-
-
-   GameDataManager.prototype.ServerDeckSpecHandler = function (status, data) {
-
-   };
-
 
    /*******************************************************************************
     *
     * GameDataManager Singleton
     *
     ******************************************************************************/
-   var gameDataMgr = undefined;
+   var TheGameDataManager;
 
    function GetGameDataManager() {
-
-      if (gameDataMgr === undefined) {
-         gameDataMgr = new GameDataManager();
+      if (TheGameDataManager === undefined) {
+          TheGameDataManager = Object.create(GameDataManager);
+          RegisterServerCallbacks();
       }
 
-      return gameDataMgr;
+      return TheGameDataManager;
    }
 
+    /******************************************************************************
+     * Server Interface Callbacks
+     ******************************************************************************/
+    var ServerLoginHandler = function(status, data) {
+       if (status == server.status.SI_SUCCESS) {
+          server.GetGameTypes();
+          server.GetUserGames();
+       }
+    };
+
+
+    var ServerGameTypesHandler = function(status, data) {
+       if ((status == server.status.SI_SUCCESS) && (TheGameDataManager !== undefined)) {
+           TheGameDataManager.SetGameTypes(data);
+       }
+    };
+
+
+    var ServerMyGamesHandler = function(status, data) {
+       if ((status == server.status.SI_SUCCESS) && (TheGameDataManager !== undefined)) {
+          TheGameDataManager.SetUserGames(data);
+       }
+    };
+
+
+    var ServerDeckSpecHandler = function(status, data) {
+
+    };
+
+    function RegisterServerCallbacks() {
+       server.AddCallback(server.events.SI_TOKEN_SET, ServerLoginHandler);
+       server.AddCallback(server.events.SI_GAME_TYPES_RETRIEVED, ServerGameTypesHandler);
+       server.AddCallback(server.events.SI_USER_GAMES_RETRIEVED, ServerMyGamesHandler);
+       server.AddCallback(server.events.SI_DECK_SPEC_RETRIEVED, ServerDeckSpecHandler);
+    }
 
    return {
       status: gdStatus,
-      gameDataMgr: gameDataMgr,
+      gameDataMgr: TheGameDataManager,
       GetGameDataManager: GetGameDataManager
    };
 

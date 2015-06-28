@@ -9,17 +9,18 @@ angular.module('cge.server').
     ******************************************************************************/
    server.events = {
       SI_LOGIN: 1,
-      SI_GAME_TYPES_RETRIEVED: 2,
-      SI_DECK_SPEC_RETRIEVED: 3,
-      SI_USER_GAMES_RETRIEVED: 4,
-      SI_USER_JOINABLE_GAMES_RETRIEVED: 5,
-      SI_JOINED_GAME: 6,
-      SI_GAME_STARTED: 7,
-      SI_GAME_PAUSED: 8,
-      SI_GAME_RESUMED: 9,
-      SI_GAME_ENDED: 10,
-      SI_SERVER_ERROR: 11,  // All server errors call this event
-      SI_MAX_EVENT: 12   // For validation: should always be
+      SI_TOKEN_SET: 2,
+      SI_GAME_TYPES_RETRIEVED: 3,
+      SI_DECK_SPEC_RETRIEVED: 4,
+      SI_USER_GAMES_RETRIEVED: 5,
+      SI_USER_JOINABLE_GAMES_RETRIEVED: 6,
+      SI_JOINED_GAME: 7,
+      SI_GAME_STARTED: 8,
+      SI_GAME_PAUSED: 9,
+      SI_GAME_RESUMED: 10,
+      SI_GAME_ENDED: 11,
+      SI_SERVER_ERROR: 12,  // All server errors call this event
+      SI_MAX_EVENT: 13   // For validation: should always be
                          // one more than the last event.
    };
 
@@ -110,7 +111,7 @@ angular.module('cge.server').
    };
 
 
-// More for testing purposes.
+   // More for testing purposes.
    server.ResetCallbacks = function () {
       server.callBacks = {};
    };
@@ -148,6 +149,7 @@ angular.module('cge.server').
    server.SetTokenUser = function (userId) {
       server.token.userId = userId;
       server.token.valid = true;
+      server.CallBack(server.events.SI_TOKEN_SET, server.status.SI_SUCCESS, null);
    };
 
 
@@ -233,7 +235,7 @@ angular.module('cge.server').
 
 
    server.LoginUserFailure = function (callStatus) {
-      server.failure(status, "LoginUser");
+      server.Failure(status, "LoginUser");
       server.HandleAjaxFailure(server.events.SI_LOGIN, callStatus);
    };
 
@@ -259,7 +261,7 @@ angular.module('cge.server').
 
 
    server.GetGameTypesFailure = function (callStatus) {
-      server.failure(status, "GetGameTypes");
+      server.Failure(status, "GetGameTypes");
       server.HandleAjaxFailure(server.events.SI_GAME_TYPES_RETRIEVED, callStatus);
    };
 
@@ -296,7 +298,7 @@ angular.module('cge.server').
 
 
    server.LoadDeckSpecFailure = function (callStatus) {
-      server.failure(status, "LoadDeckSpec");
+      server.Failure(status, "LoadDeckSpec");
       server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, callStatus);
    };
 
@@ -328,8 +330,8 @@ angular.module('cge.server').
 
 
    server.GetUserGamesFailure = function (status) {
-      server.failure(status, "GetUserGames");
-      server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, callStatus);
+      server.Failure(status, "GetUserGames");
+      server.HandleAjaxFailure(server.events.SI_DECK_SPEC_RETRIEVED, status);
    };
 
 
@@ -360,7 +362,7 @@ angular.module('cge.server').
 
 
    server.GetJoinableGamesFailure = function (status) {
-      server.failure(status, "GetJoinableGames");
+      server.Failure(status, "GetJoinableGames");
    };
 
 
@@ -390,7 +392,7 @@ angular.module('cge.server').
 
 
    server.JoinGameFailure = function (status) {
-      server.failure(status, "JoinGame");
+      server.Failure(status, "JoinGame");
    };
 
 
@@ -420,7 +422,7 @@ angular.module('cge.server').
 
 
    server.StartGameFailure = function (status) {
-      server.failure(status, "StartGame");
+      server.Failure(status, "StartGame");
    };
 
 
@@ -444,7 +446,7 @@ angular.module('cge.server').
 
 
    server.GetNumPlayersInGameFailure = function (status) {
-      server.failure(status, "GetNumPlayersInGame");
+      server.Failure(status, "GetNumPlayersInGame");
    };
 
 
@@ -480,7 +482,7 @@ angular.module('cge.server').
 
 
    server.RecordTransactionFailure = function (status) {
-      server.failure(status, "RecordTransaction");
+      server.Failure(status, "RecordTransaction");
    };
 
 
@@ -510,7 +512,7 @@ angular.module('cge.server').
 
 
    server.PauseGameFailure = function (status) {
-      server.failure(status, "PauseGame");
+      server.Failure(status, "PauseGame");
    };
 
 
@@ -540,7 +542,7 @@ angular.module('cge.server').
 
 
    server.ResumeGameFailure = function (status) {
-      server.failure(status, "ResumeGame");
+      server.Failure(status, "ResumeGame");
    };
 
 
@@ -570,7 +572,7 @@ angular.module('cge.server').
 
 
    server.EndGameFailure = function (status) {
-      server.failure(status, "EndGame");
+      server.Failure(status, "EndGame");
    };
 
 
@@ -596,7 +598,7 @@ angular.module('cge.server').
 
 
    server.AckEventFailure = function (status) {
-      server.failure(status, "AckEvent");
+      server.Failure(status, "AckEvent");
    };
 
 

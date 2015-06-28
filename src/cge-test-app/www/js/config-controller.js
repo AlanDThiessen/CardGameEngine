@@ -36,11 +36,6 @@ configCtrl.controller('ConfigCtrl', ['$window', 'cge.utils.Config', 'cge.utils.L
       this.server.path = '/~thiessea/TheThiessens.net/cge/cge.php';
    }
 
-   // Update the logger with what we read out of configuration.
-   log.SetLogToConsole(this.logToConsole);
-   log.SetLogToFile(this.logToFile);
-   log.SetMask(config.GetLogMask());
-
    // Update Ajax object
    ajax.server.protocol = this.server.protocol;
    ajax.server.hostname = this.server.host;

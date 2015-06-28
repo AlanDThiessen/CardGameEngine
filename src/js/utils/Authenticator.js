@@ -72,7 +72,7 @@ angular.module('cge.server').
    }
 
 
-// More for testing purposes.
+   // More for testing purposes.
    authenticator.ResetCallbacks = function () {
       authenticator.callBacks = [];
    };
@@ -170,32 +170,27 @@ angular.module('cge.server').
       switch (status) {
          case server.status.SI_SUCCESS:
             authenticator.SetToken(data);
-            authenticator.CallBack(authEvent,
-                authenticator.status.AUTH_USER_AUTHENTICATED);
+            authenticator.CallBack(authEvent, authenticator.status.AUTH_USER_AUTHENTICATED);
             break;
 
          case server.status.SI_ERROR_REGISTER_NAME_EXISTS:
             authenticator.InitToken();
-            authenticator.CallBack(authEvent,
-                authenticator.status.AUTH_USERNAME_EXISTS);
+            authenticator.CallBack(authEvent, authenticator.status.AUTH_USERNAME_EXISTS);
             break;
 
          case server.status.SI_ERROR_SERVER_DATABASE:
             authenticator.InitToken();
-            authenticator.CallBack(authEvent,
-                authenticator.status.AUTH_SERVER_ERROR);
+            authenticator.CallBack(authEvent, authenticator.status.AUTH_SERVER_ERROR);
             break;
 
          case server.status.SI_ERROR_LOGIN_INVALID:
             authenticator.InitToken();
-            authenticator.CallBack(authEvent,
-                authenticator.status.AUTH_AUTHENTICATION_ERROR);
+            authenticator.CallBack(authEvent, authenticator.status.AUTH_AUTHENTICATION_ERROR);
             break;
 
          case server.status.SI_FAILURE:
             authenticator.InitToken();
-            authenticator.CallBack(authEvent,
-                authenticator.status.AUTH_FAILURE);
+            authenticator.CallBack(authEvent, authenticator.status.AUTH_FAILURE);
             break;
       }
    };
@@ -236,8 +231,7 @@ angular.module('cge.server').
 
    authenticator.LogoutUser = function () {
       authenticator.InitToken();
-      authenticator.CallBack(authenticator.events.AUTH_USER_LOG_OUT,
-          authenticator.status.AUTH_USER_NOT_AUTHENTICATED);
+      authenticator.CallBack(authenticator.events.AUTH_USER_LOG_OUT, authenticator.status.AUTH_USER_NOT_AUTHENTICATED);
    };
 
 
