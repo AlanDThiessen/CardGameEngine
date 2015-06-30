@@ -50,12 +50,10 @@ configCtrl.controller('ConfigCtrl', ['$window', 'cge.utils.Config', 'cge.utils.L
    };
 
    this.UpdateLogToConsole = function() {
-      log.SetLogToConsole(this.logToConsole);
       config.SetLogToConsole(this.logToConsole);
    };
 
    this.UpdateLogToFile = function() {
-      log.SetLogToFile(this.logToFile);
       config.SetLogToFile(this.logToFile);
    };
 
@@ -78,7 +76,6 @@ configCtrl.controller('ConfigCtrl', ['$window', 'cge.utils.Config', 'cge.utils.L
          this.logMask.value |= log.ERROR;
       }
 
-      log.SetMask(this.logMask.value);
       config.SetLogMask(this.logMask.value);
    };
 
