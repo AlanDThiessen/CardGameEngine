@@ -1,6 +1,5 @@
 
-angular.module('cge.server').
-    factory('cge.server.Interface', ['cge.server.Ajax', 'cge.utils.Logger', function(ajax, log) {
+angular.module('cge.server').factory('cge.server.Interface', ['cge.server.Ajax', 'cge.utils.Logger', function(ajax, log) {
 
    server = {};
 

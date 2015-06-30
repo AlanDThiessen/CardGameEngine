@@ -1,6 +1,5 @@
 
-angular.module('cge.utils').
-   factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
+angular.module('cge.utils').factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
 
    var log = {
       DEBUG: 0x01,

@@ -1,6 +1,5 @@
 
-angular.module('cge.server').
-    factory('cge.server.Authenticator', ['cge.server.Interface', function(server) {
+angular.module('cge.server').factory('cge.server.Authenticator', ['cge.server.Interface', function(server) {
 
    authenticator = {};
 

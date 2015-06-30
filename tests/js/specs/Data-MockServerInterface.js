@@ -1,6 +1,5 @@
 
-angular.module( "test.data.mockserver", [] ).
-    factory('test.data.mockServer', function() {
+angular.module( "test.data.mockserver", [] ).factory('test.data.mockServer', function() {
 
    serverMock = {};
 

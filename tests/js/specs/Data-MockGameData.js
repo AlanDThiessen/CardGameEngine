@@ -1,7 +1,6 @@
 
 
-angular.module( "test.data.mockGamedata", [] ).
-   factory('test.data.mockGamedata', function() {
+angular.module( "test.data.mockGamedata", [] ).factory('test.data.mockGamedata', function() {
 
    var gameDataMock = {};
 
