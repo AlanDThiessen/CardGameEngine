@@ -13,10 +13,10 @@ angular.module('cge.server').factory('cge.server.GameDataManager', ['cge.server.
    /*******************************************************************************
     * Game Data
     ******************************************************************************/
-   gameTypes = [];
-   deckSpecs = [];
-   userGames = [];
-   joinableGames = [];
+   var gameTypes = [];
+   var deckSpecs = [];
+   var userGames = [];
+   var joinableGames = [];
 
    /******************************************************************************
     * Data Access Methods
