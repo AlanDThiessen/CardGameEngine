@@ -1,5 +1,2 @@
 Card Game Engine
 
-This project contains design in the form of a UML model.  The contents of the model are located in the ./uml directory.
-
-With the exception of the top-level WP plugin file, card-game-engine.php, the source for this project is located in the ./src directory.

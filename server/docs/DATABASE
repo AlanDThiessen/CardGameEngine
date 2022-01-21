@@ -1,6 +1,0 @@
-
-Users: id user_name password display_name email active
-Games: id game_type_id game_name created_by num_players_allowed game_state
-Players: id game_id user_id latest_notif
-Transactions: id game_id user_id from_group_id to_group_id items
-Notifications: id game_id user_id table_name trans_id 
