@@ -1,173 +1,144 @@
-var Card = require("./Card.js");
-var CardGroup = require("./CardGroup.js");
-
-/*******************************************************************************
- * 
- * CardContainer Class Constructor
- * 
+/******************************************************************************
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2022 Alan Thiessen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
  ******************************************************************************/
-function CardContainer(id, minCards, maxCards) {
-   this.id = id;
-   this.containers = Array();
-   this.minCards = 0;
-   this.maxCards = 0;
 
-   CardGroup.call(this);
-}
+'use strict';
 
-CardContainer.prototype = new CardGroup();
-CardContainer.prototype.constructor = CardContainer;
+const CardGroup = require("./CardGroup.js");
 
-/*******************************************************************************
- * 
- * CardContainer.prototype.AddGroup
- * 
- ******************************************************************************/
-CardContainer.prototype.AddGroup = function(group, location) {
-   if (this.AcceptGroup(group) === true) {
-      var index;
+class CardContainer extends CardGroup {
+   constructor(id, minCards = 0, maxCards = 0) {
+      super();
 
-      if (location == "TOP") {
-         index = 0;
-      } else {
-         index = -1;
-      }
-
-      while (group.length) {
-         this.cards.splice(this.cards.length, 0, group.shift());
-      }
-   }
-};
-
-/*******************************************************************************
- * 
- * CardContainer.prototype.AddContainer
- * 
- ******************************************************************************/
-CardContainer.prototype.AddContainer = function(container) {
-   this.containers.push(container);
-};
-
-/*******************************************************************************
- * 
- * CardContainer.prototype.CanGetGroup
- * 
- ******************************************************************************/
-CardContainer.prototype.CanGetGroup = function(cardList) {
-   // ADT TODO: Finish this method
-   // Verify cardList is an array first...
-   if (Object.prototype.toString.call(cardList) === '[object Array]') {
-
+      this.id = id;
+      this.containers = [];
+      this.minCards = minCards;
+      this.maxCards = maxCards;
    }
 
-   return true;
-};
+   AddGroup(group, location) {
+      if(this.AcceptGroup(group) === true) {
+         while(group.length) {
+            this.cards.splice(this.cards.length, 0, group.shift());
+         }
+      }
+   }
 
-/*******************************************************************************
- * 
- * CardContainer.prototype.GetGroup
- * 
- ******************************************************************************/
-CardContainer.prototype.GetGroup = function(cardArray, cardList) {
-   if (this.CanGetGroup(cardList) === true) {
-      for ( var cntr = 0; cntr < cardList.length; cntr++) {
-         var numCards = 0;
-         var action = cardList[cntr].split(':', 2);
+   AddContainer(container) {
+      this.containers.push(container);
+   }
 
-         if ((action[0] == "TOP") || (action[0] == "BOTTOM")) {
-            if (action[1] == "ALL") {
-               numCards = this.cards.length;
-            } else {
-               numCards = parseInt(action[1], 10);
+   CanGetGroup(cardList) {
+      // ADT TODO: Finish this method
+      // Verify cardList is an array first...
+      if(Object.prototype.toString.call(cardList) === '[object Array]') {
+      }
 
-               if (isNaN(numCards)) {
-                  numCards = 0;
-               }
+      return true;
+   }
 
-               if (numCards > this.cards.length) {
-                  log.warn("CGCntnr: '%s' Out of Cards", this.id);
+   GetGroup(cardArray, cardList) {
+      if(this.CanGetGroup(cardList) === true) {
+         for(let cntr = 0; cntr < cardList.length; cntr++) {
+            let numCards = 0;
+            let action = cardList[cntr].split(':', 2);
+
+            if((action[0] === "TOP") || (action[0] === "BOTTOM")) {
+               if(action[1] === "ALL") {
                   numCards = this.cards.length;
                }
+               else {
+                  numCards = parseInt(action[1], 10);
+
+                  if(isNaN(numCards)) {
+                     numCards = 0;
+                  }
+
+                  if(numCards > this.cards.length) {
+                     log.warn("CGCntnr: '%s' Out of Cards", this.id);
+                     numCards = this.cards.length;
+                  }
+               }
+
+               while(numCards--) {
+                  cardArray.push(this.GetCard(action[0]));
+               }
             }
-
-            while (numCards--) {
-               cardArray.push(this.GetCard(action[0]));
-            }
-         }
-      }
-   }
-};
-
-/*******************************************************************************
- * 
- * CardContainer.prototype.AcceptGroup
- * 
- ******************************************************************************/
-CardContainer.prototype.AcceptGroup = function(group) {
-   return true;
-};
-
-/*******************************************************************************
- * 
- * CardContainer.prototype.GetContainerById
- * 
- ******************************************************************************/
-CardContainer.prototype.GetContainerById = function(id) {
-   var cntr;
-   var returnVal;
-
-   if (id == this.id) {
-      returnVal = this;
-   } else {
-      cntr = 0;
-
-      for (cntr = 0; cntr < this.containers.length; cntr++) {
-         returnVal = this.containers[cntr].GetContainerById(id);
-
-         if (returnVal !== undefined) {
-            break;
          }
       }
    }
 
-   return returnVal;
-};
-
-/*******************************************************************************
- * 
- * CardContainer.prototype.IsEmpty
- * 
- ******************************************************************************/
-CardContainer.prototype.IsEmpty = function() {
-   var isEmpty = true;
-
-   // First check if we are empty.
-   if (this.cards.length === 0) {
-      // If we are empty, then check our children containers
-      for ( var cntr = 0; cntr < this.containers.length; cntr++) {
-         if (!this.containers[cntr].IsEmpty()) {
-            isEmpty = false;
-            break;
-         }
-      }
-   } else {
-      isEmpty = false;
-   }
-
-   return isEmpty;
-};
-
-/*******************************************************************************
- * 
- * CardContainer.prototype.IsFull
- * 
- ******************************************************************************/
-CardContainer.prototype.IsFull = function(id) {
-   if (this.cards.length >= this.maxCards) {
+   AcceptGroup(group) {
       return true;
-   } else {
-      return false;
    }
-};
+
+   GetContainerById(id) {
+      let cntr;
+      let returnVal;
+
+      if(id === this.id) {
+         returnVal = this;
+      }
+      else {
+         cntr = 0;
+
+         for(cntr = 0; cntr < this.containers.length; cntr++) {
+            returnVal = this.containers[cntr].GetContainerById(id);
+
+            if(returnVal !== undefined) {
+               break;
+            }
+         }
+      }
+
+      return returnVal;
+   }
+
+   IsEmpty() {
+      let isEmpty = true;
+
+      // First check if we are empty.
+      if(this.cards.length === 0) {
+         // If we are empty, then check our children containers
+         for(let cntr = 0; cntr < this.containers.length; cntr++) {
+            if(!this.containers[cntr].IsEmpty()) {
+               isEmpty = false;
+               break;
+            }
+         }
+      }
+      else {
+         isEmpty = false;
+      }
+
+      return isEmpty;
+   }
+
+   IsFull(id) {
+      return(this.cards.length >= this.maxCards);
+   }
+}
 
 module.exports = CardContainer;

@@ -1,35 +1,51 @@
-var CGEActiveEntity = require("./CGEActiveEntity.js");
-var log = require("../utils/Logger.js");
-
-/*******************************************************************************
- * 
- * Player Class Constructor
- * 
+/******************************************************************************
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2022 Alan Thiessen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
  ******************************************************************************/
-function Player(parent, id, alias) {
-   // Call the parent class constructor
-   CGEActiveEntity.call(this, "Player:" + alias);
 
-   log.info("CGPlay : New Player: %s", alias);
+'use strict';
 
-   this.parentGame = parent;
-   this.id = id;
-   this.alias = alias;
-   this.score = 0;
+const CGEActiveEntity = require("./CGEActiveEntity.js");
+const log = require("../utils/Logger.js");
+
+
+class Player extends CGEActiveEntity {
+   constructor(parent, id, alias) {
+      // Call the parent class constructor
+      super("Player:" + alias);
+
+      log.info("CGPlay : New Player: %s", alias);
+
+      this.parentGame = parent;
+      this.id = id;
+      this.alias = alias;
+      this.score = 0;
+   }
+
+   GetScore() {
+      return this.score;
+   }
 }
-
-Player.prototype = new CGEActiveEntity();
-Player.prototype.constructor = Player;
-
-/*******************************************************************************
- * 
- * Player.prototype.GetScore
- * 
- * This method returns the score of the current player.
- * 
- ******************************************************************************/
-Player.prototype.GetScore = function() {
-   return this.score;
-};
 
 module.exports = Player;

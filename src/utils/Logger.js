@@ -1,87 +1,108 @@
+/******************************************************************************
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2022 Alan Thiessen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ ******************************************************************************/
 
-angular.module('cge.utils').factory('cge.utils.Logger', ['cge.utils.Config', 'cge.utils.FileSystem', function(config, fs) {
+'use strict';
 
-   var log = {
-      DEBUG: 0x01,
-      INFO: 0x02,
-      WARN: 0x04,
-      ERROR: 0x08,
+let logger;
 
-      fileReady: false,
-      pendingStr: null
-   };
+const DEBUG_FLAGS = {
+   DEBUG: 0x01,
+   INFO: 0x02,
+   WARN: 0x04,
+   ERROR: 0x08
+}
 
+function StartLogger() {
+   if(typeof logger === 'undefined') {
+      logger = new Log();
+   }
 
-   log.FileSystemReady = function () {
-      fs.OpenLogFile(LogFileReady, log.LogFileWriteComplete);
-   };
+   return logger;
+}
 
+class Log {
+   constructor() {
+      this.logMask = 0;
+      this.toConsole = true;
+      this.toFile = false;
+   }
 
-   var LogFileReady = function (ready) {
-      log.fileReady = true;
-      log.info("App Log Startup");
-   };
+   SetLogMask(mask) {
+      this.logMask = mask;
+   }
 
-   log.LogFileWriteComplete = function () {
-      var str = pendingStr;
-      pendingStr = null;
-
-      if (str !== null) {
-         fs.WriteLogFile(true, str);
-      } else {
-         log.fileReady = true;
-      }
-   };
-
-   log.GetDate = function () {
-      var date = new Date();
-      dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+   GetDate() {
+      let date = new Date();
+      let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
       dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
       return dateStr;
-   };
+   }
 
-   log.debug = function (format) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(log.DEBUG);
+   debug(format) {
+      let args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(DEBUG_FLAGS.DEBUG);
 
-      if (config.GetLogMask() & log.DEBUG) {
-         log._out.apply(this, args);
+      if(this.logMask & DEBUG_FLAGS.DEBUG) {
+         this._out.apply(this, args);
       }
-   };
+   }
 
-   log.info = function (format) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(log.INFO);
+   info(format) {
+      let args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(DEBUG_FLAGS.INFO);
 
-      if (config.GetLogMask() & log.INFO) {
-         log._out.apply(this, args);
+      if(this.logMask & DEBUG_FLAGS.INFO) {
+         this._out.apply(this, args);
       }
-   };
+   }
 
-   log.warn = function (format) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(log.WARN);
+   warn(format) {
+      let args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(DEBUG_FLAGS.WARN);
 
-      if (config.GetLogMask() & log.WARN) {
-         log._out.apply(this, args);
+      if(this.logMask & DEBUG_FLAGS.WARN) {
+         this._out.apply(this, args);
       }
-   };
+   }
 
-   log.error = function (format) {
-      var args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(log.ERROR);
+   error(format) {
+      let args = Array.prototype.slice.call(arguments, 0);
+      args.unshift(DEBUG_FLAGS.ERROR);
 
-      if (config.GetLogMask() & log.ERROR) {
-         log._out.apply(this, args);
+      if(this.logMask & DEBUG_FLAGS.ERROR) {
+         this._out.apply(this, args);
       }
-   };
+   }
 
-   log._out = function (level, format) {
-      var i = -1;
-      var args = Array.prototype.slice.call(arguments, 2);
-      var str;
+   _out(level, format) {
+      let i = -1;
+      let args = Array.prototype.slice.call(arguments, 2);
+      let str;
 
-      var dateStr = log.GetDate();
+      let dateStr = this.GetDate();
       dateStr = "[" + dateStr + "] ";
       format = "" + format;
 
@@ -91,38 +112,31 @@ angular.module('cge.utils').factory('cge.utils.Logger', ['cge.utils.Config', 'cg
       });
 
       switch (level) {
-         case log.DEBUG:
-            if(config.GetLogToConsole()) { console.log(dateStr + "DEBUG: " + str); }
-            if(config.GetLogToFile())    { log._ToFile(dateStr + "DEBUG: " + str); }
+         case DEBUG_FLAGS.DEBUG:
+            if(this.toConsole) { console.log(dateStr + "DEBUG: " + str); }
+            if(this.toFile)    { this._ToFile(dateStr + "DEBUG: " + str); }
             break;
 
-         case log.INFO:
-            if(config.GetLogToConsole()) { console.log(dateStr + " INFO: " + str); }
-            if(config.GetLogToFile())    { log._ToFile(dateStr + " INFO: " + str); }
+         case DEBUG_FLAGS.INFO:
+            if(this.toConsole) { console.log(dateStr + " INFO: " + str); }
+            if(this.toFile)    { this._ToFile(dateStr + " INFO: " + str); }
             break;
 
-         case log.WARN:
-            if(config.GetLogToConsole()) { console.warn(dateStr + " WARN: " + str); }
-            if(config.GetLogToFile())    { log._ToFile(dateStr + " WARN: " + str);  }
+         case DEBUG_FLAGS.WARN:
+            if(this.toConsole) { console.warn(dateStr + " WARN: " + str); }
+            if(this.toFile)    { this._ToFile(dateStr + " WARN: " + str);  }
             break;
 
-         case log.ERROR:
-            if(config.GetLogToConsole()) { console.error(dateStr + "ERROR: " + str); }
-            if(config.GetLogToFile())    { log._ToFile(dateStr + "ERROR: " + str); }
+         case DEBUG_FLAGS.ERROR:
+            if(this.toConsole) { console.error(dateStr + "ERROR: " + str); }
+            if(this.toFile)    { this._ToFile(dateStr + "ERROR: " + str); }
             break;
       }
-   };
+   }
 
-   log._ToFile = function (str) {
-      if (log.fileReady) {
-         log.fileReady = false;
-         str += '\n';
-         fs.WriteLogFile(true, str);
-      }
-      else {
-         log.pendingStr += str + '\n';
-      }
-   };
+   _ToFile(str) {
+      // TODO: Replace original code with file?
+   }
+}
 
-   return log;
-}]);
+module.exports = StartLogger();

@@ -1,7 +1,4 @@
 
-angular.module('TestServerInterface', []);
-
-
 describe("ServerInterface", function() {
    // Terminology:
    //    "Indicate" - The status is returned when queried.

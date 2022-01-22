@@ -1,6 +1,4 @@
 
-angular.module('TestLogger', []);
-
 describe("Logger", function () {
 
    var fsStatus = false;
