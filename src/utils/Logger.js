@@ -44,99 +44,128 @@ function StartLogger() {
 }
 
 class Log {
-   constructor() {
-      this.logMask = 0;
-      this.toConsole = true;
-      this.toFile = false;
-   }
+    constructor() {
+        this.logMask = 0;
+        this.toConsole = true;
+        this.toFile = false;
+    }
 
-   SetLogMask(mask) {
-      this.logMask = mask;
-   }
+    GetDebugFlags() {
+        return DEBUG_FLAGS;
+    }
 
-   GetDate() {
-      let date = new Date();
-      let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-      dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
-      return dateStr;
-   }
+    SetLogMask(mask) {
+        this.logMask = mask;
+    }
 
-   debug(format) {
-      let args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(DEBUG_FLAGS.DEBUG);
+    GetLogMask(mask) {
+        return this.logMask;
+    }
 
-      if(this.logMask & DEBUG_FLAGS.DEBUG) {
-         this._out.apply(this, args);
-      }
-   }
+    GetDate() {
+        let date = new Date();
+        let dateStr = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+        dateStr += " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+        return dateStr;
+    }
 
-   info(format) {
-      let args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(DEBUG_FLAGS.INFO);
+    debug(format) {
+        let args = Array.prototype.slice.call(arguments, 0);
+        args.unshift(DEBUG_FLAGS.DEBUG);
 
-      if(this.logMask & DEBUG_FLAGS.INFO) {
-         this._out.apply(this, args);
-      }
-   }
+        if (this.logMask & DEBUG_FLAGS.DEBUG) {
+            this._out.apply(this, args);
+        }
+    }
 
-   warn(format) {
-      let args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(DEBUG_FLAGS.WARN);
+    info(format) {
+        let args = Array.prototype.slice.call(arguments, 0);
+        args.unshift(DEBUG_FLAGS.INFO);
 
-      if(this.logMask & DEBUG_FLAGS.WARN) {
-         this._out.apply(this, args);
-      }
-   }
+        if (this.logMask & DEBUG_FLAGS.INFO) {
+            this._out.apply(this, args);
+        }
+    }
 
-   error(format) {
-      let args = Array.prototype.slice.call(arguments, 0);
-      args.unshift(DEBUG_FLAGS.ERROR);
+    warn(format) {
+        let args = Array.prototype.slice.call(arguments, 0);
+        args.unshift(DEBUG_FLAGS.WARN);
 
-      if(this.logMask & DEBUG_FLAGS.ERROR) {
-         this._out.apply(this, args);
-      }
-   }
+        if (this.logMask & DEBUG_FLAGS.WARN) {
+            this._out.apply(this, args);
+        }
+    }
 
-   _out(level, format) {
-      let i = -1;
-      let args = Array.prototype.slice.call(arguments, 2);
-      let str;
+    error(format) {
+        let args = Array.prototype.slice.call(arguments, 0);
+        args.unshift(DEBUG_FLAGS.ERROR);
 
-      let dateStr = this.GetDate();
-      dateStr = "[" + dateStr + "] ";
-      format = "" + format;
+        if (this.logMask & DEBUG_FLAGS.ERROR) {
+            this._out.apply(this, args);
+        }
+    }
 
-      str = format.replace(/\%[sd]/g, function () {
-         i++;
-         return args[i];
-      });
+    _out(level, format) {
+        let i = -1;
+        let args = Array.prototype.slice.call(arguments, 2);
+        let str;
 
-      switch (level) {
-         case DEBUG_FLAGS.DEBUG:
-            if(this.toConsole) { console.log(dateStr + "DEBUG: " + str); }
-            if(this.toFile)    { this._ToFile(dateStr + "DEBUG: " + str); }
-            break;
+        let dateStr = this.GetDate();
+        dateStr = "[" + dateStr + "] ";
+        format = "" + format;
 
-         case DEBUG_FLAGS.INFO:
-            if(this.toConsole) { console.log(dateStr + " INFO: " + str); }
-            if(this.toFile)    { this._ToFile(dateStr + " INFO: " + str); }
-            break;
+        str = format.replace(/\%[sd]/g, function () {
+            i++;
+            return args[i];
+        });
 
-         case DEBUG_FLAGS.WARN:
-            if(this.toConsole) { console.warn(dateStr + " WARN: " + str); }
-            if(this.toFile)    { this._ToFile(dateStr + " WARN: " + str);  }
-            break;
+        switch (level) {
+            case DEBUG_FLAGS.DEBUG:
+                if (this.toConsole) {
+                    console.log(dateStr + "DEBUG: " + str);
+                }
 
-         case DEBUG_FLAGS.ERROR:
-            if(this.toConsole) { console.error(dateStr + "ERROR: " + str); }
-            if(this.toFile)    { this._ToFile(dateStr + "ERROR: " + str); }
-            break;
-      }
-   }
+                if (this.toFile) {
+                    this._ToFile(dateStr + "DEBUG: " + str);
+                }
+                break;
 
-   _ToFile(str) {
-      // TODO: Replace original code with file?
-   }
+            case DEBUG_FLAGS.INFO:
+                if (this.toConsole) {
+                    console.log(dateStr + " INFO: " + str);
+                }
+
+                if (this.toFile) {
+                    this._ToFile(dateStr + " INFO: " + str);
+                }
+                break;
+
+            case DEBUG_FLAGS.WARN:
+                if (this.toConsole) {
+                    console.warn(dateStr + " WARN: " + str);
+                }
+
+                if (this.toFile) {
+                    this._ToFile(dateStr + " WARN: " + str);
+                }
+                break;
+
+            case DEBUG_FLAGS.ERROR:
+                if (this.toConsole) {
+                    console.error(dateStr + "ERROR: " + str);
+                }
+
+                if (this.toFile) {
+                    this._ToFile(dateStr + "ERROR: " + str);
+                }
+                break;
+        }
+    }
+
+    _ToFile(str) {
+        // TODO: Replace original code with file?
+    }
 }
+
 
 module.exports = StartLogger();

@@ -9,3 +9,4 @@
 **/ant-build/
 **/ant-gen/
 **/.bin/
+/node_modules/
