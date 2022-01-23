@@ -127,8 +127,8 @@ class ActiveEntity {
     * specified destination state.
     ******************************************************************************/
    Transition(destStateName) {
-      let destAncestors = Array();
-      let srcAncestors = Array();
+      let destAncestors = [];
+      let srcAncestors = [];
       let found;
       let lcAncestor = this.name; // The Lowest Common Ancestor
       let destState = this.topState.FindState(destStateName, true);

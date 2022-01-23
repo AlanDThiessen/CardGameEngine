@@ -37,11 +37,11 @@ class State {
       this.initial = undefined;
       this.enter = undefined;
       this.exit = undefined;
-      this.states = Array();
+      this.states = [];
       this.handlers = {};
 
       // Logging/Debug
-      let ancestorList = Array();
+      let ancestorList = [];
       this.GetAncestors(ancestorList);
       log.debug("Created New State: %s", ancestorList.join(':'));
    }

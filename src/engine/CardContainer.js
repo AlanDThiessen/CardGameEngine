@@ -27,118 +27,126 @@
 'use strict';
 
 const CardGroup = require("./CardGroup.js");
+const log = require('../utils/Logger.js');
 
 class CardContainer extends CardGroup {
-   constructor(id, minCards = 0, maxCards = 0) {
-      super();
+    constructor(id, minCards = 0, maxCards = 0) {
+        super();
 
-      this.id = id;
-      this.containers = [];
-      this.minCards = minCards;
-      this.maxCards = maxCards;
-   }
+        this.id = id;
+        this.containers = [];
+        this.minCards = minCards;
+        this.maxCards = maxCards;
+    }
 
-   AddGroup(group, location) {
-      if(this.AcceptGroup(group) === true) {
-         while(group.length) {
-            this.cards.splice(this.cards.length, 0, group.shift());
-         }
-      }
-   }
+    AddGroup(group, location) {
+        let numCards = 0;
 
-   AddContainer(container) {
-      this.containers.push(container);
-   }
+        if (this.AcceptGroup(group) === true) {
+            numCards = group.length;
 
-   CanGetGroup(cardList) {
-      // ADT TODO: Finish this method
-      // Verify cardList is an array first...
-      if(Object.prototype.toString.call(cardList) === '[object Array]') {
-      }
-
-      return true;
-   }
-
-   GetGroup(cardArray, cardList) {
-      if(this.CanGetGroup(cardList) === true) {
-         for(let cntr = 0; cntr < cardList.length; cntr++) {
-            let numCards = 0;
-            let action = cardList[cntr].split(':', 2);
-
-            if((action[0] === "TOP") || (action[0] === "BOTTOM")) {
-               if(action[1] === "ALL") {
-                  numCards = this.cards.length;
-               }
-               else {
-                  numCards = parseInt(action[1], 10);
-
-                  if(isNaN(numCards)) {
-                     numCards = 0;
-                  }
-
-                  if(numCards > this.cards.length) {
-                     log.warn("CGCntnr: '%s' Out of Cards", this.id);
-                     numCards = this.cards.length;
-                  }
-               }
-
-               while(numCards--) {
-                  cardArray.push(this.GetCard(action[0]));
-               }
+            while (group.length) {
+                this.cards.splice(this.cards.length, 0, group.shift());
             }
-         }
-      }
-   }
+        }
 
-   AcceptGroup(group) {
-      return true;
-   }
+        return numCards;
+    }
 
-   GetContainerById(id) {
-      let cntr;
-      let returnVal;
+    AddContainer(container) {
+        this.containers.push(container);
+    }
 
-      if(id === this.id) {
-         returnVal = this;
-      }
-      else {
-         cntr = 0;
+    CanGetGroup(cardList) {
+        // ADT TODO: Finish this method
+        // Verify cardList is an array first...
+        if (Object.prototype.toString.call(cardList) === '[object Array]') {
+        }
 
-         for(cntr = 0; cntr < this.containers.length; cntr++) {
-            returnVal = this.containers[cntr].GetContainerById(id);
+        return true;
+    }
 
-            if(returnVal !== undefined) {
-               break;
+    GetGroup(cardArray, cardList) {
+        let numCards = 0;
+
+        if (this.CanGetGroup(cardList) === true) {
+            for (let cntr = 0; cntr < cardList.length; cntr++) {
+                let action = cardList[cntr].split(':', 2);
+
+                if ((action[0] === "TOP") || (action[0] === "BOTTOM")) {
+                    if (action[1] === "ALL") {
+                        numCards = this.cards.length;
+                    }
+                    else {
+                        numCards = parseInt(action[1], 10);
+
+                        if (isNaN(numCards)) {
+                            numCards = 0;
+                        }
+
+                        if (numCards > this.cards.length) {
+                            log.warn("CGCntnr: '%s' Out of Cards", this.id);
+                            numCards = this.cards.length;
+                        }
+                    }
+
+                    while (numCards--) {
+                        cardArray.push(this.GetCard(action[0]));
+                    }
+                }
             }
-         }
-      }
+        }
 
-      return returnVal;
-   }
+        return numCards;
+    }
 
-   IsEmpty() {
-      let isEmpty = true;
+    AcceptGroup(group) {
+        return true;
+    }
 
-      // First check if we are empty.
-      if(this.cards.length === 0) {
-         // If we are empty, then check our children containers
-         for(let cntr = 0; cntr < this.containers.length; cntr++) {
-            if(!this.containers[cntr].IsEmpty()) {
-               isEmpty = false;
-               break;
+    GetContainerById(id) {
+        let cntr;
+        let returnVal;
+
+        if (id === this.id) {
+            returnVal = this;
+        } else {
+            cntr = 0;
+
+            for (cntr = 0; cntr < this.containers.length; cntr++) {
+                returnVal = this.containers[cntr].GetContainerById(id);
+
+                if (returnVal !== undefined) {
+                    break;
+                }
             }
-         }
-      }
-      else {
-         isEmpty = false;
-      }
+        }
 
-      return isEmpty;
-   }
+        return returnVal;
+    }
 
-   IsFull(id) {
-      return(this.cards.length >= this.maxCards);
-   }
+    IsEmpty() {
+        let isEmpty = true;
+
+        // First check if we are empty.
+        if (this.cards.length === 0) {
+            // If we are empty, then check our children containers
+            for (let cntr = 0; cntr < this.containers.length; cntr++) {
+                if (!this.containers[cntr].IsEmpty()) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+        } else {
+            isEmpty = false;
+        }
+
+        return isEmpty;
+    }
+
+    IsFull(id) {
+        return (this.cards.length >= this.maxCards);
+    }
 }
 
 module.exports = CardContainer;

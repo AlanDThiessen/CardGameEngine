@@ -29,157 +29,157 @@
 const log = require('../utils/Logger.js');
 
 class CardGroup {
-   constructor() {
-      this.cards = []
-   }
+    constructor() {
+        this.cards = []
+    }
 
-   AddCard(card) {
-      this.cards.push(card);
-   }
+    AddCard(card) {
+        this.cards.push(card);
+    }
 
-   Empty() {
-      this.cards = [];
-   }
+    Empty() {
+        this.cards = [];
+    }
 
-   GetCard(cardId) {
-      let card;
+    GetCard(cardId) {
+        let card;
 
-      if(cardId === "TOP") {
-         card = this.cards.shift();
-      }
-      else if(cardId === "BOTTOM") {
-         card = this.cards.pop();
-      }
+        if (cardId === "TOP") {
+            card = this.cards.shift();
+        }
+        else if (cardId === "BOTTOM") {
+            card = this.cards.pop();
+        }
 
-      return card;
-   }
+        return card;
+    }
 
-   NumCards() {
-      return this.cards.length;
-   }
+    NumCards() {
+        return this.cards.length;
+    }
 
-   GetList() {
-      let cardList = [];
+    GetList() {
+        let cardList = [];
 
-      for(let cntr = 0; cntr < this.cards.length; cntr++) {
-         cardList.push(this.cards[cntr].shortName);
-      }
+        for (let cntr = 0; cntr < this.cards.length; cntr++) {
+            cardList.push(this.cards[cntr].shortName);
+        }
 
-      return cardList;
-   }
+        return cardList;
+    }
 
-   PrintCards() {
-      let i;
+    PrintCards() {
+        let i;
 
-      log.info("CGroup : ****************************************");
-      log.info("CGroup :    '" + this.id + "' holds " + this.cards.length + ' cards ');
+        log.info("CGroup : ****************************************");
+        log.info("CGroup :    '" + this.id + "' holds " + this.cards.length + ' cards ');
 
-      for(i = 0; i < this.cards.length; i++) {
-         this.cards[i].Print();
-      }
+        for (i = 0; i < this.cards.length; i++) {
+            this.cards[i].Print();
+        }
 
-      log.info("CGroup : ****************************************");
-   }
+        log.info("CGroup : ****************************************");
+    }
 
-   SortRank(order) {
-      if(!defined(order)) {
-         order = 'ascending';
-      }
+    SortRank(order) {
+        if (!defined(order)) {
+            order = 'ascending';
+        }
 
-      if(order.toLowerCase() === 'ascending') {
-         this.cards.sort(function (a, b) {
-            return a.rank - b.rank;
-         });
-      }
-      else {
-         this.cards.sort(function (a, b) {
-            return b.rank - a.rank;
-         });
-      }
-   }
+        if (order.toLowerCase() === 'ascending') {
+            this.cards.sort(function (a, b) {
+                return a.rank - b.rank;
+            });
+        }
+        else {
+            this.cards.sort(function (a, b) {
+                return b.rank - a.rank;
+            });
+        }
+    }
 
-   SortSuit(order) {
-      if(!defined(order)) {
-         order = 'ascending';
-      }
+    SortSuit(order) {
+        if (!defined(order)) {
+            order = 'ascending';
+        }
 
-      if(order.toLowerCase() === 'ascending') {
-         this.cards.sort(function (a, b) {
-            if(a.suit < b.suit) {
-               return -1;
-            }
-            else if(a.suit > b.suit) {
-               return 1;
-            }
-            else {
-               return 0;
-            }
-         });
-      }
-      else {
-         this.cards.sort(function (a, b) {
-            if(b.suit < a.suit) {
-               return -1;
-            }
-            else if(b.suit > a.suit) {
-               return 1;
-            }
-            else {
-               return 0;
-            }
-         });
-      }
-   }
+        if (order.toLowerCase() === 'ascending') {
+            this.cards.sort(function (a, b) {
+                if (a.suit < b.suit) {
+                    return -1;
+                }
+                else if (a.suit > b.suit) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            });
+        }
+        else {
+            this.cards.sort(function (a, b) {
+                if (b.suit < a.suit) {
+                    return -1;
+                }
+                else if (b.suit > a.suit) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            });
+        }
+    }
 
-   SortSuitRank(order) {
-      if(!defined(order)) {
-         order = 'ascending';
-      }
+    SortSuitRank(order) {
+        if (!defined(order)) {
+            order = 'ascending';
+        }
 
-      if(order.toLowerCase() === 'ascending') {
-         this.cards.sort(function (a, b) {
-            if(a.suit < b.suit) {
-               return -1;
-            }
-            else if(a.suit > b.suit) {
-               return 1;
-            }
-            else {
-               return a.rank - b.rank;
-            }
-         });
-      }
-      else {
-         this.cards.sort(function (a, b) {
-            if(b.suit < a.suit) {
-               return -1;
-            }
-            else if(b.suit > a.suit) {
-               return 1;
-            }
-            else {
-               return b.rank - a.rank;
-            }
-         });
-      }
-   }
+        if (order.toLowerCase() === 'ascending') {
+            this.cards.sort(function (a, b) {
+                if (a.suit < b.suit) {
+                    return -1;
+                }
+                else if (a.suit > b.suit) {
+                    return 1;
+                }
+                else {
+                    return a.rank - b.rank;
+                }
+            });
+        }
+        else {
+            this.cards.sort(function (a, b) {
+                if (b.suit < a.suit) {
+                    return -1;
+                }
+                else if (b.suit > a.suit) {
+                    return 1;
+                }
+                else {
+                    return b.rank - a.rank;
+                }
+            });
+        }
+    }
 
-   Shuffle() {
-      let numCards = this.cards.length;   // The number of cards in the group
-      let numIter = numCards * 5;         // The number of iterations to move cards
-      let fromPos;                        // From position
-      let toPos;                          // To position
+    Shuffle() {
+        let numCards = this.cards.length;   // The number of cards in the group
+        let numIter = numCards * 5;         // The number of iterations to move cards
+        let fromPos;                        // From position
+        let toPos;                          // To position
 
-      while(numIter > 0) {
-         fromPos = Math.floor(Math.random() * numCards);
-         toPos = Math.floor(Math.random() * numCards);
+        while (numIter > 0) {
+            fromPos = Math.floor(Math.random() * numCards);
+            toPos = Math.floor(Math.random() * numCards);
 
-         // Move a card from the from position to the to position
-         this.cards.splice(toPos, 0, this.cards.splice(fromPos, 1)[0]);
+            // Move a card from the from position to the to position
+            this.cards.splice(toPos, 0, this.cards.splice(fromPos, 1)[0]);
 
-         numIter--;
-      }
-   }
+            numIter--;
+        }
+    }
 }
 
 module.exports = CardGroup;

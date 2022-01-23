@@ -28,13 +28,15 @@
 
 
 module.exports = {
-   REVISION							: '0.1.6',
+    'REVISION': '2.0.0',
 
-   CGE_EVENT_EXIT             :    0,
-   CGE_EVENT_DO_TRANSACTION   :    1,
-   CGE_EVENT_TRANSACTION      :    2,
-   CGE_EVENT_DEAL             :   10,
-   CGE_EVENT_SCORE            :   11,
-   CGE_EVENT_NOTIFY           :  100,
-   CGE_EVENT_STATUS_UPDATE    :  101
-};
+    'CGE_EVENT_STARTED': 'Start',
+    'CGE_EVENT_EXIT': 'Exit',
+    'CGE_EVENT_ADD_PLAYER': 'AddPlayer',
+    'CGE_EVENT_TRANSACTION': 'GameTransaction',
+    'CGE_EVENT_DEAL': 'Deal',
+    'CGE_EVENT_NEXT_PLAYER': 'NextPlayer',
+    'CGE_EVENT_SCORE': 'Score',
+    'CGE_EVENT_NOTIFY': 'Notify',
+    'CGE_EVENT_STATUS_UPDATE': 'StatusUpdate'
+}

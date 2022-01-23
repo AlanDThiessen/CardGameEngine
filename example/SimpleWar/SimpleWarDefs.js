@@ -26,22 +26,21 @@
 
 'use strict';
 
-
-class PlayerStatus {
-    constructor() {
-        this.id = '';
-        this.type = '';
-        this.alias = '';
-    }
-}
-
-class CardGameStatus {
-    constructor() {
-        this.players = {};
-    }
-}
-
 module.exports = {
-    PlayerStatus: PlayerStatus,
-    CardGameStatus: CardGameStatus
+    /***************************************************************************
+     * SimpleWarPlayer Transaction Definitions
+     ***************************************************************************/
+    'SWP_TRANSACTION_DEAL': 'SWP_Deal',         // All inbound cards to Stack
+    'SWP_TRANSACTION_BATTLE': 'SWP_Battle',     // 1 card from Stack to Battle
+    'SWP_TRANSACTION_DICARD': 'SWP_Discard',    // 1 card from Battle to Discard
+    'SWP_TRANSACTION_FLOP': 'SWP_Flop',         // 3 cards from Stack to Discard
+    'SWP_TRANSACTION_COLLECT': 'SWP_Collect',   // All inbound cards to Stack
+    'SWP_TRANSACTION_GIVEUP': 'SWP_GiveUp',     // All outbound cards from Discard
+
+    /***************************************************************************
+     * SimpleWar Events
+     ***************************************************************************/
+    'SW_EVENT_DEAL': 'Deal',
+    'SW_EVENT_DO_BATTLE': 'Battle',
+    'SW_EVENT_DO_WAR': 'War'
 };

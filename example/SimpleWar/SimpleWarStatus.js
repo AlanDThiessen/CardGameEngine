@@ -26,22 +26,20 @@
 
 'use strict';
 
+const Status = require("../../index.js").Status;
 
-class PlayerStatus {
+
+class SimpleWarPlayerStatus extends Status.PlayerStatus {
     constructor() {
-        this.id = '';
-        this.type = '';
-        this.alias = '';
+        super();
+        this.stackSize = 0;
+        this.discardSize = 0;
+        this.battleStackTop = '';
+        this.discardList = [];
     }
 }
 
-class CardGameStatus {
-    constructor() {
-        this.players = {};
-    }
-}
 
 module.exports = {
-    PlayerStatus: PlayerStatus,
-    CardGameStatus: CardGameStatus
+    SimpleWarPlayerStatus: SimpleWarPlayerStatus,
 };

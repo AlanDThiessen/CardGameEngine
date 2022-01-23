@@ -26,22 +26,43 @@
 
 'use strict';
 
+const SimpleWarGame = require('./SimpleWarGame.js');
+const Logger = require('../../index.js').Logger;
 
-class PlayerStatus {
-    constructor() {
-        this.id = '';
-        this.type = '';
-        this.alias = '';
-    }
+main();
+
+
+function main() {
+    let flags = Logger.GetDebugFlags();
+    Logger.SetLogMask(flags.INFO | flags.ERROR);
+
+    let game = new SimpleWarGame({
+        'host': true
+    });
+
+    game.AddPlayer({
+        'type': 'AI',
+        'alias': 'Player 1',
+        'id': 'player1'
+    });
+
+    game.AddPlayer({
+        'type': 'AI',
+        'alias': 'Player 2',
+        'id': 'player2'
+    });
+
+    game.AddPlayer({
+        'type': 'AI',
+        'alias': 'Player 3',
+        'id': 'player3'
+    });
+
+    game.AddPlayer({
+        'type': 'AI',
+        'alias': 'Player 4',
+        'id': 'player4'
+    });
+
+    game.StartGame();
 }
-
-class CardGameStatus {
-    constructor() {
-        this.players = {};
-    }
-}
-
-module.exports = {
-    PlayerStatus: PlayerStatus,
-    CardGameStatus: CardGameStatus
-};

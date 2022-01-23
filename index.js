@@ -26,22 +26,13 @@
 
 'use strict';
 
-
-class PlayerStatus {
-    constructor() {
-        this.id = '';
-        this.type = '';
-        this.alias = '';
-    }
-}
-
-class CardGameStatus {
-    constructor() {
-        this.players = {};
-    }
-}
-
 module.exports = {
-    PlayerStatus: PlayerStatus,
-    CardGameStatus: CardGameStatus
+    'ActiveEntity': require('./src/engine/CGEActiveEntity.js'),
+    'Defs': require('./src/engine/CardGameDefs.js'),
+    'Game': require('./src/engine/CardGame.js'),
+    'Logger': require('./src/utils/Logger.js'),
+    'Player': require('./src/engine/Player.js'),
+    'State': require('./src/engine/CGEState.js'),
+    'Status': require('./src/engine/Status.js'),
+    'TransactionDefinition': require('./src/engine/TransactionDefinition.js'),
 };

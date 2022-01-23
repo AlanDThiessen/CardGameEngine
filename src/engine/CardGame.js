@@ -42,428 +42,354 @@ const CGE_DEALER = "Dealer";
 const CGE_TABLE = "Table";
 
 const log = require("../utils/Logger.js");
+const {CGE_EVENT_ADD_DECK} = require("./CardGameDefs");
 
 // Outgoing Transactions
 AddTransactionDefinition("CGE_DEAL", CGE_DEALER, TRANSACTION_TYPE_OUTBOUND, 1, 1, "TOP");
 
 class CardGame extends CGEActiveEntity {
-   constructor(name) {
-      super('CardGame:' + name);
+    constructor(name, deckSpec, gameSpec) {
+        super('CardGame:' + name);
 
-      this.id = undefined;
-      this.name = 'CardGame:' + name;
-      this.isHost = false;
-      this.players = []
-      this.gameName = '';
-      this.currPlayerIndex = -1; // Index to current player
-      this.currPlayer = undefined; // Reference to current player
-      this.events = [];
-      this.status = new CardGameStatus();
+        this.id = Date.now();
+        this.name = 'CardGame:' + name;
+        this.isHost = false;
+        this.players = []
+        this.gameName = '';
+        this.deckSpec = deckSpec;
+        this.currPlayerIndex = -1; // Index to current player
+        this.currPlayer = undefined; // Reference to current player
+        this.status = new CardGameStatus();
+        this.emitter = new Events.EventEmitter();
 
-      // TODO: Bug: generic card games can't have card limits
-      this.table = this.AddContainer(CGE_TABLE, undefined, 0, 52);
-      this.dealer = this.AddContainer(CGE_DEALER, undefined, 0, 52);
-   }
+        // TODO: Bug: generic card games can't have card limits
+        this.table = this.AddContainer(CGE_TABLE, undefined, 0, 52);
+        this.dealer = this.AddContainer(CGE_DEALER, undefined, 1, 52);
 
-   /*******************************************************************************
-    * Virtual Functions - Must be overridden by derived card game
-    ******************************************************************************/
-   AddPlayer(id, name) {
-      log.error('CGame  : Please override virtual function \'CardGame.AddPlayer()\'.');
-   }
+        if(typeof gameSpec !== 'undefined') {
+            // this.gameName = gameSpec.server.name;
+            // this.id = gameSpec.server.id;
 
-   AddUI() {
-      log.error('CGame  : Please override virtual function "CardGame.AddUI()".');
-   }
-
-   Deal() {
-      log.info('CGame  : Please override virtual function \'CardGame.Deal()\'.');
-   }
-
-   /*******************************************************************************
-    * Internal Methods
-    ******************************************************************************/
-   Init(gameSpec, deckSpec) {
-      log.info('CGame  : Initializing game of ' + gameSpec.name);
-      log.info(gameSpec);
-
-      this.gameName = gameSpec.server.name;
-      this.id = gameSpec.server.id;
-
-      // Setup game parameters
-      if(gameSpec.server.isPrimary === 'true') {
-         this.isHost = true;
-      }
-
-      log.info("CGame  : Adding players");
-      this.AddPlayers(gameSpec.players);
-      this.InitEvents();
-      this.CreateDeck(deckSpec);
-      this.AddUI();
-   }
-
-   InitEvents() {
-      let that = this;
-
-      // TODO: Make events work
-      this.emitter = new Events.EventEmitter();
-      this.emitter.addListener("EventQueue", function () {
-         that.ProcessEvents();
-      });
-   }
-
-   /*******************************************************************************
-    * This method goes through the deck specification JSON data and creates the
-    * actual card objects represented by the data.
-    ******************************************************************************/
-   CreateDeck(deckSpec) {
-      let suitCntr;
-      let valueCntr;
-      let qty;
-
-      // Create the suited cards first
-      for (suitCntr = 0; suitCntr < deckSpec.suited.suits.suit.length; suitCntr++) {
-         for (valueCntr = 0; valueCntr < deckSpec.suited.values.value.length; valueCntr++) {
-            for (qty = 0; qty < deckSpec.suited.values.value[valueCntr].quantity; qty++) {
-               this.dealer.AddCard(this.CreateSuitedCard(deckSpec.suited.suits.suit[suitCntr],
-                   deckSpec.suited.values.value[valueCntr],
-                   qty));
-            }
-         }
-      }
-
-      // Now Create the non-suited cards
-      for (valueCntr = 0; valueCntr < deckSpec.nonsuited.values.value.length; valueCntr++) {
-         for (qty = 0; qty < deckSpec.nonsuited.values.value[valueCntr].quantity; qty++) {
-            this.dealer.AddCard(this.CreateNonSuitedCard(deckSpec.nonsuited.values.value[valueCntr], qty));
-         }
-      }
-   }
-
-   /*******************************************************************************
-    * This method creates and returns a new Card object with the given suit, value,
-    * and count
-    ******************************************************************************/
-   CreateSuitedCard(suit, value, count) {
-      return new Card(suit.name,
-          suit.name + ' ' + value.name,
-          suit.shortname + value.shortname,
-          value.rank,
-          suit.color,
-          count);
-   }
-
-   /*******************************************************************************
-    * this method creates and returns a new Card object given the count
-    ******************************************************************************/
-   CreateNonSuitedCard(nonSuited, count) {
-      return new Card(nonSuited.name,
-          nonSuited.name,
-          nonSuited.shortname,
-          nonSuited.rank,
-          nonSuited.color,
-          count);
-   }
-
-   /*******************************************************************************
-    * This method goes through the Game JSON data that is passed in and creates
-    * the players for this game.
-    ******************************************************************************/
-   AddPlayers(players) {
-      for(let cntr = 0; cntr < players.length; cntr++) {
-         this.AddPlayer(players[cntr].id, players[cntr].alias, players[cntr].type);
-      }
-   }
-
-   /*******************************************************************************
-    * This method advances the current player index and the reference to the
-    * current player.
-    ******************************************************************************/
-   AdvancePlayer() {
-      if(++this.currPlayerIndex > this.NumPlayers()) {
-         this.currPlayerIndex = 0;
-      }
-
-      this.currPlayer = this.players[this.currPlayerIndex];
-   }
-
-   /*******************************************************************************
-    *
-    ******************************************************************************/
-   StartGame() {
-      // First, Start all the players
-      for(let cntr = 0; cntr < this.players.length; cntr++) {
-         this.players[cntr].Start();
-      }
-
-      this.UI.Start();
-
-      // Now, start the game
-      this.Start();
-   }
-
-   /*******************************************************************************
-    * This method searches the game and the players for the given id and returns
-    * a reference to the object.  If none is found, it returns undefined.
-    ******************************************************************************/
-   GetEntityById(id) {
-      let cntr = 0;
-      let entity;
-
-      if(this.id === id) {
-         entity = this;
-      }
-      else {
-         while(cntr < this.players.length) {
-            if(this.players[cntr].id == id) {
-               entity = this.players[cntr];
-               break;
+            if (gameSpec.hasOwnProperty('host') && (gameSpec.host === true)) {
+                this.isHost = true;
             }
 
-            cntr++;
-         }
-      }
+            if(gameSpec.hasOwnProperty('players') && Array.isArray(gameSpec.players)) {
+                this.AddPlayers(gameSpec.players);
+            }
+        }
+    }
 
-      return entity;
-   }
+    /*******************************************************************************
+     * Send an add player event
+     ******************************************************************************/
+    AddPlayer(playerInfo) {
+        this.SendEvent(CGE.CGE_EVENT_ADD_PLAYER, playerInfo);
+    }
 
-   /*******************************************************************************
-    * This method searches the Containers of the game for the container with the
-    * specified id and returns a reference to that object.  If none is found, then
-    * it returns undefined.
-    ******************************************************************************/
-   GetContainerById(id) {
-      let cntr;
-      let returnVal;
+    Listen(event, listener) {
+        this.emitter.addListener(event, listener);
+    }
 
-      // Check to see if the dealer has this container
-      returnVal = this.rootContainer.GetContainerById(id);
+    /*******************************************************************************
+     * This method goes through the deck specification JSON data and creates the
+     * actual card objects represented by the data.
+     ******************************************************************************/
+    CreateDeck(deckSpec) {
+        // Create the suited cards first
+        for (let suitCntr = 0; suitCntr < deckSpec.suited.suits.length; suitCntr++) {
+            for (let valueCntr = 0; valueCntr < deckSpec.suited.values.length; valueCntr++) {
+                for (let qty = 0; qty < deckSpec.suited.values[valueCntr].quantity; qty++) {
+                    this.dealer.AddCard(this.CreateSuitedCard(deckSpec.suited.suits[suitCntr],
+                        deckSpec.suited.values[valueCntr],
+                        qty));
+                }
+            }
+        }
 
-      // Otherwise, check all the players
-      if(returnVal === undefined) {
-         cntr = 0;
+        // Now Create the non-suited cards
+        for (let valueCntr = 0; valueCntr < deckSpec.nonsuited.values.length; valueCntr++) {
+            for (let qty = 0; qty < deckSpec.nonsuited.values[valueCntr].quantity; qty++) {
+                this.dealer.AddCard(this.CreateNonSuitedCard(deckSpec.nonsuited.values[valueCntr], qty));
+            }
+        }
+    }
 
-         do {
-            returnVal = this.players[cntr].GetContainerById(id);
-         }
-         while ((cntr < this.players.length) && (returnVal === undefined));
-      }
+    /*******************************************************************************
+     * This method creates and returns a new Card object with the given suit, value,
+     * and count
+     ******************************************************************************/
+    CreateSuitedCard(suit, value, count) {
+        return new Card(suit.name,
+            suit.name + ' ' + value.name,
+            suit.shortname + value.shortname,
+            value.rank,
+            suit.color,
+            count);
+    }
 
-      return returnVal;
-   }
+    /*******************************************************************************
+     * this method creates and returns a new Card object given the count
+     ******************************************************************************/
+    CreateNonSuitedCard(nonSuited, count) {
+        return new Card(nonSuited.name,
+            nonSuited.name,
+            nonSuited.shortname,
+            nonSuited.rank,
+            nonSuited.color,
+            count);
+    }
 
-   /*******************************************************************************
-    * This method sends the given eventId with the specified data to all of the
-    * player objects in the game.
-    ******************************************************************************/
-   AllPlayersHandleEvent(eventId, data) {
-      for(let cntr = 0; cntr < this.players.length; cntr++) {
-         this.players[cntr].HandleEvent(eventId, data);
-      }
-   }
+    /*******************************************************************************
+     * This method goes through the Game JSON data that is passed in and creates
+     * the players for this game.
+     ******************************************************************************/
+    AddPlayers(players) {
+        for(let cntr = 0; cntr < players.length; cntr++) {
+            this.AddPlayer(players[cntr]);
+        }
+    }
 
-   /*******************************************************************************
-    * This internal method is called when the Javascript event is received.  It
-    * pulls a game event from the event queue and sends it to the appropriate
-    * places.
-    ******************************************************************************/
-   ProcessEvents() {
-      let event;
+    /*******************************************************************************
+     * This method advances the current player index and the reference to the
+     * current player.
+     ******************************************************************************/
+    AdvancePlayer() {
+        if(++this.currPlayerIndex > this.NumPlayers()) {
+            this.currPlayerIndex = 0;
+        }
 
-      event = this.events.shift();
+        this.currPlayer = this.players[this.currPlayerIndex];
+        this.SendEvent(CGE.CGE_EVENT_NEXT_PLAYER, this.currPlayer);
+    }
 
-      if(event !== undefined) {
-         if(event.eventId === CGE.CGE_EVENT_DO_TRANSACTION) {
-            this.ProcessEventTransaction(event.data.destId,
-                event.data.destTransName,
-                event.data.srcId,
-                event.data.srcTransName,
-                event.data.cardList);
-         }
-         else {
-            this.DispatchEvent(event.eventId, event.data);
-         }
-      }
-   }
+    /*******************************************************************************
+     *
+     ******************************************************************************/
+    StartGame() {
+        this.CreateDeck(this.deckSpec);
 
-   /*******************************************************************************
-    * This method sends the specified event to the owner of the event (if specified)
-    * or to all players.  Then it sends it to the game engine, and finally the UI.
-    *
-    * Note:  The following events are sent to the UI only:
-    *           - CGE_EVENT_STATUS_UPDATE
-    *           - CGE_EVENT_NOTIFY
-    ******************************************************************************/
-   DispatchEvent(eventId, data) {
-      if((eventId != CGE.CGE_EVENT_STATUS_UPDATE) && (eventId != CGE.CGE_EVENT_NOTIFY)) {
-         if((data !== undefined) && (data.ownerId !== undefined)) {
-            let entity = this.GetEntityById(data.ownerId);
-            entity.HandleEvent(eventId, data);
-         }
-         else {
-            this.AllPlayersHandleEvent(eventId, data);
-         }
+        // First, Start all the players
+        for(let cntr = 0; cntr < this.players.length; cntr++) {
+            this.players[cntr].Start();
+        }
 
-         // Send all events to the game engine
-         this.HandleEvent(eventId, data);
-      }
+        // Now, start the game
+        this.Start();
+        this.SendEvent(CGE.CGE_EVENT_STARTED);
+    }
 
-      // Send all events to the UI
-      this.UI.HandleEvent(eventId, data);
-   }
+    /*******************************************************************************
+     * This method searches the game and the players for the given id and returns
+     * a reference to the object.  If none is found, it returns undefined.
+     ******************************************************************************/
+    GetEntityById(id) {
+        let cntr = 0;
+        let entity;
 
-   /*******************************************************************************
-    * This method processes the Transaction event received via the EventTransaction
-    * method.
-    ******************************************************************************/
-   ProcessEventTransaction(destId, destTransName, srcId, srcTransName, cardList) {
-      let destEntity = this.GetEntityById(destId);
-      let success = false;
+        if(this.id === id) {
+            entity = this;
+        }
+        else {
+            while(cntr < this.players.length) {
+                if(this.players[cntr].id == id) {
+                    entity = this.players[cntr];
+                    break;
+                }
 
-      // log.info( "CGame : Process Transaction Event" );
-      if(destEntity !== undefined) {
-         if(srcId !== undefined) {
-            let srcEntity = this.GetEntityById(srcId);
+                cntr++;
+            }
+        }
 
-            if(srcEntity !== undefined) {
-               let cardArray = Array();
+        return entity;
+    }
 
-               if(srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {
-                  this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
-                     ownerId: srcId,
-                     transaction: srcTransName
-                  });
+    /*******************************************************************************
+     * This method searches the Containers of the game for the container with the
+     * specified id and returns a reference to that object.  If none is found, then
+     * it returns undefined.
+     ******************************************************************************/
+    GetContainerById(id) {
+        let cntr;
+        let returnVal;
 
-                  success = destEntity.ExecuteTransaction(destTransName, cardList, cardArray);
+        // Check to see if the dealer has this container
+        returnVal = this.rootContainer.GetContainerById(id);
 
-                  if(success) {
-                     this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
-                        ownerId: destId,
-                        transaction: destTransName
-                     });
-                  }
-               }
-               else {
-                  log.error("CGame  : EventTransaction: src transaction failed");
-               }
+        // Otherwise, check all the players
+        if(returnVal === undefined) {
+            cntr = 0;
+
+            do {
+                returnVal = this.players[cntr].GetContainerById(id);
+            }
+            while ((cntr < this.players.length) && (returnVal === undefined));
+        }
+
+        return returnVal;
+    }
+
+    /*******************************************************************************
+     * This method sends the given eventId with the specified data to all of the
+     * player objects in the game.
+     ******************************************************************************/
+    AllPlayersHandleEvent(eventId, data) {
+        for(let cntr = 0; cntr < this.players.length; cntr++) {
+            this.players[cntr].HandleEvent(eventId, data);
+        }
+    }
+
+    /*******************************************************************************
+     * This method sends the specified event to the owner of the event (if specified)
+     * or to all players.  Then it sends it to the game engine, and finally the UI.
+     *
+     * Note:  The following events are sent to the UI only:
+     *           - CGE_EVENT_STATUS_UPDATE
+     *           - CGE_EVENT_NOTIFY
+     ******************************************************************************/
+    DispatchEvent(eventId, data) {
+        if((eventId !== CGE.CGE_EVENT_STATUS_UPDATE) && (eventId !== CGE.CGE_EVENT_NOTIFY)) {
+            if((data !== undefined) && (data.ownerId !== undefined)) {
+                let entity = this.GetEntityById(data.ownerId);
+                entity.HandleEvent(eventId, data);
             }
             else {
-               log.error("CGame  : EventTransaction: srcId Not found!");
+                this.AllPlayersHandleEvent(eventId, data);
             }
-         }
-         else {
-            success = destEntity.ExecuteTransaction(destTransName, cardList, undefined);
 
-            if(success) {
-               this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
-                  ownerId: destId,
-                  transaction: destTransName
-               });
+            // Send all events to the game engine
+            this.HandleEvent(eventId, data);
+        }
+    }
+
+    /*******************************************************************************
+     * Parameters:
+     *    destId - The id of the destination entity (game or player), where the
+     *               cards will end up.
+     *    destTransName - The name of the transaction to perform on the
+     *                      destination entity.
+     *
+     * Optional Parameters:
+     *    srcId - The id of the source entity (game or player), where the cards
+     *              will originiate.  If left blank, it indicates the transaction
+     *              is internal to the destination entity only.
+     *    srcTransName - The name of the transaction to perform on the source
+     *                     entity.
+     *    ccardList - A list of cards to perform in the transaction.  This is an
+     *                 array of short card names (i.e. "D4" for Four of Diamonds).
+     *
+     *                 Special Values:
+     *                 "TOP:x" - Indicates take the cards from the Top, where x is
+     *                           the number of cards, or "ALL"
+     *                 "BOTTOM:x" - Indicates take the cards from the bottom, where
+     *                              x is the number of cards, or "ALL"
+     ******************************************************************************/
+    ProcessTransaction(destId, destTransName, srcId, srcTransName, cardList) {
+        let destEntity = this.GetEntityById(destId);
+        let success = false;
+
+        // log.info( "CGame : Process Transaction Event" );
+        if(destEntity !== undefined) {
+            if(srcId !== undefined) {
+                let srcEntity = this.GetEntityById(srcId);
+
+                if(srcEntity !== undefined) {
+                    let cardArray = [];
+
+                    if(srcEntity.ExecuteTransaction(srcTransName, cardList, cardArray)) {
+                        this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
+                            ownerId: srcId,
+                            transaction: srcTransName
+                        });
+
+                        success = destEntity.ExecuteTransaction(destTransName, cardList, cardArray);
+
+                        if(success) {
+                            this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
+                                ownerId: destId,
+                                transaction: destTransName
+                            });
+                        }
+                    }
+                    else {
+                        log.error("CGame  : EventTransaction: src transaction failed");
+                    }
+                }
+                else {
+                    log.error("CGame  : EventTransaction: srcId Not found!");
+                }
             }
-         }
-      }
+            else {
+                success = destEntity.ExecuteTransaction(destTransName, cardList, undefined);
 
-      return success;
-   }
+                if(success) {
+                    this.SendEvent(CGE.CGE_EVENT_TRANSACTION, {
+                        ownerId: destId,
+                        transaction: destTransName
+                    });
+                }
+            }
+        }
 
-   /*******************************************************************************
-    * Interface Methods
-    ******************************************************************************/
+        return success;
+    }
 
-   /*******************************************************************************
-    * This method sends an event with the given id and data to the game engine.
-    * The event is placed in a queue, and a Javascript event is signaled.
-    ******************************************************************************/
-   SendEvent(inEventId, inData) {
-      let event = {
-         eventId: inEventId,
-         data: inData
-      };
+    /*******************************************************************************
+     * Interface Methods
+     ******************************************************************************/
 
-      this.events.push(event);
-      this.emitter.emit("EventQueue");
-   }
+    /*******************************************************************************
+     * This method sends an event with the given id and data to the game engine.
+     * The event is placed in a queue, and a Javascript event is signaled.
+     ******************************************************************************/
+    SendEvent(eventId, eventData) {
+        this.DispatchEvent(eventId, eventData);
+        this.emitter.emit(eventId, eventData);
+    }
 
-   /*******************************************************************************
-    * This method builds and sends an event which signals the CardGame to perform
-    * the specified transaction.
-    *
-    * Parmaeters:
-    *    inDestId - The id of the destination entity (game or player), where the
-    *               cards will end up.
-    *    inDestTransName - The name of the transaction to perform on the
-    *                      destination entity.
-    *
-    * Optional Parameters:
-    *    inSrcId - The id of the source entity (game or player), where the cards
-    *              will originiate.  If left blank, it indicates the transaction
-    *              is internal to the destination entity only.
-    *    inSrcTransName - The name of the transaction to perform on the source
-    *                     entity.
-    *    inCardList - A list of cards to perform in the transaction.  This is an
-    *                 array of short card names (i.e. "D4" for Four of Diamonds).
-    *
-    *                 Special Values:
-    *                 "TOP:x" - Indicates take the cards from the Top, where x is
-    *                           the number of cards, or "ALL"
-    *                 "BOTTOM:x" - Indicates take the cards from the bottom, where
-    *                              x is the number of cards, or "ALL"
-    ******************************************************************************/
-   EventTransaction(inDestId, inDestTransName, inSrcId, inSrcTransName, inCardList) {
-      let event = {
-         destId: inDestId,
-         destTransName: inDestTransName,
-         srcId: inSrcId,
-         srcTransName: inSrcTransName,
-         cardList: inCardList
-      };
+    /*******************************************************************************
+     * This method sends a Notify Event with the given message
+     * Note: This event is only sent to the UI.
+     ******************************************************************************/
+    Notify(message) {
+        log.info("Notify : %s", message);
+        this.SendEvent(CGE.CGE_EVENT_NOTIFY, {msg: message});
+    }
 
-      this.SendEvent(CGE.CGE_EVENT_DO_TRANSACTION, event);
-   }
+    /*******************************************************************************
+     * this method returns the number of players in the game.
+     ******************************************************************************/
+    NumPlayers() {
+        return this.players.length;
+    }
 
-   /*******************************************************************************
-    * This method sends a Notify Event with the given message
-    * Note: This event is only sent to the UI.
-    ******************************************************************************/
-   Notify(message) {
-      log.info("Notify : %s", message);
-      this.SendEvent(CGE.CGE_EVENT_NOTIFY, {msg: message});
-   }
+    /*******************************************************************************
+     * This method returns a list of the ids of all the players in the game
+     ******************************************************************************/
+    GetPlayerIds() {
+        let ids = [];
 
-   /*******************************************************************************
-    * this method returns the number of players in the game.
-    ******************************************************************************/
-   NumPlayers() {
-      return this.players.length;
-   }
+        for(let cntr = 0; cntr < this.NumPlayers(); cntr++) {
+            ids.push(this.players[cntr].id);
+        }
 
-   /*******************************************************************************
-    * This method returns a list of the ids of all the players in the game
-    ******************************************************************************/
-   GetPlayerIds() {
-      let ids = [];
+        return ids;
+    }
 
-      for(let cntr = 0; cntr < this.NumPlayers(); cntr++) {
-         ids.push(this.players[cntr].id);
-      }
+    /*******************************************************************************
+     * This method adds the specified player status to the hash of statuses.
+     ******************************************************************************/
+    UpdatePlayerStatus(playerId, status) {
+        this.status[playerId] = status;
+        this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {ownerId: playerId});
+    }
 
-      return ids;
-   }
-
-   /*******************************************************************************
-    * This method adds the specified player status to the hash of statuses.
-    ******************************************************************************/
-   UpdatePlayerStatus(playerId, status) {
-      this.status[playerId] = status;
-      this.SendEvent(CGE.CGE_EVENT_STATUS_UPDATE, {ownerId: playerId});
-   }
-
-   /*******************************************************************************
-    * This method returns the status structure of the requested player
-    ******************************************************************************/
-   GetPlayerStatus(playerId) {
-      return this.status[playerId];
-   }
+    /*******************************************************************************
+     * This method returns the status structure of the requested player
+     ******************************************************************************/
+    GetPlayerStatus(playerId) {
+        return this.status[playerId];
+    }
 }
 
 module.exports = CardGame;

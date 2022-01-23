@@ -13,6 +13,11 @@ describe("Logger", function () {
         log = undefined;
     });
 
+    it("It is a singleton", function() {
+        let log2 = require('../src/utils/Logger.js');
+        expect(log2).toBe(log);
+    });
+
     it("Has everything", function() {
         expect(typeof log.GetDebugFlags).toEqual('function');
         expect(typeof log.SetLogMask).toEqual('function');

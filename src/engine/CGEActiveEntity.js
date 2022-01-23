@@ -127,7 +127,7 @@ class CGEActiveEntity extends ActiveEntity {
     * cards to transfer, and the array of cards.
     ******************************************************************************/
    ExecuteTransaction(transName, cardList, cards) {
-      let success = false;
+      let numCards = 0;
       let toContainer;
       let fromContainer;
 
@@ -143,8 +143,7 @@ class CGEActiveEntity extends ActiveEntity {
                toContainer = this.rootContainer.GetContainerById(transDef.toContainerName);
 
                if(toContainer !== undefined) {
-                  toContainer.AddGroup(cards, transDef.location);
-                  success = true;
+                  numCards = toContainer.AddGroup(cards, transDef.location);
                }
             }
             else if(transDef.toContainerName === TRANSACTION_TYPE_OUTBOUND) {
@@ -154,8 +153,7 @@ class CGEActiveEntity extends ActiveEntity {
                fromContainer = this.rootContainer.GetContainerById(transDef.fromContainerName);
 
                if(fromContainer !== undefined) {
-                  fromContainer.GetGroup(cards, cardList);
-                  success = true;
+                  numCards = fromContainer.GetGroup(cards, cardList);
                }
             }
             else {
@@ -166,15 +164,14 @@ class CGEActiveEntity extends ActiveEntity {
                let cardArray = [];
 
                if((toContainer !== undefined) && (fromContainer !== undefined)) {
-                  fromContainer.GetGroup(cardArray, cardList);
+                  numCards  = fromContainer.GetGroup(cardArray, cardList);
                   toContainer.AddGroup(cardArray, transDef.location);
-                  success = true;
                }
             }
          }
       }
 
-      return success;
+      return numCards;
    }
 }
 
